@@ -7,6 +7,7 @@ import PersonalInfoForm from '../components/forms/PersonalInfoForm';
 import W2Form from '../components/forms/W2Form';
 import CapitalGainsForm from '../components/forms/CapitalGainsForm';
 import ScheduleCForm from '../components/forms/ScheduleCForm';
+import RentalPropertyForm from '../components/forms/RentalPropertyForm';
 import RetirementForm from '../components/forms/RetirementForm';
 import TaxSummarySidebar from '../components/review/TaxSummarySidebar';
 import { useTaxReturn } from '../lib/context/TaxReturnContext';
@@ -60,6 +61,17 @@ function WizardStepContent() {
           value={taxReturn.selfEmployment}
           onChange={(selfEmployment) => {
             updateTaxReturn({ selfEmployment });
+            recalculateTaxes();
+          }}
+        />
+      );
+
+    case 'income-rental':
+      return (
+        <RentalPropertyForm
+          values={taxReturn.rentalProperties}
+          onChange={(rentalProperties) => {
+            updateTaxReturn({ rentalProperties });
             recalculateTaxes();
           }}
         />
