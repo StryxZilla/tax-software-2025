@@ -9,6 +9,7 @@ const steps: Array<{ id: WizardStep; label: string }> = [
   { id: 'income-w2', label: 'W-2 Income' },
   { id: 'income-interest', label: 'Interest' },
   { id: 'income-capital-gains', label: 'Capital Gains' },
+  { id: 'income-self-employment', label: 'Self-Employment' },
   { id: 'retirement-accounts', label: 'Retirement' },
   { id: 'deductions', label: 'Deductions' },
   { id: 'credits', label: 'Credits' },

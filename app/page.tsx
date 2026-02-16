@@ -5,6 +5,7 @@ import { TaxReturnProvider } from '../lib/context/TaxReturnContext';
 import WizardNavigation from '../components/wizard/WizardNavigation';
 import PersonalInfoForm from '../components/forms/PersonalInfoForm';
 import W2Form from '../components/forms/W2Form';
+import ScheduleCForm from '../components/forms/ScheduleCForm';
 import RetirementForm from '../components/forms/RetirementForm';
 import TaxSummarySidebar from '../components/review/TaxSummarySidebar';
 import { useTaxReturn } from '../lib/context/TaxReturnContext';
@@ -36,6 +37,17 @@ function WizardStepContent() {
           values={taxReturn.w2Income}
           onChange={(w2s) => {
             updateTaxReturn({ w2Income: w2s });
+            recalculateTaxes();
+          }}
+        />
+      );
+
+    case 'income-self-employment':
+      return (
+        <ScheduleCForm
+          value={taxReturn.selfEmployment}
+          onChange={(selfEmployment) => {
+            updateTaxReturn({ selfEmployment });
             recalculateTaxes();
           }}
         />
