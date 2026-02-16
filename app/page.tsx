@@ -11,6 +11,7 @@ import RentalPropertyForm from '../components/forms/RentalPropertyForm';
 import RetirementForm from '../components/forms/RetirementForm';
 import ItemizedDeductionsForm from '../components/forms/ItemizedDeductionsForm';
 import TaxSummarySidebar from '../components/review/TaxSummarySidebar';
+import PdfDownloadButton from '../components/review/PdfDownloadButton';
 import { useTaxReturn } from '../lib/context/TaxReturnContext';
 import { calculateAGI } from '../lib/engine/calculations/tax-calculator';
 
@@ -110,6 +111,9 @@ function WizardStepContent() {
       return (
         <div className="max-w-4xl mx-auto space-y-8">
           <h2 className="text-2xl font-bold">Tax Return Summary</h2>
+          
+          {/* PDF Download Button */}
+          <PdfDownloadButton taxReturn={taxReturn} />
           
           {taxCalculation ? (
             <div className="bg-white shadow rounded-lg p-6">
