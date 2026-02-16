@@ -9,8 +9,10 @@ import CapitalGainsForm from '../components/forms/CapitalGainsForm';
 import ScheduleCForm from '../components/forms/ScheduleCForm';
 import RentalPropertyForm from '../components/forms/RentalPropertyForm';
 import RetirementForm from '../components/forms/RetirementForm';
+import ItemizedDeductionsForm from '../components/forms/ItemizedDeductionsForm';
 import TaxSummarySidebar from '../components/review/TaxSummarySidebar';
 import { useTaxReturn } from '../lib/context/TaxReturnContext';
+import { calculateAGI } from '../lib/engine/calculations/tax-calculator';
 
 // Wizard step components
 function WizardStepContent() {
@@ -87,6 +89,20 @@ function WizardStepContent() {
             updateTaxReturn(updates);
             recalculateTaxes();
           }}
+        />
+      );
+
+    case 'deductions':
+      const agi = calculateAGI(taxReturn);
+      return (
+        <ItemizedDeductionsForm
+          values={taxReturn.itemizedDeductions}
+          onChange={(itemizedDeductions) => {
+            updateTaxReturn({ itemizedDeductions });
+            recalculateTaxes();
+          }}
+          agi={agi}
+          filingStatus={taxReturn.personalInfo.filingStatus}
         />
       );
 
