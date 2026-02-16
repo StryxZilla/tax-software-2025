@@ -6,6 +6,7 @@ import WizardNavigation from '../components/wizard/WizardNavigation';
 import PersonalInfoForm from '../components/forms/PersonalInfoForm';
 import W2Form from '../components/forms/W2Form';
 import RetirementForm from '../components/forms/RetirementForm';
+import TaxSummarySidebar from '../components/review/TaxSummarySidebar';
 import { useTaxReturn } from '../lib/context/TaxReturnContext';
 
 // Wizard step components
@@ -205,15 +206,21 @@ function MainContent() {
   
   return (
     <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 py-8">
-      <div className="space-y-8">
-        <WizardNavigation
-          currentStep={currentStep}
-          onStepChange={setCurrentStep}
-        />
-        
-        <div className="bg-white shadow-sm rounded-lg p-8">
-          <WizardStepContent />
+      <div className="lg:grid lg:grid-cols-[1fr_350px] lg:gap-8">
+        {/* Main Content Area */}
+        <div className="space-y-8 pb-80 lg:pb-8">
+          <WizardNavigation
+            currentStep={currentStep}
+            onStepChange={setCurrentStep}
+          />
+          
+          <div className="bg-white shadow-sm rounded-lg p-8">
+            <WizardStepContent />
+          </div>
         </div>
+
+        {/* Sidebar - Sticky on desktop, bottom sheet on mobile */}
+        <TaxSummarySidebar />
       </div>
     </div>
   );
