@@ -5,6 +5,7 @@ import { TaxReturnProvider } from '../lib/context/TaxReturnContext';
 import WizardNavigation from '../components/wizard/WizardNavigation';
 import PersonalInfoForm from '../components/forms/PersonalInfoForm';
 import W2Form from '../components/forms/W2Form';
+import CapitalGainsForm from '../components/forms/CapitalGainsForm';
 import ScheduleCForm from '../components/forms/ScheduleCForm';
 import RetirementForm from '../components/forms/RetirementForm';
 import TaxSummarySidebar from '../components/review/TaxSummarySidebar';
@@ -37,6 +38,17 @@ function WizardStepContent() {
           values={taxReturn.w2Income}
           onChange={(w2s) => {
             updateTaxReturn({ w2Income: w2s });
+            recalculateTaxes();
+          }}
+        />
+      );
+
+    case 'income-capital-gains':
+      return (
+        <CapitalGainsForm
+          values={taxReturn.capitalGains}
+          onChange={(capitalGains) => {
+            updateTaxReturn({ capitalGains });
             recalculateTaxes();
           }}
         />
