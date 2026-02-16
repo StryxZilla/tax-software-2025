@@ -109,6 +109,12 @@ export interface ScheduleCExpenses {
 
 export interface RentalProperty {
   address: string;
+  city: string;
+  state: string;
+  zipCode: string;
+  propertyType: 'single-family' | 'multi-family' | 'vacation' | 'commercial';
+  daysRented: number;
+  daysPersonalUse: number;
   rentalIncome: number;
   expenses: RentalExpenses;
 }
