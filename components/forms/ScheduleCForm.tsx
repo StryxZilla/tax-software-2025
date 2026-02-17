@@ -2,13 +2,19 @@
 
 import React, { useMemo } from 'react';
 import { SelfEmploymentIncome, ScheduleCExpenses } from '../../types/tax-types';
+import { validateScheduleC } from '../../lib/validation/form-validation';
+import { AlertCircle } from 'lucide-react';
+import ValidationError from '../common/ValidationError';
 
 interface ScheduleCFormProps {
   value?: SelfEmploymentIncome;
   onChange: (value: SelfEmploymentIncome) => void;
+  onValidationChange?: (isValid: boolean) => void;
 }
 
-export default function ScheduleCForm({ value, onChange }: ScheduleCFormProps) {
+export default function ScheduleCForm({ value, onChange, onValidationChange }: ScheduleCFormProps) {
+  const [showAllErrors, setShowAllErrors] = React.useState(false);
+  const [touchedFields, setTouchedFields] = React.useState<Set<string>>(new Set());
   // Initialize with default values if not provided
   const formData = value || {
     businessName: '',
@@ -40,6 +46,33 @@ export default function ScheduleCForm({ value, onChange }: ScheduleCFormProps) {
       wages: 0,
       other: 0,
     },
+  };
+
+  // Validation
+  const errors = validateScheduleC(formData);
+  const isValid = errors.length === 0;
+
+  React.useEffect(() => {
+    onValidationChange?.(isValid);
+  }, [isValid, onValidationChange]);
+
+  const touchField = (fieldName: string) => {
+    setTouchedFields(prev => new Set([...prev, fieldName]));
+  };
+
+  const getFieldError = (fieldName: string): string | undefined => {
+    if (!touchedFields.has(fieldName) && !showAllErrors) return undefined;
+    const error = errors.find(e => e.field === fieldName);
+    return error?.message;
+  };
+
+  const getInputClassName = (fieldName: string) => {
+    const hasError = getFieldError(fieldName);
+    return `mt-1 block w-full rounded-md shadow-sm ${
+      hasError
+        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+        : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+    }`;
   };
 
   // Calculate derived values
@@ -105,6 +138,25 @@ export default function ScheduleCForm({ value, onChange }: ScheduleCFormProps) {
     <div className="space-y-8 max-w-4xl mx-auto">
       <h2 className="text-2xl font-bold">Schedule C - Self-Employment Income</h2>
 
+      {/* Validation summary */}
+      {showAllErrors && !isValid && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-start">
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-semibold text-red-800 mb-2">
+                Please fix the following errors:
+              </h3>
+              <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                {errors.map((error, idx) => (
+                  <li key={idx}>{error.message}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Business Information Section */}
       <div className="border rounded-lg p-6 space-y-6 bg-white shadow-sm">
         <h3 className="text-lg font-semibold">Business Information</h3>
@@ -112,15 +164,17 @@ export default function ScheduleCForm({ value, onChange }: ScheduleCFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700">
-              Business Name
+              Business Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
               value={formData.businessName}
               onChange={(e) => updateBusinessInfo({ businessName: e.target.value })}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              onBlur={() => touchField('scheduleC-businessName')}
+              className={getInputClassName('scheduleC-businessName')}
               placeholder="Enter your business name"
             />
+            <ValidationError message={getFieldError('scheduleC-businessName')} />
           </div>
 
           <div>
@@ -131,11 +185,15 @@ export default function ScheduleCForm({ value, onChange }: ScheduleCFormProps) {
               type="text"
               value={formData.ein || ''}
               onChange={handleEINChange}
+              onBlur={() => touchField('scheduleC-ein')}
               placeholder="XX-XXXXXXX"
               maxLength={10}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+              className={getInputClassName('scheduleC-ein')}
             />
-            <p className="mt-1 text-xs text-gray-500">Format: XX-XXXXXXX</p>
+            <ValidationError message={getFieldError('scheduleC-ein')} />
+            {!getFieldError('scheduleC-ein') && (
+              <p className="mt-1 text-xs text-gray-500">Format: XX-XXXXXXX</p>
+            )}
           </div>
 
           <div>
@@ -195,57 +253,63 @@ export default function ScheduleCForm({ value, onChange }: ScheduleCFormProps) {
             <label className="block text-sm font-medium text-gray-700">
               Gross Receipts or Sales
             </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 pt-1">
                 <span className="text-gray-500 sm:text-sm">$</span>
               </div>
               <input
                 type="number"
-                value={formData.grossReceipts}
+                value={formData.grossReceipts || ''}
                 onChange={(e) => updateBusinessInfo({ grossReceipts: parseFloat(e.target.value) || 0 })}
+                onBlur={() => touchField('scheduleC-grossReceipts')}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className={`pl-7 ${getInputClassName('scheduleC-grossReceipts')}`}
               />
             </div>
+            <ValidationError message={getFieldError('scheduleC-grossReceipts')} />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Returns and Allowances
             </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 pt-1">
                 <span className="text-gray-500 sm:text-sm">$</span>
               </div>
               <input
                 type="number"
-                value={formData.returns}
+                value={formData.returns || ''}
                 onChange={(e) => updateBusinessInfo({ returns: parseFloat(e.target.value) || 0 })}
+                onBlur={() => touchField('scheduleC-returns')}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className={`pl-7 ${getInputClassName('scheduleC-returns')}`}
               />
             </div>
+            <ValidationError message={getFieldError('scheduleC-returns')} />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Cost of Goods Sold
             </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 pt-1">
                 <span className="text-gray-500 sm:text-sm">$</span>
               </div>
               <input
                 type="number"
-                value={formData.costOfGoodsSold}
+                value={formData.costOfGoodsSold || ''}
                 onChange={(e) => updateBusinessInfo({ costOfGoodsSold: parseFloat(e.target.value) || 0 })}
+                onBlur={() => touchField('scheduleC-cogs')}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className={`pl-7 ${getInputClassName('scheduleC-cogs')}`}
               />
             </div>
+            <ValidationError message={getFieldError('scheduleC-cogs')} />
           </div>
 
           <div className="bg-blue-50 p-4 rounded-md">

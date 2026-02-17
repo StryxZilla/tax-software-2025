@@ -2,13 +2,47 @@
 
 import React from 'react';
 import { CapitalGainTransaction } from '../../types/tax-types';
+import { validateCapitalGain } from '../../lib/validation/form-validation';
+import { AlertCircle } from 'lucide-react';
+import ValidationError from '../common/ValidationError';
 
 interface CapitalGainsFormProps {
   values: CapitalGainTransaction[];
   onChange: (values: CapitalGainTransaction[]) => void;
+  onValidationChange?: (isValid: boolean) => void;
 }
 
-export default function CapitalGainsForm({ values, onChange }: CapitalGainsFormProps) {
+export default function CapitalGainsForm({ values, onChange, onValidationChange }: CapitalGainsFormProps) {
+  const [showAllErrors, setShowAllErrors] = React.useState(false);
+  const [touchedFields, setTouchedFields] = React.useState<Set<string>>(new Set());
+
+  // Validate all transactions
+  const allErrors = values.flatMap((txn, index) => validateCapitalGain(txn, index));
+  const isValid = allErrors.length === 0;
+
+  // Notify parent
+  React.useEffect(() => {
+    onValidationChange?.(isValid);
+  }, [isValid, onValidationChange]);
+
+  const touchField = (fieldName: string) => {
+    setTouchedFields(prev => new Set([...prev, fieldName]));
+  };
+
+  const getFieldError = (fieldName: string): string | undefined => {
+    if (!touchedFields.has(fieldName) && !showAllErrors) return undefined;
+    const error = allErrors.find(e => e.field === fieldName);
+    return error?.message;
+  };
+
+  const getInputClassName = (fieldName: string) => {
+    const hasError = getFieldError(fieldName);
+    return `mt-1 block w-full rounded-md shadow-sm ${
+      hasError
+        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+        : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+    }`;
+  };
   const addTransaction = () => {
     onChange([...values, {
       description: '',
@@ -98,6 +132,25 @@ export default function CapitalGainsForm({ values, onChange }: CapitalGainsFormP
         </button>
       </div>
 
+      {/* Validation summary */}
+      {showAllErrors && !isValid && values.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-start">
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-semibold text-red-800 mb-2">
+                Please fix the following errors:
+              </h3>
+              <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                {allErrors.map((error, idx) => (
+                  <li key={idx}>{error.message}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       {values.length === 0 ? (
         <div className="text-center py-8 bg-gray-50 rounded-lg">
           <p className="text-gray-500">No capital gain transactions added yet. Click "Add Transaction" to begin.</p>
@@ -159,79 +212,86 @@ export default function CapitalGainsForm({ values, onChange }: CapitalGainsFormP
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="md:col-span-2">
                     <label className="block text-sm font-medium text-gray-700">
-                      Description
+                      Description <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
                       value={txn.description}
                       onChange={(e) => updateTransaction(index, { description: e.target.value })}
+                      onBlur={() => touchField(`capital-${index}-description`)}
                       placeholder="e.g., 100 shares AAPL"
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className={getInputClassName(`capital-${index}-description`)}
                     />
+                    <ValidationError message={getFieldError(`capital-${index}-description`)} />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Date Acquired
+                      Date Acquired <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
                       value={txn.dateAcquired}
                       onChange={(e) => updateTransaction(index, { dateAcquired: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      onBlur={() => touchField(`capital-${index}-dateAcquired`)}
+                      className={getInputClassName(`capital-${index}-dateAcquired`)}
                     />
+                    <ValidationError message={getFieldError(`capital-${index}-dateAcquired`)} />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Date Sold
+                      Date Sold <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="date"
                       value={txn.dateSold}
                       onChange={(e) => updateTransaction(index, { dateSold: e.target.value })}
+                      onBlur={() => touchField(`capital-${index}-dateSold`)}
                       min={txn.dateAcquired}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      className={getInputClassName(`capital-${index}-dateSold`)}
                     />
-                    {txn.dateSold && txn.dateAcquired && new Date(txn.dateSold) < new Date(txn.dateAcquired) && (
-                      <p className="mt-1 text-sm text-red-600">Sold date must be after acquired date</p>
-                    )}
+                    <ValidationError message={getFieldError(`capital-${index}-dateSold`)} />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
-                      Sale Proceeds
+                      Sale Proceeds <span className="text-red-500">*</span>
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <div className="relative">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 pt-1">
                         <span className="text-gray-500 sm:text-sm">$</span>
                       </div>
                       <input
                         type="number"
                         step="0.01"
-                        value={txn.proceeds}
+                        value={txn.proceeds || ''}
                         onChange={(e) => updateTransaction(index, { proceeds: parseFloat(e.target.value) || 0 })}
-                        className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                        onBlur={() => touchField(`capital-${index}-proceeds`)}
+                        className={`pl-7 ${getInputClassName(`capital-${index}-proceeds`)}`}
                       />
                     </div>
+                    <ValidationError message={getFieldError(`capital-${index}-proceeds`)} />
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700">
                       Cost Basis
                     </label>
-                    <div className="mt-1 relative rounded-md shadow-sm">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <div className="relative">
+                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 pt-1">
                         <span className="text-gray-500 sm:text-sm">$</span>
                       </div>
                       <input
                         type="number"
                         step="0.01"
-                        value={txn.costBasis}
+                        value={txn.costBasis || ''}
                         onChange={(e) => updateTransaction(index, { costBasis: parseFloat(e.target.value) || 0 })}
-                        className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                        onBlur={() => touchField(`capital-${index}-costBasis`)}
+                        className={`pl-7 ${getInputClassName(`capital-${index}-costBasis`)}`}
                       />
                     </div>
+                    <ValidationError message={getFieldError(`capital-${index}-costBasis`)} />
                   </div>
 
                   <div className="md:col-span-2 border-t pt-4">

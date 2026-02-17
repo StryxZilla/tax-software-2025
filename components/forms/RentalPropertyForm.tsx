@@ -2,13 +2,46 @@
 
 import React, { useMemo } from 'react';
 import { RentalProperty, RentalExpenses } from '../../types/tax-types';
+import { validateRentalProperty } from '../../lib/validation/form-validation';
+import { AlertCircle } from 'lucide-react';
+import ValidationError from '../common/ValidationError';
 
 interface RentalPropertyFormProps {
   values: RentalProperty[];
   onChange: (values: RentalProperty[]) => void;
+  onValidationChange?: (isValid: boolean) => void;
 }
 
-export default function RentalPropertyForm({ values, onChange }: RentalPropertyFormProps) {
+export default function RentalPropertyForm({ values, onChange, onValidationChange }: RentalPropertyFormProps) {
+  const [showAllErrors, setShowAllErrors] = React.useState(false);
+  const [touchedFields, setTouchedFields] = React.useState<Set<string>>(new Set());
+
+  // Validate all properties
+  const allErrors = values.flatMap((property, index) => validateRentalProperty(property, index));
+  const isValid = allErrors.length === 0;
+
+  React.useEffect(() => {
+    onValidationChange?.(isValid);
+  }, [isValid, onValidationChange]);
+
+  const touchField = (fieldName: string) => {
+    setTouchedFields(prev => new Set([...prev, fieldName]));
+  };
+
+  const getFieldError = (fieldName: string): string | undefined => {
+    if (!touchedFields.has(fieldName) && !showAllErrors) return undefined;
+    const error = allErrors.find(e => e.field === fieldName);
+    return error?.message;
+  };
+
+  const getInputClassName = (fieldName: string) => {
+    const hasError = getFieldError(fieldName);
+    return `mt-1 block w-full rounded-md shadow-sm ${
+      hasError
+        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+        : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+    }`;
+  };
   const addProperty = () => {
     onChange([...values, {
       address: '',
@@ -134,6 +167,25 @@ export default function RentalPropertyForm({ values, onChange }: RentalPropertyF
         </button>
       </div>
 
+      {/* Validation summary */}
+      {showAllErrors && !isValid && values.length > 0 && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-start">
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-semibold text-red-800 mb-2">
+                Please fix the following errors:
+              </h3>
+              <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                {allErrors.map((error, idx) => (
+                  <li key={idx}>{error.message}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
       {values.length === 0 ? (
         <div className="text-center py-8 bg-gray-50 rounded-lg">
           <p className="text-gray-500">No rental properties added yet. Click "Add Property" to begin.</p>
@@ -214,56 +266,80 @@ export default function RentalPropertyForm({ values, onChange }: RentalPropertyF
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Street Address
+                        Street Address <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         value={property.address}
                         onChange={(e) => updateProperty(index, { address: e.target.value })}
-                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        onBlur={() => touchField(`rental-${index}-address`)}
+                        className={`w-full rounded-md shadow-sm ${
+                          getFieldError(`rental-${index}-address`)
+                            ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                            : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                        }`}
                         placeholder="123 Main St"
                       />
+                      <ValidationError message={getFieldError(`rental-${index}-address`)} />
                     </div>
 
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        City
+                        City <span className="text-red-500">*</span>
                       </label>
                       <input
                         type="text"
                         value={property.city}
                         onChange={(e) => updateProperty(index, { city: e.target.value })}
-                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        onBlur={() => touchField(`rental-${index}-city`)}
+                        className={`w-full rounded-md shadow-sm ${
+                          getFieldError(`rental-${index}-city`)
+                            ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                            : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                        }`}
                         placeholder="City"
                       />
+                      <ValidationError message={getFieldError(`rental-${index}-city`)} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          State
+                          State <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
                           value={property.state}
                           onChange={(e) => updateProperty(index, { state: e.target.value.toUpperCase() })}
+                          onBlur={() => touchField(`rental-${index}-state`)}
                           maxLength={2}
-                          className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                          className={`w-full rounded-md shadow-sm ${
+                            getFieldError(`rental-${index}-state`)
+                              ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                              : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                          }`}
                           placeholder="TX"
                         />
+                        <ValidationError message={getFieldError(`rental-${index}-state`)} />
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
-                          ZIP Code
+                          ZIP Code <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="text"
                           value={property.zipCode}
                           onChange={(e) => updateProperty(index, { zipCode: e.target.value })}
+                          onBlur={() => touchField(`rental-${index}-zipCode`)}
                           maxLength={10}
-                          className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                          className={`w-full rounded-md shadow-sm ${
+                            getFieldError(`rental-${index}-zipCode`)
+                              ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                              : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                          }`}
                           placeholder="78701"
                         />
+                        <ValidationError message={getFieldError(`rental-${index}-zipCode`)} />
                       </div>
                     </div>
 
@@ -291,10 +367,16 @@ export default function RentalPropertyForm({ values, onChange }: RentalPropertyF
                         type="number"
                         value={property.daysRented}
                         onChange={(e) => updateProperty(index, { daysRented: Math.max(0, Math.min(365, parseInt(e.target.value) || 0)) })}
+                        onBlur={() => touchField(`rental-${index}-daysRented`)}
                         min="0"
                         max="365"
-                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        className={`w-full rounded-md shadow-sm ${
+                          getFieldError(`rental-${index}-daysRented`)
+                            ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                            : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                        }`}
                       />
+                      <ValidationError message={getFieldError(`rental-${index}-daysRented`)} />
                     </div>
 
                     <div>
@@ -305,9 +387,15 @@ export default function RentalPropertyForm({ values, onChange }: RentalPropertyF
                         type="number"
                         value={property.daysPersonalUse}
                         onChange={(e) => updateProperty(index, { daysPersonalUse: Math.max(0, parseInt(e.target.value) || 0) })}
+                        onBlur={() => touchField(`rental-${index}-daysPersonalUse`)}
                         min="0"
-                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        className={`w-full rounded-md shadow-sm ${
+                          getFieldError(`rental-${index}-daysPersonalUse`)
+                            ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                            : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                        }`}
                       />
+                      <ValidationError message={getFieldError(`rental-${index}-daysPersonalUse`)} />
                     </div>
                   </div>
                 </div>
@@ -324,14 +412,20 @@ export default function RentalPropertyForm({ values, onChange }: RentalPropertyF
                         <span className="absolute left-3 top-2 text-gray-500">$</span>
                         <input
                           type="number"
-                          value={property.rentalIncome}
+                          value={property.rentalIncome || ''}
                           onChange={(e) => updateProperty(index, { rentalIncome: Math.max(0, parseFloat(e.target.value) || 0) })}
+                          onBlur={() => touchField(`rental-${index}-rentalIncome`)}
                           min="0"
                           step="0.01"
-                          className="w-full pl-7 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                          className={`w-full pl-7 rounded-md shadow-sm ${
+                            getFieldError(`rental-${index}-rentalIncome`)
+                              ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                              : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+                          }`}
                           placeholder="0.00"
                         />
                       </div>
+                      <ValidationError message={getFieldError(`rental-${index}-rentalIncome`)} />
                     </div>
                   </div>
                 </div>
