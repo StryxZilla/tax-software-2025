@@ -86,7 +86,7 @@ const initialTaxReturn: TaxReturn = {
 
 export function TaxReturnProvider({ children }: { children: ReactNode }) {
   const [taxReturn, setTaxReturn] = useState<TaxReturn>(initialTaxReturn);
-  const [currentStep, setCurrentStep] = useState<WizardStep>('personal-info');
+  const [currentStep, setCurrentStep] = useState<WizardStep>('welcome');
   const [taxCalculation, setTaxCalculation] = useState<TaxCalculation | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);

@@ -12,6 +12,7 @@ interface PdfDownloadButtonProps {
 export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   const handleDownload = async () => {
     // Prevent multiple clicks during generation
@@ -19,9 +20,7 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
 
     setIsGenerating(true);
     setError(null);
-
-    // Show loading toast
-    toast.loading('Generating tax forms...');
+    setSuccess(false);
 
     try {
       // Pre-validation check
@@ -31,7 +30,7 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
 
       // Generate the PDF with a timeout
       const pdfPromise = generateAllForms(taxReturn);
-      const timeoutPromise = new Promise((_, reject) => 
+      const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('timeout:PDF generation timed out. Please try again.')), 30000)
       );
 
@@ -42,29 +41,25 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
 
       // Create a download link and trigger it
       const url = window.URL.createObjectURL(blob);
-      
+      const link = document.createElement('a');
+      link.href = url;
+
       // Create filename with taxpayer name and year
       const fileName = `Tax_Return_2025_${taxReturn.personalInfo.lastName}_${taxReturn.personalInfo.firstName}.pdf`;
       link.download = fileName;
-      
+
       document.body.appendChild(link);
       link.click();
-      
+
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
 
-      // Show success toast
-      toast.dismiss();
-      toast.success('Tax forms generated successfully!');
+      setSuccess(true);
     } catch (err) {
-      // Clear loading toast
-      toast.dismiss();
-
       // Handle errors with more specific feedback
       let errorMessage = '';
-      let toastMessage = '';
-      
+
       if (err instanceof Error) {
         const [errorType, ...details] = err.message.split(':');
         const errorDetails = details.join(':');
@@ -72,23 +67,18 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
         switch (errorType) {
           case 'required':
             errorMessage = errorDetails;
-            toastMessage = 'Missing required information';
             break;
           case 'timeout':
             errorMessage = 'PDF generation timed out. Please try again.';
-            toastMessage = 'Generation timed out';
             break;
           case 'memory':
             errorMessage = 'Your return is too large. Try simplifying entries or contact support.';
-            toastMessage = 'Memory limit exceeded';
             break;
           case 'format':
             errorMessage = 'Invalid data format. Please review your entries and correct any errors.';
-            toastMessage = 'Invalid data format';
             break;
           default:
             errorMessage = 'Please check that all required fields are filled correctly and try again.';
-            toastMessage = 'PDF generation failed';
         }
 
         // Log error in development
@@ -101,11 +91,9 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
         }
       } else {
         errorMessage = 'An unexpected error occurred. Please try again or contact support.';
-        toastMessage = 'Unexpected error';
       }
-      
+
       setError(errorMessage);
-      toast.error(toastMessage);
     } finally {
       setIsGenerating(false);
     }
@@ -149,6 +137,18 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
           </div>
         </button>
       </div>
+
+      {success && (
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-5 shadow-sm">
+          <div className="flex items-start gap-3">
+            <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-semibold text-green-900 mb-1">Tax Forms Generated Successfully!</p>
+              <p className="text-sm text-green-800">Your PDF has been downloaded. Please review before filing.</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-300 rounded-xl p-5 shadow-sm">

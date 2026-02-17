@@ -3,6 +3,7 @@
 import React from 'react';
 import { TaxReturnProvider } from '../lib/context/TaxReturnContext';
 import WizardNavigation from '../components/wizard/WizardNavigation';
+import WelcomeScreen from '../components/wizard/WelcomeScreen';
 import PersonalInfoForm from '../components/forms/PersonalInfoForm';
 import DependentsForm from '../components/forms/DependentsForm';
 import W2Form from '../components/forms/W2Form';
@@ -463,26 +464,58 @@ function WizardStepContent() {
 export default function Home() {
   return (
     <TaxReturnProvider>
-      <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow">
-          <div className="max-w-7xl mx-auto px-4 py-6">
-            <h1 className="text-3xl font-bold text-gray-900">
-              2025 Tax Return Preparation
-            </h1>
-          </div>
-        </header>
-
-        <main>
-          <MainContent />
-        </main>
-      </div>
+      <AppShell />
     </TaxReturnProvider>
+  );
+}
+
+function AppShell() {
+  const { currentStep, setCurrentStep } = useTaxReturn();
+  const isWelcome = currentStep === 'welcome';
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className={`bg-white shadow ${isWelcome ? 'border-b border-slate-100' : ''}`}>
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+          <button
+            onClick={() => setCurrentStep('welcome')}
+            className="flex items-center gap-2 group"
+            title="Back to Welcome"
+          >
+            <span className="text-2xl font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors">
+              TaxFlow
+            </span>
+            <span className="hidden sm:inline text-sm font-medium text-slate-400 group-hover:text-blue-400 transition-colors">
+              2025
+            </span>
+          </button>
+
+          {!isWelcome && (
+            <button
+              onClick={() => setCurrentStep('welcome')}
+              className="text-sm text-slate-500 hover:text-blue-600 transition-colors font-medium"
+            >
+              ← Back to Overview
+            </button>
+          )}
+        </div>
+      </header>
+
+      <main>
+        <MainContent />
+      </main>
+    </div>
   );
 }
 
 // Use client-side access to context
 function MainContent() {
   const { currentStep, setCurrentStep } = useTaxReturn();
+
+  // Welcome screen — full-width, no sidebar or wizard nav
+  if (currentStep === 'welcome') {
+    return <WelcomeScreen onStart={() => setCurrentStep('personal-info')} />;
+  }
   
   return (
     <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 py-8">

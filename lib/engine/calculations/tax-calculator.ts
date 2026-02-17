@@ -423,7 +423,7 @@ import { calculationCache } from './calculation-cache';
 
 export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
   // Try to get cached results
-  const cacheKey = calculationCache.generateKey(taxReturn);
+  const cacheKey = calculationCache.getKey(taxReturn);
   const cached = calculationCache.get(cacheKey);
 
   // Start with cached values or calculate from scratch

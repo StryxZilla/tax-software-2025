@@ -250,6 +250,7 @@ export interface TaxReturn {
 
 // Wizard Steps
 export type WizardStep =
+  | 'welcome'
   | 'personal-info'
   | 'dependents'
   | 'income-w2'

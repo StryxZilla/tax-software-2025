@@ -58,7 +58,7 @@ class TaxCalculationCache {
     this.cache.clear();
   }
 
-  // Helper to generate a unique key for a tax return state
+  // Helper to generate a unique key for a tax return state (static)
   public static generateKey(taxReturn: any): string {
     return JSON.stringify({
       w2: taxReturn.w2Income,
@@ -68,6 +68,11 @@ class TaxCalculationCache {
       cg: taxReturn.capitalGains.length,
       rental: taxReturn.rentalProperties.length
     });
+  }
+
+  // Instance method wrapper (for backwards-compatibility with instance calls)
+  public getKey(taxReturn: any): string {
+    return TaxCalculationCache.generateKey(taxReturn);
   }
 }
 
