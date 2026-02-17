@@ -10,7 +10,9 @@ interface TaxReturnContextType {
   currentStep: WizardStep;
   setCurrentStep: (step: WizardStep) => void;
   taxCalculation: TaxCalculation | null;
-  recalculateTaxes: () => void;
+  isCalculating: boolean;
+  lastSaved: Date | null;
+  recalculateTaxes: () => Promise<void>;
   saveToLocalStorage: () => void;
   loadFromLocalStorage: () => void;
   resetTaxReturn: () => void;
@@ -37,6 +39,37 @@ const initialTaxReturn: TaxReturn = {
   dividends: [],
   capitalGains: [],
   rentalProperties: [],
+  selfEmployment: {
+    businessName: '',
+    ein: '',
+    businessCode: '',
+    grossReceipts: 0,
+    returns: 0,
+    costOfGoodsSold: 0,
+    expenses: {
+      advertising: 0,
+      carAndTruck: 0,
+      commissions: 0,
+      contractLabor: 0,
+      depletion: 0,
+      depreciation: 0,
+      employeeBenefitPrograms: 0,
+      insurance: 0,
+      interest: 0,
+      legal: 0,
+      officeExpense: 0,
+      pension: 0,
+      rentLease: 0,
+      repairs: 0,
+      supplies: 0,
+      taxes: 0,
+      travel: 0,
+      mealsAndEntertainment: 0,
+      utilities: 0,
+      wages: 0,
+      other: 0,
+    }
+  },
   aboveTheLineDeductions: {
     educatorExpenses: 0,
     studentLoanInterest: 0,
@@ -55,6 +88,8 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
   const [taxReturn, setTaxReturn] = useState<TaxReturn>(initialTaxReturn);
   const [currentStep, setCurrentStep] = useState<WizardStep>('personal-info');
   const [taxCalculation, setTaxCalculation] = useState<TaxCalculation | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -70,17 +105,28 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
     setTaxReturn(prev => ({ ...prev, ...updates }));
   };
 
-  const recalculateTaxes = () => {
-    const calculation = calculateTaxReturn(taxReturn);
-    setTaxCalculation(calculation);
+  const recalculateTaxes = async () => {
+    setIsCalculating(true);
+    try {
+      // Defer to next frame to allow UI update (show loading spinner)
+      await new Promise(resolve => setTimeout(resolve, 0));
+      const calculation = calculateTaxReturn(taxReturn);
+      setTaxCalculation(calculation);
+    } finally {
+      setIsCalculating(false);
+    }
   };
 
   const saveToLocalStorage = () => {
     try {
       localStorage.setItem('taxReturn2025', JSON.stringify(taxReturn));
       localStorage.setItem('currentStep', currentStep);
+      setLastSaved(new Date());
     } catch (error) {
-      console.error('Error saving to localStorage:', error);
+      // Only log in development mode
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error saving to localStorage:', error);
+      }
     }
   };
 
@@ -96,16 +142,27 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
         setCurrentStep(savedStep as WizardStep);
       }
     } catch (error) {
-      console.error('Error loading from localStorage:', error);
+      // Only log in development mode
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error loading from localStorage:', error);
+      }
     }
   };
 
   const resetTaxReturn = () => {
+    // Confirm before clearing all data
+    if (!window.confirm(
+      'Are you sure you want to clear all tax data? This cannot be undone.'
+    )) {
+      return;
+    }
+    
     setTaxReturn(initialTaxReturn);
     setCurrentStep('personal-info');
     setTaxCalculation(null);
     localStorage.removeItem('taxReturn2025');
     localStorage.removeItem('currentStep');
+    setLastSaved(null);
   };
 
   return (
@@ -116,6 +173,8 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
         currentStep,
         setCurrentStep,
         taxCalculation,
+        isCalculating,
+        lastSaved,
         recalculateTaxes,
         saveToLocalStorage,
         loadFromLocalStorage,

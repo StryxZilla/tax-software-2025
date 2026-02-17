@@ -14,20 +14,34 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
   const [error, setError] = useState<string | null>(null);
 
   const handleDownload = async () => {
+    // Prevent multiple clicks during generation
+    if (isGenerating) return;
+
     setIsGenerating(true);
     setError(null);
 
+    // Show loading toast
+    toast.loading('Generating tax forms...');
+
     try {
-      // Generate the PDF
-      const pdfBytes = await generateAllForms(taxReturn);
+      // Pre-validation check
+      if (!taxReturn.personalInfo.firstName || !taxReturn.personalInfo.lastName || !taxReturn.personalInfo.ssn) {
+        throw new Error('required:Personal information incomplete. Please fill out all required fields.');
+      }
+
+      // Generate the PDF with a timeout
+      const pdfPromise = generateAllForms(taxReturn);
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('timeout:PDF generation timed out. Please try again.')), 30000)
+      );
+
+      const pdfBytes = await Promise.race([pdfPromise, timeoutPromise]);
 
       // Create a blob from the PDF bytes
       const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
 
       // Create a download link and trigger it
       const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
       
       // Create filename with taxpayer name and year
       const fileName = `Tax_Return_2025_${taxReturn.personalInfo.lastName}_${taxReturn.personalInfo.firstName}.pdf`;
@@ -39,9 +53,59 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
       // Cleanup
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
+
+      // Show success toast
+      toast.dismiss();
+      toast.success('Tax forms generated successfully!');
     } catch (err) {
-      console.error('Error generating PDF:', err);
-      setError('Failed to generate PDF. Please try again.');
+      // Clear loading toast
+      toast.dismiss();
+
+      // Handle errors with more specific feedback
+      let errorMessage = '';
+      let toastMessage = '';
+      
+      if (err instanceof Error) {
+        const [errorType, ...details] = err.message.split(':');
+        const errorDetails = details.join(':');
+
+        switch (errorType) {
+          case 'required':
+            errorMessage = errorDetails;
+            toastMessage = 'Missing required information';
+            break;
+          case 'timeout':
+            errorMessage = 'PDF generation timed out. Please try again.';
+            toastMessage = 'Generation timed out';
+            break;
+          case 'memory':
+            errorMessage = 'Your return is too large. Try simplifying entries or contact support.';
+            toastMessage = 'Memory limit exceeded';
+            break;
+          case 'format':
+            errorMessage = 'Invalid data format. Please review your entries and correct any errors.';
+            toastMessage = 'Invalid data format';
+            break;
+          default:
+            errorMessage = 'Please check that all required fields are filled correctly and try again.';
+            toastMessage = 'PDF generation failed';
+        }
+
+        // Log error in development
+        if (process.env.NODE_ENV === 'development') {
+          console.error('PDF Generation Error:', {
+            type: errorType,
+            message: err.message,
+            stack: err.stack
+          });
+        }
+      } else {
+        errorMessage = 'An unexpected error occurred. Please try again or contact support.';
+        toastMessage = 'Unexpected error';
+      }
+      
+      setError(errorMessage);
+      toast.error(toastMessage);
     } finally {
       setIsGenerating(false);
     }

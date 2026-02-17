@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTaxReturn } from '@/lib/context/TaxReturnContext';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { ChevronDown, ChevronUp, TrendingUp, TrendingDown, DollarSign, Percent } from 'lucide-react';
+import { ChevronDown, ChevronUp, TrendingUp, TrendingDown, DollarSign, Percent, Loader2, Clock } from 'lucide-react';
 
 const TAX_BRACKETS_2025 = [
   { rate: 10, min: 0, max: 11600 },
@@ -18,7 +18,7 @@ const TAX_BRACKETS_2025 = [
 const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#ef4444'];
 
 export default function TaxSummarySidebar() {
-  const { taxCalculation, taxReturn } = useTaxReturn();
+  const { taxCalculation, taxReturn, isCalculating, lastSaved } = useTaxReturn();
   const [isCollapsed, setIsCollapsed] = useState(false);
   
   // Load collapsed state from localStorage
@@ -36,6 +36,48 @@ export default function TaxSummarySidebar() {
     localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
   };
 
+  // Format last saved time
+  const getLastSavedText = () => {
+    if (!lastSaved) return '';
+    const now = new Date();
+    const diff = Math.floor((now.getTime() - lastSaved.getTime()) / 1000); // seconds
+    
+    if (diff < 10) return 'Saved just now';
+    if (diff < 60) return `Saved ${diff}s ago`;
+    if (diff < 3600) return `Saved ${Math.floor(diff / 60)}m ago`;
+    return `Saved ${Math.floor(diff / 3600)}h ago`;
+  };
+
+  if (isCalculating) {
+    return (
+      <div className="bg-gradient-to-br from-slate-50 to-blue-50 shadow-xl rounded-2xl p-8 border border-slate-200">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            <DollarSign className="w-6 h-6 text-blue-600" />
+            <h2 className="text-xl font-bold text-slate-900">Tax Summary</h2>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
+            <span className="text-sm text-slate-600">Calculating...</span>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg p-6 space-y-4">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-slate-200 rounded-md w-3/4 mx-auto"></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-12 bg-slate-200 rounded-md"></div>
+              <div className="h-12 bg-slate-200 rounded-md"></div>
+            </div>
+            <div className="h-40 bg-slate-200 rounded-md"></div>
+          </div>
+          <p className="text-center text-slate-500 text-sm mt-4">
+            Please wait while we process your tax information...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!taxCalculation) {
     return (
       <div className="bg-gradient-to-br from-slate-50 to-blue-50 shadow-xl rounded-2xl p-8 border border-slate-200">
@@ -46,6 +88,12 @@ export default function TaxSummarySidebar() {
         <div className="bg-white rounded-lg p-6 text-center">
           <p className="text-slate-500">Fill out your tax information to see live calculations.</p>
         </div>
+        {lastSaved && (
+          <div className="mt-3 flex items-center justify-center text-xs text-slate-500">
+            <Clock className="w-3 h-3 mr-1" />
+            {getLastSavedText()}
+          </div>
+        )}
       </div>
     );
   }
@@ -76,17 +124,29 @@ export default function TaxSummarySidebar() {
   );
   const marginalRate = marginalBracket ? marginalBracket.rate : 37;
 
-  // Calculate income sources
-  const incomeSources = [];
-  const totalW2 = taxReturn.w2Income.reduce((sum, w2) => sum + w2.wages, 0);
-  const totalInterest = taxReturn.interest.reduce((sum, int) => sum + int.amount, 0);
-  const totalDividends = taxReturn.dividends.reduce((sum, div) => sum + div.ordinaryDividends, 0);
-  const totalCapitalGains = taxReturn.capitalGains.reduce((sum, cg) => sum + (cg.proceeds - cg.costBasis), 0);
-  
-  if (totalW2 > 0) incomeSources.push({ name: 'W-2 Wages', value: totalW2 });
-  if (totalInterest > 0) incomeSources.push({ name: 'Interest', value: totalInterest });
-  if (totalDividends > 0) incomeSources.push({ name: 'Dividends', value: totalDividends });
-  if (totalCapitalGains > 0) incomeSources.push({ name: 'Capital Gains', value: totalCapitalGains });
+  // Calculate income sources with memoization and performance optimizations
+  const incomeSources = useMemo(() => {
+    const sources = [];
+    
+    // Using separate reduce operations for better performance than multiple array iterations
+    const totalW2 = taxReturn.w2Income.reduce((sum, w2) => sum + w2.wages, 0);
+    const totalInterest = taxReturn.interest.reduce((sum, int) => sum + int.amount, 0);
+    const totalDividends = taxReturn.dividends.reduce((sum, div) => sum + div.ordinaryDividends, 0);
+    const totalCapitalGains = taxReturn.capitalGains.reduce((sum, cg) => sum + (cg.proceeds - cg.costBasis), 0);
+    const selfEmploymentIncome = taxReturn.selfEmployment ? (
+      taxReturn.selfEmployment.grossReceipts - 
+      taxReturn.selfEmployment.returns - 
+      taxReturn.selfEmployment.costOfGoodsSold
+    ) : 0;
+    
+    if (totalW2 > 0) sources.push({ name: 'W-2 Wages', value: totalW2 });
+    if (totalInterest > 0) sources.push({ name: 'Interest', value: totalInterest });
+    if (totalDividends > 0) sources.push({ name: 'Dividends', value: totalDividends });
+    if (totalCapitalGains > 0) sources.push({ name: 'Capital Gains', value: totalCapitalGains });
+    if (selfEmploymentIncome > 0) sources.push({ name: 'Self-Employment', value: selfEmploymentIncome });
+    
+    return sources;
+  }, [taxReturn.w2Income, taxReturn.interest, taxReturn.dividends, taxReturn.capitalGains, taxReturn.selfEmployment]);
 
   const isRefund = taxCalculation.refundOrAmountOwed > 0;
 

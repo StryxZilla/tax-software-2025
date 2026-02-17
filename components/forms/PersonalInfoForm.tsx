@@ -2,7 +2,10 @@
 
 import React from 'react';
 import { PersonalInfo, FilingStatus } from '../../types/tax-types';
-import { User, MapPin, Shield, Heart } from 'lucide-react';
+import { User, MapPin, Shield, Heart, AlertCircle } from 'lucide-react';
+import { validatePersonalInfo } from '../../lib/validation/form-validation';
+import { useFormValidation } from '../../lib/hooks/useFormValidation';
+import ValidationError from '../common/ValidationError';
 
 const filingStatusOptions: FilingStatus[] = [
   'Single',
@@ -15,11 +18,31 @@ const filingStatusOptions: FilingStatus[] = [
 interface PersonalInfoFormProps {
   value: PersonalInfo;
   onChange: (updates: Partial<PersonalInfo>) => void;
+  onValidationChange?: (isValid: boolean) => void;
 }
 
-export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormProps) {
+export default function PersonalInfoForm({ value, onChange, onValidationChange }: PersonalInfoFormProps) {
+  const validation = useFormValidation(
+    () => validatePersonalInfo(value),
+    [value]
+  );
+
+  // Notify parent of validation state changes
+  React.useEffect(() => {
+    onValidationChange?.(validation.isValid);
+  }, [validation.isValid, onValidationChange]);
+
   const handleChange = (field: keyof PersonalInfo, newValue: any) => {
     onChange({ [field]: newValue });
+  };
+
+  const getInputClassName = (fieldName: string) => {
+    const hasError = validation.getFieldError(fieldName);
+    return `mt-1 block w-full rounded-lg shadow-sm ${
+      hasError
+        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+        : 'border-slate-300 focus:border-blue-600 focus:ring-blue-600'
+    }`;
   };
 
   return (
@@ -29,6 +52,25 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
         <h2 className="text-3xl font-bold text-slate-900 mb-2">Personal Information</h2>
         <p className="text-slate-600">Let's start with your basic information for your tax return.</p>
       </div>
+
+      {/* Validation summary (only show if attempted to proceed with errors) */}
+      {validation.showAllErrors && !validation.isValid && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-start">
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-semibold text-red-800 mb-2">
+                Please fix the following errors:
+              </h3>
+              <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                {validation.errors.map((error, idx) => (
+                  <li key={idx}>{error.message}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Basic Information Card */}
       <div className="card-premium p-6 space-y-6">
@@ -46,9 +88,11 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
               type="text"
               value={value.firstName}
               onChange={(e) => handleChange('firstName', e.target.value)}
+              onBlur={() => validation.touchField('firstName')}
               placeholder="Enter first name"
-              className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+              className={getInputClassName('firstName')}
             />
+            <ValidationError message={validation.getFieldError('firstName')} />
           </div>
 
           <div>
@@ -59,9 +103,11 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
               type="text"
               value={value.lastName}
               onChange={(e) => handleChange('lastName', e.target.value)}
+              onBlur={() => validation.touchField('lastName')}
               placeholder="Enter last name"
-              className="mt-1 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+              className={getInputClassName('lastName')}
             />
+            <ValidationError message={validation.getFieldError('lastName')} />
           </div>
 
           <div>
@@ -74,11 +120,15 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
                 type="text"
                 value={value.ssn}
                 onChange={(e) => handleChange('ssn', e.target.value)}
+                onBlur={() => validation.touchField('ssn')}
                 placeholder="XXX-XX-XXXX"
-                className="pl-10 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+                className={`pl-10 ${getInputClassName('ssn')}`}
               />
             </div>
-            <p className="mt-1 text-xs text-slate-500">Your information is secure and encrypted</p>
+            <ValidationError message={validation.getFieldError('ssn')} />
+            {!validation.getFieldError('ssn') && (
+              <p className="mt-1 text-xs text-slate-500">Your information is secure and encrypted</p>
+            )}
           </div>
 
           <div>
@@ -88,7 +138,7 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
             <select
               value={value.filingStatus}
               onChange={(e) => handleChange('filingStatus', e.target.value)}
-              className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+              className={getInputClassName('filingStatus')}
             >
               {filingStatusOptions.map(status => (
                 <option key={status} value={status}>{status}</option>
@@ -103,10 +153,12 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
             <input
               type="number"
               value={value.age}
-              onChange={(e) => handleChange('age', parseInt(e.target.value))}
+              onChange={(e) => handleChange('age', parseInt(e.target.value) || 0)}
+              onBlur={() => validation.touchField('age')}
               placeholder="Your age"
-              className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+              className={getInputClassName('age')}
             />
+            <ValidationError message={validation.getFieldError('age')} />
           </div>
 
           <div className="flex items-center pt-8">
@@ -140,9 +192,11 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
               type="text"
               value={value.address}
               onChange={(e) => handleChange('address', e.target.value)}
+              onBlur={() => validation.touchField('address')}
               placeholder="123 Main Street"
-              className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+              className={getInputClassName('address')}
             />
+            <ValidationError message={validation.getFieldError('address')} />
           </div>
 
           <div>
@@ -153,9 +207,11 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
               type="text"
               value={value.city}
               onChange={(e) => handleChange('city', e.target.value)}
+              onBlur={() => validation.touchField('city')}
               placeholder="City name"
-              className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+              className={getInputClassName('city')}
             />
+            <ValidationError message={validation.getFieldError('city')} />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -166,11 +222,13 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
               <input
                 type="text"
                 value={value.state}
-                onChange={(e) => handleChange('state', e.target.value)}
+                onChange={(e) => handleChange('state', e.target.value.toUpperCase())}
+                onBlur={() => validation.touchField('state')}
                 placeholder="TX"
                 maxLength={2}
-                className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+                className={getInputClassName('state')}
               />
+              <ValidationError message={validation.getFieldError('state')} />
             </div>
 
             <div>
@@ -181,9 +239,11 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
                 type="text"
                 value={value.zipCode}
                 onChange={(e) => handleChange('zipCode', e.target.value)}
+                onBlur={() => validation.touchField('zipCode')}
                 placeholder="12345"
-                className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+                className={getInputClassName('zipCode')}
               />
+              <ValidationError message={validation.getFieldError('zipCode')} />
             </div>
           </div>
         </div>
@@ -209,9 +269,11 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
                   ...value.spouseInfo,
                   firstName: e.target.value 
                 })}
+                onBlur={() => validation.touchField('spouseFirstName')}
                 placeholder="Enter spouse's first name"
-                className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+                className={getInputClassName('spouseFirstName')}
               />
+              <ValidationError message={validation.getFieldError('spouseFirstName')} />
             </div>
 
             <div>
@@ -225,9 +287,11 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
                   ...value.spouseInfo,
                   lastName: e.target.value 
                 })}
+                onBlur={() => validation.touchField('spouseLastName')}
                 placeholder="Enter spouse's last name"
-                className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+                className={getInputClassName('spouseLastName')}
               />
+              <ValidationError message={validation.getFieldError('spouseLastName')} />
             </div>
 
             <div>
@@ -243,10 +307,12 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
                     ...value.spouseInfo,
                     ssn: e.target.value 
                   })}
+                  onBlur={() => validation.touchField('spouseSSN')}
                   placeholder="XXX-XX-XXXX"
-                  className="pl-10 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+                  className={`pl-10 ${getInputClassName('spouseSSN')}`}
                 />
               </div>
+              <ValidationError message={validation.getFieldError('spouseSSN')} />
             </div>
 
             <div>
@@ -258,11 +324,13 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
                 value={value.spouseInfo?.age || 0}
                 onChange={(e) => handleChange('spouseInfo', { 
                   ...value.spouseInfo,
-                  age: parseInt(e.target.value) 
+                  age: parseInt(e.target.value) || 0
                 })}
+                onBlur={() => validation.touchField('spouseAge')}
                 placeholder="Spouse's age"
-                className="block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+                className={getInputClassName('spouseAge')}
               />
+              <ValidationError message={validation.getFieldError('spouseAge')} />
             </div>
 
             <div className="flex items-center pt-8">
@@ -286,3 +354,6 @@ export default function PersonalInfoForm({ value, onChange }: PersonalInfoFormPr
     </div>
   );
 }
+
+// Export validation function for use by parent
+export { validatePersonalInfo };

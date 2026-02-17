@@ -4,12 +4,15 @@ import React from 'react';
 import { TaxReturnProvider } from '../lib/context/TaxReturnContext';
 import WizardNavigation from '../components/wizard/WizardNavigation';
 import PersonalInfoForm from '../components/forms/PersonalInfoForm';
+import DependentsForm from '../components/forms/DependentsForm';
 import W2Form from '../components/forms/W2Form';
+import InterestIncomeForm from '../components/forms/InterestIncomeForm';
 import CapitalGainsForm from '../components/forms/CapitalGainsForm';
 import ScheduleCForm from '../components/forms/ScheduleCForm';
 import RentalPropertyForm from '../components/forms/RentalPropertyForm';
 import RetirementForm from '../components/forms/RetirementForm';
 import ItemizedDeductionsForm from '../components/forms/ItemizedDeductionsForm';
+import CreditsForm from '../components/forms/CreditsForm';
 import TaxSummarySidebar from '../components/review/TaxSummarySidebar';
 import PdfDownloadButton from '../components/review/PdfDownloadButton';
 import { useTaxReturn } from '../lib/context/TaxReturnContext';
@@ -42,6 +45,9 @@ function WizardStepContent() {
     recalculateTaxes 
   } = useTaxReturn();
 
+  // Track validation state for current form
+  const [isCurrentFormValid, setIsCurrentFormValid] = React.useState(true);
+
   const currentIndex = STEP_ORDER.indexOf(currentStep);
   const handleNext = () => {
     if (currentIndex < STEP_ORDER.length - 1) {
@@ -63,11 +69,33 @@ function WizardStepContent() {
             onChange={(updates) => {
               updateTaxReturn({ personalInfo: { ...taxReturn.personalInfo, ...updates } });
             }}
+            onValidationChange={setIsCurrentFormValid}
           />
           <FormNavigation
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            canProceed={isCurrentFormValid}
+          />
+        </>
+      );
+
+    case 'dependents':
+      return (
+        <>
+          <DependentsForm
+            values={taxReturn.dependents}
+            onChange={(dependents) => {
+              updateTaxReturn({ dependents });
+              recalculateTaxes();
+            }}
+            onValidationChange={setIsCurrentFormValid}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={isCurrentFormValid}
           />
         </>
       );
@@ -81,46 +109,95 @@ function WizardStepContent() {
               updateTaxReturn({ w2Income: w2s });
               recalculateTaxes();
             }}
+            onValidationChange={setIsCurrentFormValid}
           />
           <FormNavigation
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            canProceed={isCurrentFormValid}
+          />
+        </>
+      );
+
+    case 'income-interest':
+      return (
+        <>
+          <InterestIncomeForm
+            values={taxReturn.interest}
+            onChange={(interest) => {
+              updateTaxReturn({ interest });
+              recalculateTaxes();
+            }}
+            onValidationChange={setIsCurrentFormValid}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={isCurrentFormValid}
           />
         </>
       );
 
     case 'income-capital-gains':
       return (
-        <CapitalGainsForm
-          values={taxReturn.capitalGains}
-          onChange={(capitalGains) => {
-            updateTaxReturn({ capitalGains });
-            recalculateTaxes();
-          }}
-        />
+        <>
+          <CapitalGainsForm
+            values={taxReturn.capitalGains}
+            onChange={(capitalGains) => {
+              updateTaxReturn({ capitalGains });
+              recalculateTaxes();
+            }}
+            onValidationChange={setIsCurrentFormValid}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={isCurrentFormValid}
+          />
+        </>
       );
 
     case 'income-self-employment':
       return (
-        <ScheduleCForm
-          value={taxReturn.selfEmployment}
-          onChange={(selfEmployment) => {
-            updateTaxReturn({ selfEmployment });
-            recalculateTaxes();
-          }}
-        />
+        <>
+          <ScheduleCForm
+            value={taxReturn.selfEmployment}
+            onChange={(selfEmployment) => {
+              updateTaxReturn({ selfEmployment });
+              recalculateTaxes();
+            }}
+            onValidationChange={setIsCurrentFormValid}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={isCurrentFormValid}
+          />
+        </>
       );
 
     case 'income-rental':
       return (
-        <RentalPropertyForm
-          values={taxReturn.rentalProperties}
-          onChange={(rentalProperties) => {
-            updateTaxReturn({ rentalProperties });
-            recalculateTaxes();
-          }}
-        />
+        <>
+          <RentalPropertyForm
+            values={taxReturn.rentalProperties}
+            onChange={(rentalProperties) => {
+              updateTaxReturn({ rentalProperties });
+              recalculateTaxes();
+            }}
+            onValidationChange={setIsCurrentFormValid}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={isCurrentFormValid}
+          />
+        </>
       );
 
     case 'retirement-accounts':
@@ -146,15 +223,42 @@ function WizardStepContent() {
     case 'deductions':
       const agi = calculateAGI(taxReturn);
       return (
-        <ItemizedDeductionsForm
-          values={taxReturn.itemizedDeductions}
-          onChange={(itemizedDeductions) => {
-            updateTaxReturn({ itemizedDeductions });
-            recalculateTaxes();
-          }}
-          agi={agi}
-          filingStatus={taxReturn.personalInfo.filingStatus}
-        />
+        <>
+          <ItemizedDeductionsForm
+            values={taxReturn.itemizedDeductions}
+            onChange={(itemizedDeductions) => {
+              updateTaxReturn({ itemizedDeductions });
+              recalculateTaxes();
+            }}
+            agi={agi}
+            filingStatus={taxReturn.personalInfo.filingStatus}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+          />
+        </>
+      );
+
+    case 'credits':
+      return (
+        <>
+          <CreditsForm
+            educationExpenses={taxReturn.educationExpenses}
+            onEducationExpensesChange={(educationExpenses) => {
+              updateTaxReturn({ educationExpenses });
+              recalculateTaxes();
+            }}
+            onValidationChange={setIsCurrentFormValid}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            canProceed={isCurrentFormValid}
+          />
+        </>
       );
 
     case 'review':
