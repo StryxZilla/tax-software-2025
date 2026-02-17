@@ -109,118 +109,188 @@ function WizardStepContent() {
 
     case 'review':
       return (
-        <div className="max-w-4xl mx-auto space-y-8">
-          <h2 className="text-2xl font-bold">Tax Return Summary</h2>
-          
-          {/* PDF Download Button */}
-          <PdfDownloadButton taxReturn={taxReturn} />
+        <div className="max-w-5xl mx-auto space-y-8 px-4 py-6 fade-in">
+          {/* Hero Header */}
+          <div className="text-center space-y-3">
+            <h2 className="text-4xl font-bold text-slate-900">Tax Return Summary</h2>
+            <p className="text-slate-600 text-lg">Review your complete 2025 tax return</p>
+          </div>
           
           {taxCalculation ? (
-            <div className="bg-white shadow rounded-lg p-6">
-              <dl className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">Total Income</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                    ${taxCalculation.totalIncome.toLocaleString()}
-                  </dd>
-                </div>
-                
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">Adjustments to Income</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                    ${taxCalculation.adjustments.toLocaleString()}
-                  </dd>
-                </div>
-
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">Adjusted Gross Income (AGI)</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                    ${taxCalculation.agi.toLocaleString()}
-                  </dd>
-                </div>
-
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">Standard/Itemized Deduction</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                    ${taxCalculation.standardOrItemizedDeduction.toLocaleString()}
-                  </dd>
-                </div>
-
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">Taxable Income</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                    ${taxCalculation.taxableIncome.toLocaleString()}
-                  </dd>
-                </div>
-
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">Regular Tax</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                    ${taxCalculation.regularTax.toLocaleString()}
-                  </dd>
-                </div>
-
-                {taxCalculation.amt > 0 && (
-                  <div>
-                    <dt className="text-sm font-medium text-gray-600">Alternative Minimum Tax</dt>
-                    <dd className="mt-1 text-3xl font-semibold text-red-600">
-                      +${taxCalculation.amt.toLocaleString()}
-                    </dd>
+            <>
+              {/* Main Refund/Owed Card - Most Prominent */}
+              <div className={`
+                card-premium overflow-hidden border-2
+                ${taxCalculation.refundOrAmountOwed > 0 
+                  ? 'bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 border-green-300' 
+                  : 'bg-gradient-to-br from-red-50 via-orange-50 to-red-50 border-red-300'
+                }
+              `}>
+                <div className="p-8 text-center">
+                  <div className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-3">
+                    {taxCalculation.refundOrAmountOwed > 0 ? '✨ Expected Refund' : '⚠️ Amount Owed'}
                   </div>
-                )}
-
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">Total Tax Credits</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-green-600">
-                    -${taxCalculation.totalCredits.toLocaleString()}
-                  </dd>
-                </div>
-
-                {taxCalculation.selfEmploymentTax > 0 && (
-                  <div>
-                    <dt className="text-sm font-medium text-gray-600">Self-Employment Tax</dt>
-                    <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                      ${taxCalculation.selfEmploymentTax.toLocaleString()}
-                    </dd>
-                  </div>
-                )}
-
-                <div className="col-span-2 border-t pt-6">
-                  <dt className="text-sm font-medium text-gray-600">Total Tax</dt>
-                  <dd className="mt-1 text-4xl font-bold text-gray-900">
-                    ${taxCalculation.totalTax.toLocaleString()}
-                  </dd>
-                </div>
-
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">Tax Withheld</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                    ${taxCalculation.federalTaxWithheld.toLocaleString()}
-                  </dd>
-                </div>
-
-                <div>
-                  <dt className="text-sm font-medium text-gray-600">Estimated Tax Payments</dt>
-                  <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                    ${taxCalculation.estimatedTaxPayments.toLocaleString()}
-                  </dd>
-                </div>
-
-                <div className="col-span-2 border-t pt-6">
-                  <dt className="text-lg font-semibold text-gray-900">
-                    {taxCalculation.refundOrAmountOwed > 0 ? 'Refund Amount' : 'Tax Owed'}
-                  </dt>
-                  <dd className={`mt-1 text-5xl font-bold ${
-                    taxCalculation.refundOrAmountOwed > 0 ? 'text-green-600' : 'text-red-600'
-                  }`}>
+                  <div className={`
+                    text-7xl font-bold number-emphasis mb-4
+                    ${taxCalculation.refundOrAmountOwed > 0 ? 'text-green-600' : 'text-red-600'}
+                  `}>
                     ${Math.abs(taxCalculation.refundOrAmountOwed).toLocaleString()}
-                  </dd>
+                  </div>
+                  <div className="text-sm text-slate-600">
+                    {taxCalculation.refundOrAmountOwed > 0 
+                      ? 'Congratulations! You\'re getting money back.'
+                      : 'Please ensure payment is made by the tax deadline.'
+                    }
+                  </div>
                 </div>
-              </dl>
-            </div>
+              </div>
+
+              {/* PDF Download Button - Prominent */}
+              <div className="flex justify-center">
+                <PdfDownloadButton taxReturn={taxReturn} />
+              </div>
+
+              {/* Income Section */}
+              <div className="card-premium p-8">
+                <h3 className="text-2xl font-bold text-slate-900 mb-6 pb-3 border-b-2 border-blue-100">
+                  💰 Income & Adjustments
+                </h3>
+                <dl className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
+                    <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">Total Income</dt>
+                    <dd className="text-4xl font-bold text-slate-900 currency">
+                      ${taxCalculation.totalIncome.toLocaleString()}
+                    </dd>
+                  </div>
+                  
+                  <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-5 border border-purple-100">
+                    <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">Adjustments</dt>
+                    <dd className="text-4xl font-bold text-purple-700 currency">
+                      -${taxCalculation.adjustments.toLocaleString()}
+                    </dd>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-5 border border-green-200 md:col-span-2">
+                    <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
+                      Adjusted Gross Income (AGI)
+                    </dt>
+                    <dd className="text-5xl font-bold text-green-700 currency">
+                      ${taxCalculation.agi.toLocaleString()}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              {/* Deductions & Taxable Income */}
+              <div className="card-premium p-8">
+                <h3 className="text-2xl font-bold text-slate-900 mb-6 pb-3 border-b-2 border-blue-100">
+                  📊 Deductions & Taxable Income
+                </h3>
+                <dl className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-5 border border-amber-100">
+                    <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
+                      Standard/Itemized Deduction
+                    </dt>
+                    <dd className="text-4xl font-bold text-amber-700 currency">
+                      -${taxCalculation.standardOrItemizedDeduction.toLocaleString()}
+                    </dd>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-5 border border-blue-200">
+                    <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
+                      Taxable Income
+                    </dt>
+                    <dd className="text-4xl font-bold text-blue-700 currency">
+                      ${taxCalculation.taxableIncome.toLocaleString()}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              {/* Tax Calculation */}
+              <div className="card-premium p-8">
+                <h3 className="text-2xl font-bold text-slate-900 mb-6 pb-3 border-b-2 border-blue-100">
+                  🧮 Tax Calculation
+                </h3>
+                <dl className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="bg-gradient-to-br from-slate-50 to-gray-100 rounded-xl p-5 border border-slate-200">
+                    <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">Regular Tax</dt>
+                    <dd className="text-4xl font-bold text-slate-900 currency">
+                      ${taxCalculation.regularTax.toLocaleString()}
+                    </dd>
+                  </div>
+
+                  {taxCalculation.amt > 0 && (
+                    <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-5 border border-red-200">
+                      <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
+                        Alternative Minimum Tax
+                      </dt>
+                      <dd className="text-4xl font-bold text-red-600 currency">
+                        +${taxCalculation.amt.toLocaleString()}
+                      </dd>
+                    </div>
+                  )}
+
+                  {taxCalculation.selfEmploymentTax > 0 && (
+                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-5 border border-orange-200">
+                      <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
+                        Self-Employment Tax
+                      </dt>
+                      <dd className="text-4xl font-bold text-orange-700 currency">
+                        ${taxCalculation.selfEmploymentTax.toLocaleString()}
+                      </dd>
+                    </div>
+                  )}
+
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200">
+                    <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
+                      Tax Credits
+                    </dt>
+                    <dd className="text-4xl font-bold text-green-600 currency">
+                      -${taxCalculation.totalCredits.toLocaleString()}
+                    </dd>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-indigo-50 to-blue-100 rounded-xl p-6 border-2 border-indigo-300 md:col-span-2">
+                    <dt className="text-base font-bold text-slate-700 uppercase tracking-wide mb-3">
+                      Total Tax Liability
+                    </dt>
+                    <dd className="text-5xl font-bold text-indigo-700 currency">
+                      ${taxCalculation.totalTax.toLocaleString()}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+
+              {/* Payments */}
+              <div className="card-premium p-8">
+                <h3 className="text-2xl font-bold text-slate-900 mb-6 pb-3 border-b-2 border-blue-100">
+                  💳 Payments & Withholding
+                </h3>
+                <dl className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="bg-gradient-to-br from-teal-50 to-cyan-50 rounded-xl p-5 border border-teal-100">
+                    <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
+                      Federal Tax Withheld
+                    </dt>
+                    <dd className="text-4xl font-bold text-teal-700 currency">
+                      ${taxCalculation.federalTaxWithheld.toLocaleString()}
+                    </dd>
+                  </div>
+
+                  <div className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-xl p-5 border border-sky-100">
+                    <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
+                      Estimated Tax Payments
+                    </dt>
+                    <dd className="text-4xl font-bold text-sky-700 currency">
+                      ${taxCalculation.estimatedTaxPayments.toLocaleString()}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            </>
           ) : (
-            <div className="text-center py-8 bg-gray-50 rounded-lg">
-              <p className="text-gray-500">No tax calculation available.</p>
+            <div className="card-premium p-12 text-center">
+              <p className="text-slate-500 text-lg">No tax calculation available. Please complete the required forms.</p>
             </div>
           )}
         </div>

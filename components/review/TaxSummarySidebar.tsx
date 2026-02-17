@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTaxReturn } from '@/lib/context/TaxReturnContext';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, TrendingUp, TrendingDown, DollarSign, Percent } from 'lucide-react';
 
 const TAX_BRACKETS_2025 = [
   { rate: 10, min: 0, max: 11600 },
@@ -38,9 +38,14 @@ export default function TaxSummarySidebar() {
 
   if (!taxCalculation) {
     return (
-      <div className="bg-white shadow-lg rounded-lg p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Tax Summary</h2>
-        <p className="text-gray-500">Fill out your tax information to see calculations.</p>
+      <div className="bg-gradient-to-br from-slate-50 to-blue-50 shadow-xl rounded-2xl p-8 border border-slate-200">
+        <div className="flex items-center space-x-3 mb-4">
+          <DollarSign className="w-6 h-6 text-blue-600" />
+          <h2 className="text-xl font-bold text-slate-900">Tax Summary</h2>
+        </div>
+        <div className="bg-white rounded-lg p-6 text-center">
+          <p className="text-slate-500">Fill out your tax information to see live calculations.</p>
+        </div>
       </div>
     );
   }
@@ -71,11 +76,6 @@ export default function TaxSummarySidebar() {
   );
   const marginalRate = marginalBracket ? marginalBracket.rate : 37;
 
-  const rateComparison = [
-    { name: 'Effective Rate', value: Math.round(effectiveRate * 100) / 100 },
-    { name: 'Marginal Rate', value: marginalRate },
-  ];
-
   // Calculate income sources
   const incomeSources = [];
   const totalW2 = taxReturn.w2Income.reduce((sum, w2) => sum + w2.wages, 0);
@@ -94,177 +94,244 @@ export default function TaxSummarySidebar() {
     <>
       {/* Desktop Sidebar - Sticky */}
       <div className="hidden lg:block sticky top-4 h-fit">
-        <div className="bg-white shadow-lg rounded-lg p-6 space-y-6">
-          <h2 className="text-xl font-bold text-gray-900 border-b pb-2">Tax Summary</h2>
-          
-          {/* Key Metrics */}
-          <div className="space-y-4">
-            <div>
-              <div className="text-sm text-gray-600">Total Income</div>
-              <div className="text-2xl font-bold text-gray-900">
-                ${taxCalculation.totalIncome.toLocaleString()}
-              </div>
+        <div className="bg-gradient-to-br from-slate-50 to-blue-50 shadow-xl rounded-2xl overflow-hidden border border-slate-200">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 text-white">
+            <div className="flex items-center space-x-3">
+              <DollarSign className="w-7 h-7" />
+              <h2 className="text-2xl font-bold">Tax Summary</h2>
             </div>
-
-            <div>
-              <div className="text-sm text-gray-600">Adjusted Gross Income</div>
-              <div className="text-2xl font-bold text-gray-900">
-                ${taxCalculation.agi.toLocaleString()}
-              </div>
-            </div>
-
-            <div>
-              <div className="text-sm text-gray-600">Taxable Income</div>
-              <div className="text-2xl font-bold text-gray-900">
-                ${taxCalculation.taxableIncome.toLocaleString()}
-              </div>
-            </div>
-
-            <div>
-              <div className="text-sm text-gray-600">Total Tax</div>
-              <div className="text-2xl font-bold text-gray-900">
-                ${taxCalculation.totalTax.toLocaleString()}
-              </div>
-            </div>
-
-            <div className="border-t pt-4">
-              <div className="text-sm text-gray-600">
-                {isRefund ? 'Expected Refund' : 'Amount Owed'}
-              </div>
-              <div className={`text-3xl font-bold ${isRefund ? 'text-green-600' : 'text-red-600'}`}>
-                ${Math.abs(taxCalculation.refundOrAmountOwed).toLocaleString()}
-              </div>
-            </div>
+            <p className="text-blue-100 text-sm mt-1">Live calculation</p>
           </div>
 
-          {/* Tax Bracket Breakdown */}
-          {bracketBreakdown.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Tax Bracket Breakdown</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={bracketBreakdown}>
-                  <XAxis dataKey="bracket" />
-                  <YAxis />
-                  <Tooltip 
-                    formatter={(value) => `$${(value || 0).toLocaleString()}`}
-                  />
-                  <Bar dataKey="tax" fill="#3b82f6" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-
-          {/* Effective vs Marginal Rate */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Tax Rates</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Effective Rate:</span>
-                <span className="font-semibold">{effectiveRate.toFixed(2)}%</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Marginal Rate:</span>
-                <span className="font-semibold">{marginalRate}%</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Income Sources Pie Chart */}
-          {incomeSources.length > 0 && (
-            <div>
-              <h3 className="text-sm font-semibold text-gray-700 mb-2">Income Sources</h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                  <Pie
-                    data={incomeSources}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
-                    outerRadius={60}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {incomeSources.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value) => `$${(value || 0).toLocaleString()}`} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Mobile Bottom Sheet - Collapsible */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white shadow-lg border-t z-50">
-        <button
-          onClick={toggleCollapsed}
-          className="w-full flex items-center justify-between p-4 hover:bg-gray-50"
-        >
-          <h2 className="text-lg font-bold text-gray-900">Tax Summary</h2>
-          {isCollapsed ? (
-            <ChevronUp className="w-5 h-5 text-gray-600" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-gray-600" />
-          )}
-        </button>
-
-        {!isCollapsed && (
-          <div className="p-4 max-h-[70vh] overflow-y-auto space-y-4">
+          <div className="p-6 space-y-6">
             {/* Key Metrics */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-xs text-gray-600">Total Income</div>
-                <div className="text-lg font-bold text-gray-900">
+            <div className="space-y-4">
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Total Income</div>
+                <div className="text-2xl font-bold text-slate-900 currency">
                   ${taxCalculation.totalIncome.toLocaleString()}
                 </div>
               </div>
 
-              <div>
-                <div className="text-xs text-gray-600">AGI</div>
-                <div className="text-lg font-bold text-gray-900">
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Adjusted Gross Income</div>
+                <div className="text-2xl font-bold text-slate-900 currency">
                   ${taxCalculation.agi.toLocaleString()}
                 </div>
               </div>
 
-              <div>
-                <div className="text-xs text-gray-600">Taxable Income</div>
-                <div className="text-lg font-bold text-gray-900">
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Taxable Income</div>
+                <div className="text-2xl font-bold text-slate-900 currency">
                   ${taxCalculation.taxableIncome.toLocaleString()}
                 </div>
               </div>
 
-              <div>
-                <div className="text-xs text-gray-600">Total Tax</div>
-                <div className="text-lg font-bold text-gray-900">
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200 hover:shadow-md transition-shadow">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Total Tax</div>
+                <div className="text-2xl font-bold text-slate-900 currency">
+                  ${taxCalculation.totalTax.toLocaleString()}
+                </div>
+              </div>
+
+              {/* Refund/Owed - Highlighted */}
+              <div className={`
+                rounded-xl p-5 shadow-lg border-2
+                ${isRefund 
+                  ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200' 
+                  : 'bg-gradient-to-br from-red-50 to-orange-50 border-red-200'
+                }
+              `}>
+                <div className="flex items-center space-x-2 mb-2">
+                  {isRefund ? (
+                    <TrendingUp className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <TrendingDown className="w-5 h-5 text-red-600" />
+                  )}
+                  <div className="text-sm font-semibold text-slate-700 uppercase tracking-wide">
+                    {isRefund ? 'Expected Refund' : 'Amount Owed'}
+                  </div>
+                </div>
+                <div className={`text-4xl font-bold number-emphasis ${isRefund ? 'text-green-600' : 'text-red-600'}`}>
+                  ${Math.abs(taxCalculation.refundOrAmountOwed).toLocaleString()}
+                </div>
+              </div>
+            </div>
+
+            {/* Tax Rates */}
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+              <div className="flex items-center space-x-2 mb-4">
+                <Percent className="w-5 h-5 text-blue-600" />
+                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Tax Rates</h3>
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-slate-600">Effective Rate</span>
+                  <span className="text-lg font-bold text-blue-600">{effectiveRate.toFixed(2)}%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium text-slate-600">Marginal Rate</span>
+                  <span className="text-lg font-bold text-blue-600">{marginalRate}%</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Tax Bracket Breakdown */}
+            {bracketBreakdown.length > 0 && (
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4">Tax by Bracket</h3>
+                <ResponsiveContainer width="100%" height={180}>
+                  <BarChart data={bracketBreakdown}>
+                    <XAxis 
+                      dataKey="bracket" 
+                      tick={{ fontSize: 12 }}
+                      stroke="#94a3b8"
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      stroke="#94a3b8"
+                    />
+                    <Tooltip 
+                      formatter={(value) => `$${(value || 0).toLocaleString()}`}
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                    <Bar 
+                      dataKey="tax" 
+                      fill="url(#colorGradient)" 
+                      radius={[6, 6, 0, 0]}
+                    />
+                    <defs>
+                      <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#3b82f6" stopOpacity={1}/>
+                        <stop offset="100%" stopColor="#1e40af" stopOpacity={1}/>
+                      </linearGradient>
+                    </defs>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+
+            {/* Income Sources Pie Chart */}
+            {incomeSources.length > 0 && (
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4">Income Sources</h3>
+                <ResponsiveContainer width="100%" height={180}>
+                  <PieChart>
+                    <Pie
+                      data={incomeSources}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                      outerRadius={60}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {incomeSources.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      formatter={(value) => `$${(value || 0).toLocaleString()}`}
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Bottom Sheet - Collapsible */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white shadow-2xl border-t-2 border-blue-600 z-50 rounded-t-2xl">
+        <button
+          onClick={toggleCollapsed}
+          className="w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors"
+        >
+          <div className="flex items-center space-x-3">
+            <DollarSign className="w-6 h-6 text-blue-600" />
+            <h2 className="text-lg font-bold text-slate-900">Tax Summary</h2>
+          </div>
+          {isCollapsed ? (
+            <ChevronUp className="w-6 h-6 text-slate-600" />
+          ) : (
+            <ChevronDown className="w-6 h-6 text-slate-600" />
+          )}
+        </button>
+
+        {!isCollapsed && (
+          <div className="p-5 max-h-[70vh] overflow-y-auto space-y-4 bg-gradient-to-br from-slate-50 to-blue-50">
+            {/* Key Metrics Grid */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white rounded-lg p-3 shadow-sm border border-slate-200">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Total Income</div>
+                <div className="text-lg font-bold text-slate-900 currency">
+                  ${taxCalculation.totalIncome.toLocaleString()}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg p-3 shadow-sm border border-slate-200">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">AGI</div>
+                <div className="text-lg font-bold text-slate-900 currency">
+                  ${taxCalculation.agi.toLocaleString()}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg p-3 shadow-sm border border-slate-200">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Taxable</div>
+                <div className="text-lg font-bold text-slate-900 currency">
+                  ${taxCalculation.taxableIncome.toLocaleString()}
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg p-3 shadow-sm border border-slate-200">
+                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Total Tax</div>
+                <div className="text-lg font-bold text-slate-900 currency">
                   ${taxCalculation.totalTax.toLocaleString()}
                 </div>
               </div>
             </div>
 
-            <div className="border-t pt-4">
-              <div className="text-sm text-gray-600 text-center">
+            {/* Refund/Owed - Highlighted */}
+            <div className={`
+              rounded-xl p-4 shadow-lg border-2
+              ${isRefund 
+                ? 'bg-gradient-to-br from-green-50 to-emerald-50 border-green-200' 
+                : 'bg-gradient-to-br from-red-50 to-orange-50 border-red-200'
+              }
+            `}>
+              <div className="text-sm font-semibold text-slate-700 text-center mb-2">
                 {isRefund ? 'Expected Refund' : 'Amount Owed'}
               </div>
-              <div className={`text-3xl font-bold text-center ${isRefund ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`text-4xl font-bold text-center number-emphasis ${isRefund ? 'text-green-600' : 'text-red-600'}`}>
                 ${Math.abs(taxCalculation.refundOrAmountOwed).toLocaleString()}
               </div>
             </div>
 
             {/* Tax Bracket Breakdown */}
             {bracketBreakdown.length > 0 && (
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Tax Bracket Breakdown</h3>
-                <ResponsiveContainer width="100%" height={200}>
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-3">Tax by Bracket</h3>
+                <ResponsiveContainer width="100%" height={180}>
                   <BarChart data={bracketBreakdown}>
-                    <XAxis dataKey="bracket" />
-                    <YAxis />
+                    <XAxis dataKey="bracket" tick={{ fontSize: 11 }} />
+                    <YAxis tick={{ fontSize: 11 }} />
                     <Tooltip 
                       formatter={(value) => `$${(value || 0).toLocaleString()}`}
                     />
-                    <Bar dataKey="tax" fill="#3b82f6" />
+                    <Bar dataKey="tax" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -272,9 +339,9 @@ export default function TaxSummarySidebar() {
 
             {/* Income Sources */}
             {incomeSources.length > 0 && (
-              <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">Income Sources</h3>
-                <ResponsiveContainer width="100%" height={200}>
+              <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
+                <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-3">Income Sources</h3>
+                <ResponsiveContainer width="100%" height={180}>
                   <PieChart>
                     <Pie
                       data={incomeSources}
