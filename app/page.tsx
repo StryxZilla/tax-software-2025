@@ -14,6 +14,22 @@ import TaxSummarySidebar from '../components/review/TaxSummarySidebar';
 import PdfDownloadButton from '../components/review/PdfDownloadButton';
 import { useTaxReturn } from '../lib/context/TaxReturnContext';
 import { calculateAGI } from '../lib/engine/calculations/tax-calculator';
+import FormNavigation from '../components/common/FormNavigation';
+import { WizardStep } from '../types/tax-types';
+
+const STEP_ORDER: WizardStep[] = [
+  'personal-info',
+  'dependents',
+  'income-w2',
+  'income-interest',
+  'income-capital-gains',
+  'income-self-employment',
+  'income-rental',
+  'retirement-accounts',
+  'deductions',
+  'credits',
+  'review',
+];
 
 // Wizard step components
 function WizardStepContent() {
@@ -21,30 +37,57 @@ function WizardStepContent() {
     taxReturn, 
     updateTaxReturn,
     currentStep,
+    setCurrentStep,
     taxCalculation,
     recalculateTaxes 
   } = useTaxReturn();
 
+  const currentIndex = STEP_ORDER.indexOf(currentStep);
+  const handleNext = () => {
+    if (currentIndex < STEP_ORDER.length - 1) {
+      setCurrentStep(STEP_ORDER[currentIndex + 1]);
+    }
+  };
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentStep(STEP_ORDER[currentIndex - 1]);
+    }
+  };
+
   switch (currentStep) {
     case 'personal-info':
       return (
-        <PersonalInfoForm 
-          value={taxReturn.personalInfo}
-          onChange={(updates) => {
-            updateTaxReturn({ personalInfo: { ...taxReturn.personalInfo, ...updates } });
-          }}
-        />
+        <>
+          <PersonalInfoForm 
+            value={taxReturn.personalInfo}
+            onChange={(updates) => {
+              updateTaxReturn({ personalInfo: { ...taxReturn.personalInfo, ...updates } });
+            }}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+          />
+        </>
       );
 
     case 'income-w2':
       return (
-        <W2Form
-          values={taxReturn.w2Income}
-          onChange={(w2s) => {
-            updateTaxReturn({ w2Income: w2s });
-            recalculateTaxes();
-          }}
-        />
+        <>
+          <W2Form
+            values={taxReturn.w2Income}
+            onChange={(w2s) => {
+              updateTaxReturn({ w2Income: w2s });
+              recalculateTaxes();
+            }}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+          />
+        </>
       );
 
     case 'income-capital-gains':
@@ -82,15 +125,22 @@ function WizardStepContent() {
 
     case 'retirement-accounts':
       return (
-        <RetirementForm
-          traditionalIRA={taxReturn.traditionalIRAContribution}
-          rothIRA={taxReturn.rothIRAContribution}
-          form8606={taxReturn.form8606}
-          onUpdate={(updates) => {
-            updateTaxReturn(updates);
-            recalculateTaxes();
-          }}
-        />
+        <>
+          <RetirementForm
+            traditionalIRA={taxReturn.traditionalIRAContribution}
+            rothIRA={taxReturn.rothIRAContribution}
+            form8606={taxReturn.form8606}
+            onUpdate={(updates) => {
+              updateTaxReturn(updates);
+              recalculateTaxes();
+            }}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+          />
+        </>
       );
 
     case 'deductions':
