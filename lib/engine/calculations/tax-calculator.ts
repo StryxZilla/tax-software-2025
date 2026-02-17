@@ -419,18 +419,28 @@ export function calculateEducationCredits(taxReturn: TaxReturn, agi: number): nu
 /**
  * Main function to calculate complete tax return
  */
+import { calculationCache } from './calculation-cache';
+
 export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
-  // Calculate total income
-  const totalIncome = calculateTotalIncome(taxReturn);
+  // Try to get cached results
+  const cacheKey = calculationCache.generateKey(taxReturn);
+  const cached = calculationCache.get(cacheKey);
 
-  // Calculate adjustments
-  const adjustments = calculateAdjustments(taxReturn);
+  // Start with cached values or calculate from scratch
+  const totalIncome = cached?.totalIncome ?? calculateTotalIncome(taxReturn);
+  const adjustments = cached?.adjustments ?? calculateAdjustments(taxReturn);
+  const agi = cached?.agi ?? calculateAGI(taxReturn);
+  const { amount: deduction } = cached?.standardDeduction ? 
+    { amount: cached.standardDeduction } : 
+    calculateDeduction(taxReturn, agi);
 
-  // Calculate AGI
-  const agi = calculateAGI(taxReturn);
-
-  // Calculate deduction
-  const { amount: deduction } = calculateDeduction(taxReturn, agi);
+  // Cache intermediate results
+  calculationCache.set(cacheKey, {
+    totalIncome,
+    adjustments,
+    agi,
+    standardDeduction: deduction
+  });
 
   // Calculate taxable income
   const taxableIncome = calculateTaxableIncome(taxReturn);
