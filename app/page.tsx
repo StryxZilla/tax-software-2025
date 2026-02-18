@@ -1,25 +1,27 @@
-'use client';
+'use client'
 
-import React from 'react';
-import { TaxReturnProvider } from '../lib/context/TaxReturnContext';
-import WizardNavigation from '../components/wizard/WizardNavigation';
-import WelcomeScreen from '../components/wizard/WelcomeScreen';
-import PersonalInfoForm from '../components/forms/PersonalInfoForm';
-import DependentsForm from '../components/forms/DependentsForm';
-import W2Form from '../components/forms/W2Form';
-import InterestIncomeForm from '../components/forms/InterestIncomeForm';
-import CapitalGainsForm from '../components/forms/CapitalGainsForm';
-import ScheduleCForm from '../components/forms/ScheduleCForm';
-import RentalPropertyForm from '../components/forms/RentalPropertyForm';
-import RetirementForm from '../components/forms/RetirementForm';
-import ItemizedDeductionsForm from '../components/forms/ItemizedDeductionsForm';
-import CreditsForm from '../components/forms/CreditsForm';
-import TaxSummarySidebar from '../components/review/TaxSummarySidebar';
-import PdfDownloadButton from '../components/review/PdfDownloadButton';
-import { useTaxReturn } from '../lib/context/TaxReturnContext';
-import { calculateAGI } from '../lib/engine/calculations/tax-calculator';
-import FormNavigation from '../components/common/FormNavigation';
-import { WizardStep } from '../types/tax-types';
+import React, { useEffect, useState } from 'react'
+import { useSession, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { TaxReturnProvider } from '../lib/context/TaxReturnContext'
+import WizardNavigation from '../components/wizard/WizardNavigation'
+import WelcomeScreen from '../components/wizard/WelcomeScreen'
+import PersonalInfoForm from '../components/forms/PersonalInfoForm'
+import DependentsForm from '../components/forms/DependentsForm'
+import W2Form from '../components/forms/W2Form'
+import InterestIncomeForm from '../components/forms/InterestIncomeForm'
+import CapitalGainsForm from '../components/forms/CapitalGainsForm'
+import ScheduleCForm from '../components/forms/ScheduleCForm'
+import RentalPropertyForm from '../components/forms/RentalPropertyForm'
+import RetirementForm from '../components/forms/RetirementForm'
+import ItemizedDeductionsForm from '../components/forms/ItemizedDeductionsForm'
+import CreditsForm from '../components/forms/CreditsForm'
+import TaxSummarySidebar from '../components/review/TaxSummarySidebar'
+import PdfDownloadButton from '../components/review/PdfDownloadButton'
+import { useTaxReturn, useAuthUser } from '../lib/context/TaxReturnContext'
+import { calculateAGI } from '../lib/engine/calculations/tax-calculator'
+import FormNavigation from '../components/common/FormNavigation'
+import { WizardStep } from '../types/tax-types'
 
 const STEP_ORDER: WizardStep[] = [
   'personal-info',
@@ -33,42 +35,41 @@ const STEP_ORDER: WizardStep[] = [
   'deductions',
   'credits',
   'review',
-];
+]
 
 // Wizard step components
 function WizardStepContent() {
-  const { 
-    taxReturn, 
+  const {
+    taxReturn,
     updateTaxReturn,
     currentStep,
     setCurrentStep,
     taxCalculation,
-    recalculateTaxes 
-  } = useTaxReturn();
+    recalculateTaxes,
+  } = useTaxReturn()
 
-  // Track validation state for current form
-  const [isCurrentFormValid, setIsCurrentFormValid] = React.useState(true);
+  const [isCurrentFormValid, setIsCurrentFormValid] = React.useState(true)
 
-  const currentIndex = STEP_ORDER.indexOf(currentStep);
+  const currentIndex = STEP_ORDER.indexOf(currentStep)
   const handleNext = () => {
     if (currentIndex < STEP_ORDER.length - 1) {
-      setCurrentStep(STEP_ORDER[currentIndex + 1]);
+      setCurrentStep(STEP_ORDER[currentIndex + 1])
     }
-  };
+  }
   const handlePrevious = () => {
     if (currentIndex > 0) {
-      setCurrentStep(STEP_ORDER[currentIndex - 1]);
+      setCurrentStep(STEP_ORDER[currentIndex - 1])
     }
-  };
+  }
 
   switch (currentStep) {
     case 'personal-info':
       return (
         <>
-          <PersonalInfoForm 
+          <PersonalInfoForm
             value={taxReturn.personalInfo}
             onChange={(updates) => {
-              updateTaxReturn({ personalInfo: { ...taxReturn.personalInfo, ...updates } });
+              updateTaxReturn({ personalInfo: { ...taxReturn.personalInfo, ...updates } })
             }}
             onValidationChange={setIsCurrentFormValid}
           />
@@ -79,7 +80,7 @@ function WizardStepContent() {
             canProceed={isCurrentFormValid}
           />
         </>
-      );
+      )
 
     case 'dependents':
       return (
@@ -87,8 +88,8 @@ function WizardStepContent() {
           <DependentsForm
             values={taxReturn.dependents}
             onChange={(dependents) => {
-              updateTaxReturn({ dependents });
-              recalculateTaxes();
+              updateTaxReturn({ dependents })
+              recalculateTaxes()
             }}
             onValidationChange={setIsCurrentFormValid}
           />
@@ -99,7 +100,7 @@ function WizardStepContent() {
             canProceed={isCurrentFormValid}
           />
         </>
-      );
+      )
 
     case 'income-w2':
       return (
@@ -107,8 +108,8 @@ function WizardStepContent() {
           <W2Form
             values={taxReturn.w2Income}
             onChange={(w2s) => {
-              updateTaxReturn({ w2Income: w2s });
-              recalculateTaxes();
+              updateTaxReturn({ w2Income: w2s })
+              recalculateTaxes()
             }}
             onValidationChange={setIsCurrentFormValid}
           />
@@ -119,7 +120,7 @@ function WizardStepContent() {
             canProceed={isCurrentFormValid}
           />
         </>
-      );
+      )
 
     case 'income-interest':
       return (
@@ -127,8 +128,8 @@ function WizardStepContent() {
           <InterestIncomeForm
             values={taxReturn.interest}
             onChange={(interest) => {
-              updateTaxReturn({ interest });
-              recalculateTaxes();
+              updateTaxReturn({ interest })
+              recalculateTaxes()
             }}
             onValidationChange={setIsCurrentFormValid}
           />
@@ -139,7 +140,7 @@ function WizardStepContent() {
             canProceed={isCurrentFormValid}
           />
         </>
-      );
+      )
 
     case 'income-capital-gains':
       return (
@@ -147,8 +148,8 @@ function WizardStepContent() {
           <CapitalGainsForm
             values={taxReturn.capitalGains}
             onChange={(capitalGains) => {
-              updateTaxReturn({ capitalGains });
-              recalculateTaxes();
+              updateTaxReturn({ capitalGains })
+              recalculateTaxes()
             }}
             onValidationChange={setIsCurrentFormValid}
           />
@@ -159,7 +160,7 @@ function WizardStepContent() {
             canProceed={isCurrentFormValid}
           />
         </>
-      );
+      )
 
     case 'income-self-employment':
       return (
@@ -167,8 +168,8 @@ function WizardStepContent() {
           <ScheduleCForm
             value={taxReturn.selfEmployment}
             onChange={(selfEmployment) => {
-              updateTaxReturn({ selfEmployment });
-              recalculateTaxes();
+              updateTaxReturn({ selfEmployment })
+              recalculateTaxes()
             }}
             onValidationChange={setIsCurrentFormValid}
           />
@@ -179,7 +180,7 @@ function WizardStepContent() {
             canProceed={isCurrentFormValid}
           />
         </>
-      );
+      )
 
     case 'income-rental':
       return (
@@ -187,8 +188,8 @@ function WizardStepContent() {
           <RentalPropertyForm
             values={taxReturn.rentalProperties}
             onChange={(rentalProperties) => {
-              updateTaxReturn({ rentalProperties });
-              recalculateTaxes();
+              updateTaxReturn({ rentalProperties })
+              recalculateTaxes()
             }}
             onValidationChange={setIsCurrentFormValid}
           />
@@ -199,7 +200,7 @@ function WizardStepContent() {
             canProceed={isCurrentFormValid}
           />
         </>
-      );
+      )
 
     case 'retirement-accounts':
       return (
@@ -209,8 +210,8 @@ function WizardStepContent() {
             rothIRA={taxReturn.rothIRAContribution}
             form8606={taxReturn.form8606}
             onUpdate={(updates) => {
-              updateTaxReturn(updates);
-              recalculateTaxes();
+              updateTaxReturn(updates)
+              recalculateTaxes()
             }}
           />
           <FormNavigation
@@ -219,17 +220,17 @@ function WizardStepContent() {
             onPrevious={handlePrevious}
           />
         </>
-      );
+      )
 
-    case 'deductions':
-      const agi = calculateAGI(taxReturn);
+    case 'deductions': {
+      const agi = calculateAGI(taxReturn)
       return (
         <>
           <ItemizedDeductionsForm
             values={taxReturn.itemizedDeductions}
             onChange={(itemizedDeductions) => {
-              updateTaxReturn({ itemizedDeductions });
-              recalculateTaxes();
+              updateTaxReturn({ itemizedDeductions })
+              recalculateTaxes()
             }}
             agi={agi}
             filingStatus={taxReturn.personalInfo.filingStatus}
@@ -240,7 +241,8 @@ function WizardStepContent() {
             onPrevious={handlePrevious}
           />
         </>
-      );
+      )
+    }
 
     case 'credits':
       return (
@@ -248,8 +250,8 @@ function WizardStepContent() {
           <CreditsForm
             educationExpenses={taxReturn.educationExpenses}
             onEducationExpensesChange={(educationExpenses) => {
-              updateTaxReturn({ educationExpenses });
-              recalculateTaxes();
+              updateTaxReturn({ educationExpenses })
+              recalculateTaxes()
             }}
             onValidationChange={setIsCurrentFormValid}
           />
@@ -260,24 +262,22 @@ function WizardStepContent() {
             canProceed={isCurrentFormValid}
           />
         </>
-      );
+      )
 
     case 'review':
       return (
         <div className="max-w-5xl mx-auto space-y-8 px-4 py-6 fade-in">
-          {/* Hero Header */}
           <div className="text-center space-y-3">
             <h2 className="text-4xl font-bold text-slate-900">Tax Return Summary</h2>
             <p className="text-slate-600 text-lg">Review your complete 2025 tax return</p>
           </div>
-          
+
           {taxCalculation ? (
             <>
-              {/* Main Refund/Owed Card - Most Prominent */}
               <div className={`
                 card-premium overflow-hidden border-2
-                ${taxCalculation.refundOrAmountOwed > 0 
-                  ? 'bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 border-green-300' 
+                ${taxCalculation.refundOrAmountOwed > 0
+                  ? 'bg-gradient-to-br from-green-50 via-emerald-50 to-green-50 border-green-300'
                   : 'bg-gradient-to-br from-red-50 via-orange-50 to-red-50 border-red-300'
                 }
               `}>
@@ -292,20 +292,18 @@ function WizardStepContent() {
                     ${Math.abs(taxCalculation.refundOrAmountOwed).toLocaleString()}
                   </div>
                   <div className="text-sm text-slate-600">
-                    {taxCalculation.refundOrAmountOwed > 0 
-                      ? 'Congratulations! You\'re getting money back.'
+                    {taxCalculation.refundOrAmountOwed > 0
+                      ? "Congratulations! You're getting money back."
                       : 'Please ensure payment is made by the tax deadline.'
                     }
                   </div>
                 </div>
               </div>
 
-              {/* PDF Download Button - Prominent */}
               <div className="flex justify-center">
                 <PdfDownloadButton taxReturn={taxReturn} />
               </div>
 
-              {/* Income Section */}
               <div className="card-premium p-8">
                 <h3 className="text-2xl font-bold text-slate-900 mb-6 pb-3 border-b-2 border-blue-100">
                   💰 Income & Adjustments
@@ -317,14 +315,12 @@ function WizardStepContent() {
                       ${taxCalculation.totalIncome.toLocaleString()}
                     </dd>
                   </div>
-                  
                   <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-5 border border-purple-100">
                     <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">Adjustments</dt>
                     <dd className="text-4xl font-bold text-purple-700 currency">
                       -${taxCalculation.adjustments.toLocaleString()}
                     </dd>
                   </div>
-
                   <div className="bg-gradient-to-br from-green-50 to-teal-50 rounded-xl p-5 border border-green-200 md:col-span-2">
                     <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
                       Adjusted Gross Income (AGI)
@@ -336,7 +332,6 @@ function WizardStepContent() {
                 </dl>
               </div>
 
-              {/* Deductions & Taxable Income */}
               <div className="card-premium p-8">
                 <h3 className="text-2xl font-bold text-slate-900 mb-6 pb-3 border-b-2 border-blue-100">
                   📊 Deductions & Taxable Income
@@ -350,7 +345,6 @@ function WizardStepContent() {
                       -${taxCalculation.standardOrItemizedDeduction.toLocaleString()}
                     </dd>
                   </div>
-
                   <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-5 border border-blue-200">
                     <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
                       Taxable Income
@@ -362,7 +356,6 @@ function WizardStepContent() {
                 </dl>
               </div>
 
-              {/* Tax Calculation */}
               <div className="card-premium p-8">
                 <h3 className="text-2xl font-bold text-slate-900 mb-6 pb-3 border-b-2 border-blue-100">
                   🧮 Tax Calculation
@@ -374,7 +367,6 @@ function WizardStepContent() {
                       ${taxCalculation.regularTax.toLocaleString()}
                     </dd>
                   </div>
-
                   {taxCalculation.amt > 0 && (
                     <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-5 border border-red-200">
                       <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
@@ -385,7 +377,6 @@ function WizardStepContent() {
                       </dd>
                     </div>
                   )}
-
                   {taxCalculation.selfEmploymentTax > 0 && (
                     <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-5 border border-orange-200">
                       <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
@@ -396,7 +387,6 @@ function WizardStepContent() {
                       </dd>
                     </div>
                   )}
-
                   <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-5 border border-green-200">
                     <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
                       Tax Credits
@@ -405,7 +395,6 @@ function WizardStepContent() {
                       -${taxCalculation.totalCredits.toLocaleString()}
                     </dd>
                   </div>
-
                   <div className="bg-gradient-to-br from-indigo-50 to-blue-100 rounded-xl p-6 border-2 border-indigo-300 md:col-span-2">
                     <dt className="text-base font-bold text-slate-700 uppercase tracking-wide mb-3">
                       Total Tax Liability
@@ -417,7 +406,6 @@ function WizardStepContent() {
                 </dl>
               </div>
 
-              {/* Payments */}
               <div className="card-premium p-8">
                 <h3 className="text-2xl font-bold text-slate-900 mb-6 pb-3 border-b-2 border-blue-100">
                   💳 Payments & Withholding
@@ -431,7 +419,6 @@ function WizardStepContent() {
                       ${taxCalculation.federalTaxWithheld.toLocaleString()}
                     </dd>
                   </div>
-
                   <div className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-xl p-5 border border-sky-100">
                     <dt className="text-sm font-semibold text-slate-600 uppercase tracking-wide mb-2">
                       Estimated Tax Payments
@@ -449,32 +436,109 @@ function WizardStepContent() {
             </div>
           )}
         </div>
-      );
+      )
 
     default:
       return (
         <div className="text-center py-8">
           <p className="text-gray-500">This section is under development.</p>
         </div>
-      );
+      )
   }
+}
+
+// Import localStorage banner shown after login
+function ImportBanner() {
+  const { importFromLocalStorage } = useTaxReturn()
+  const [show, setShow] = useState(false)
+  const [dismissed, setDismissed] = useState(false)
+
+  useEffect(() => {
+    const hasLocalData = !!localStorage.getItem('taxReturn2025')
+    const alreadyAsked = !!sessionStorage.getItem('importAsked')
+    if (hasLocalData && !alreadyAsked) {
+      setShow(true)
+    }
+  }, [])
+
+  if (!show || dismissed) return null
+
+  const handleImport = async () => {
+    await importFromLocalStorage()
+    sessionStorage.setItem('importAsked', '1')
+    setDismissed(true)
+  }
+
+  const handleDismiss = () => {
+    sessionStorage.setItem('importAsked', '1')
+    setDismissed(true)
+  }
+
+  return (
+    <div className="bg-blue-50 border-b border-blue-200 px-4 py-3">
+      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
+        <p className="text-sm text-blue-800">
+          📂 We found locally saved tax data. Would you like to import it into your account?
+        </p>
+        <div className="flex gap-2 shrink-0">
+          <button
+            onClick={handleImport}
+            className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 font-medium"
+          >
+            Import
+          </button>
+          <button
+            onClick={handleDismiss}
+            className="text-xs text-blue-600 px-3 py-1.5 rounded-md hover:bg-blue-100 font-medium"
+          >
+            Skip
+          </button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // Main page component
 export default function Home() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/login')
+    }
+  }, [status, router])
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl font-extrabold text-slate-900 mb-2">TaxFlow</div>
+          <p className="text-slate-400 text-sm animate-pulse">Loading your return…</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!session) return null
+
   return (
     <TaxReturnProvider>
       <AppShell />
     </TaxReturnProvider>
-  );
+  )
 }
 
 function AppShell() {
-  const { currentStep, setCurrentStep } = useTaxReturn();
-  const isWelcome = currentStep === 'welcome';
+  const { currentStep, setCurrentStep } = useTaxReturn()
+  const user = useAuthUser()
+  const isWelcome = currentStep === 'welcome'
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <ImportBanner />
       <header className={`bg-white shadow ${isWelcome ? 'border-b border-slate-100' : ''}`}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <button
@@ -490,14 +554,43 @@ function AppShell() {
             </span>
           </button>
 
-          {!isWelcome && (
-            <button
-              onClick={() => setCurrentStep('welcome')}
-              className="text-sm text-slate-500 hover:text-blue-600 transition-colors font-medium"
-            >
-              ← Back to Overview
-            </button>
-          )}
+          <div className="flex items-center gap-4">
+            {!isWelcome && (
+              <button
+                onClick={() => setCurrentStep('welcome')}
+                className="text-sm text-slate-500 hover:text-blue-600 transition-colors font-medium hidden sm:block"
+              >
+                ← Back to Overview
+              </button>
+            )}
+
+            {user && (
+              <div className="flex items-center gap-3">
+                {user.isAdmin && (
+                  <a
+                    href="/admin/users"
+                    className="text-xs text-slate-400 hover:text-blue-600 transition-colors font-medium hidden sm:block"
+                  >
+                    Admin
+                  </a>
+                )}
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-bold">
+                    {(user.name || user.email)[0].toUpperCase()}
+                  </div>
+                  <span className="text-sm text-slate-600 font-medium hidden sm:block">
+                    {user.name || user.email}
+                  </span>
+                </div>
+                <button
+                  onClick={() => signOut({ callbackUrl: '/auth/login' })}
+                  className="text-sm text-slate-500 hover:text-red-600 transition-colors font-medium border border-slate-200 hover:border-red-200 px-3 py-1.5 rounded-lg"
+                >
+                  Sign out
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
@@ -505,36 +598,30 @@ function AppShell() {
         <MainContent />
       </main>
     </div>
-  );
+  )
 }
 
-// Use client-side access to context
 function MainContent() {
-  const { currentStep, setCurrentStep } = useTaxReturn();
+  const { currentStep, setCurrentStep } = useTaxReturn()
 
-  // Welcome screen — full-width, no sidebar or wizard nav
   if (currentStep === 'welcome') {
-    return <WelcomeScreen onStart={() => setCurrentStep('personal-info')} />;
+    return <WelcomeScreen onStart={() => setCurrentStep('personal-info')} />
   }
-  
+
   return (
     <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 py-8">
       <div className="lg:grid lg:grid-cols-[1fr_350px] lg:gap-8">
-        {/* Main Content Area */}
         <div className="space-y-8 pb-80 lg:pb-8">
           <WizardNavigation
             currentStep={currentStep}
             onStepChange={setCurrentStep}
           />
-          
           <div className="bg-white shadow-sm rounded-lg p-8">
             <WizardStepContent />
           </div>
         </div>
-
-        {/* Sidebar - Sticky on desktop, bottom sheet on mobile */}
         <TaxSummarySidebar />
       </div>
     </div>
-  );
+  )
 }

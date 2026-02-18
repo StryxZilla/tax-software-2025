@@ -1,24 +1,26 @@
-'use client';
+'use client'
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { TaxReturn, WizardStep, TaxCalculation } from '../../types/tax-types';
-import { calculateTaxReturn } from '../engine/calculations/tax-calculator';
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
+import { useSession } from 'next-auth/react'
+import { TaxReturn, WizardStep, TaxCalculation } from '../../types/tax-types'
+import { calculateTaxReturn } from '../engine/calculations/tax-calculator'
 
 interface TaxReturnContextType {
-  taxReturn: TaxReturn;
-  updateTaxReturn: (updates: Partial<TaxReturn>) => void;
-  currentStep: WizardStep;
-  setCurrentStep: (step: WizardStep) => void;
-  taxCalculation: TaxCalculation | null;
-  isCalculating: boolean;
-  lastSaved: Date | null;
-  recalculateTaxes: () => Promise<void>;
-  saveToLocalStorage: () => void;
-  loadFromLocalStorage: () => void;
-  resetTaxReturn: () => void;
+  taxReturn: TaxReturn
+  updateTaxReturn: (updates: Partial<TaxReturn>) => void
+  currentStep: WizardStep
+  setCurrentStep: (step: WizardStep) => void
+  taxCalculation: TaxCalculation | null
+  isCalculating: boolean
+  lastSaved: Date | null
+  recalculateTaxes: () => Promise<void>
+  saveToLocalStorage: () => void
+  loadFromLocalStorage: () => void
+  resetTaxReturn: () => void
+  importFromLocalStorage: () => Promise<void>
 }
 
-const TaxReturnContext = createContext<TaxReturnContextType | undefined>(undefined);
+const TaxReturnContext = createContext<TaxReturnContextType | undefined>(undefined)
 
 const initialTaxReturn: TaxReturn = {
   personalInfo: {
@@ -68,7 +70,7 @@ const initialTaxReturn: TaxReturn = {
       utilities: 0,
       wages: 0,
       other: 0,
-    }
+    },
   },
   aboveTheLineDeductions: {
     educatorExpenses: 0,
@@ -82,88 +84,173 @@ const initialTaxReturn: TaxReturn = {
   },
   educationExpenses: [],
   estimatedTaxPayments: 0,
-};
+}
 
 export function TaxReturnProvider({ children }: { children: ReactNode }) {
-  const [taxReturn, setTaxReturn] = useState<TaxReturn>(initialTaxReturn);
-  const [currentStep, setCurrentStep] = useState<WizardStep>('welcome');
-  const [taxCalculation, setTaxCalculation] = useState<TaxCalculation | null>(null);
-  const [isCalculating, setIsCalculating] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const { data: session, status } = useSession()
+  const [taxReturn, setTaxReturn] = useState<TaxReturn>(initialTaxReturn)
+  const [currentStep, setCurrentStep] = useState<WizardStep>('welcome')
+  const [taxCalculation, setTaxCalculation] = useState<TaxCalculation | null>(null)
+  const [isCalculating, setIsCalculating] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [dbLoaded, setDbLoaded] = useState(false)
+  const [saveTimeout, setSaveTimeout] = useState<ReturnType<typeof setTimeout> | null>(null)
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    loadFromLocalStorage();
-  }, []);
+  const isAuthenticated = status === 'authenticated'
 
-  // Auto-save to localStorage whenever taxReturn changes
+  // Load data on auth state change
   useEffect(() => {
-    saveToLocalStorage();
-  }, [taxReturn]);
+    if (status === 'authenticated' && !dbLoaded) {
+      loadFromDb()
+    } else if (status === 'unauthenticated') {
+      loadFromLocalStorage()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status])
+
+  // Auto-save: localStorage always, DB when authenticated (debounced)
+  useEffect(() => {
+    if (status === 'loading') return
+
+    // Always save to localStorage as fallback
+    saveToLocalStorage()
+
+    // Debounced save to DB when authenticated
+    if (isAuthenticated && dbLoaded) {
+      if (saveTimeout) clearTimeout(saveTimeout)
+      const t = setTimeout(() => {
+        saveToDb()
+      }, 1500)
+      setSaveTimeout(t)
+    }
+
+    return () => {
+      if (saveTimeout) clearTimeout(saveTimeout)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taxReturn])
+
+  const loadFromDb = async () => {
+    try {
+      const res = await fetch('/api/tax-return')
+      if (!res.ok) return
+      const { data } = await res.json()
+      if (data) {
+        setTaxReturn(data)
+      }
+      setDbLoaded(true)
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error loading from DB:', error)
+      }
+      setDbLoaded(true)
+    }
+  }
+
+  const saveToDb = useCallback(async () => {
+    try {
+      const res = await fetch('/api/tax-return', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: taxReturn }),
+      })
+      if (res.ok) {
+        setLastSaved(new Date())
+      }
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error saving to DB:', error)
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taxReturn])
 
   const updateTaxReturn = (updates: Partial<TaxReturn>) => {
-    setTaxReturn(prev => ({ ...prev, ...updates }));
-  };
+    setTaxReturn(prev => ({ ...prev, ...updates }))
+  }
 
   const recalculateTaxes = async () => {
-    setIsCalculating(true);
+    setIsCalculating(true)
     try {
-      // Defer to next frame to allow UI update (show loading spinner)
-      await new Promise(resolve => setTimeout(resolve, 0));
-      const calculation = calculateTaxReturn(taxReturn);
-      setTaxCalculation(calculation);
+      await new Promise(resolve => setTimeout(resolve, 0))
+      const calculation = calculateTaxReturn(taxReturn)
+      setTaxCalculation(calculation)
     } finally {
-      setIsCalculating(false);
+      setIsCalculating(false)
     }
-  };
+  }
 
   const saveToLocalStorage = () => {
     try {
-      localStorage.setItem('taxReturn2025', JSON.stringify(taxReturn));
-      localStorage.setItem('currentStep', currentStep);
-      setLastSaved(new Date());
+      localStorage.setItem('taxReturn2025', JSON.stringify(taxReturn))
+      localStorage.setItem('currentStep', currentStep)
+      if (!isAuthenticated) {
+        setLastSaved(new Date())
+      }
     } catch (error) {
-      // Only log in development mode
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error saving to localStorage:', error);
+        console.error('Error saving to localStorage:', error)
       }
     }
-  };
+  }
 
   const loadFromLocalStorage = () => {
     try {
-      const saved = localStorage.getItem('taxReturn2025');
-      const savedStep = localStorage.getItem('currentStep');
-      
+      const saved = localStorage.getItem('taxReturn2025')
+      const savedStep = localStorage.getItem('currentStep')
       if (saved) {
-        setTaxReturn(JSON.parse(saved));
+        setTaxReturn(JSON.parse(saved))
       }
       if (savedStep) {
-        setCurrentStep(savedStep as WizardStep);
+        setCurrentStep(savedStep as WizardStep)
       }
     } catch (error) {
-      // Only log in development mode
       if (process.env.NODE_ENV === 'development') {
-        console.error('Error loading from localStorage:', error);
+        console.error('Error loading from localStorage:', error)
       }
     }
-  };
+  }
+
+  // Import localStorage data into DB (called after login if user wants to migrate)
+  const importFromLocalStorage = async () => {
+    try {
+      const saved = localStorage.getItem('taxReturn2025')
+      if (!saved) return
+      const data = JSON.parse(saved)
+      await fetch('/api/tax-return', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data }),
+      })
+      setTaxReturn(data)
+      setLastSaved(new Date())
+    } catch (error) {
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error importing from localStorage:', error)
+      }
+    }
+  }
 
   const resetTaxReturn = () => {
-    // Confirm before clearing all data
-    if (!window.confirm(
-      'Are you sure you want to clear all tax data? This cannot be undone.'
-    )) {
-      return;
+    if (!window.confirm('Are you sure you want to clear all tax data? This cannot be undone.')) {
+      return
     }
-    
-    setTaxReturn(initialTaxReturn);
-    setCurrentStep('personal-info');
-    setTaxCalculation(null);
-    localStorage.removeItem('taxReturn2025');
-    localStorage.removeItem('currentStep');
-    setLastSaved(null);
-  };
+    setTaxReturn(initialTaxReturn)
+    setCurrentStep('personal-info')
+    setTaxCalculation(null)
+    localStorage.removeItem('taxReturn2025')
+    localStorage.removeItem('currentStep')
+    setLastSaved(null)
+
+    // Clear from DB too if authenticated
+    if (isAuthenticated) {
+      fetch('/api/tax-return', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: initialTaxReturn }),
+      }).catch(() => {})
+    }
+  }
 
   return (
     <TaxReturnContext.Provider
@@ -179,17 +266,24 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
         saveToLocalStorage,
         loadFromLocalStorage,
         resetTaxReturn,
+        importFromLocalStorage,
       }}
     >
       {children}
     </TaxReturnContext.Provider>
-  );
+  )
 }
 
 export function useTaxReturn() {
-  const context = useContext(TaxReturnContext);
+  const context = useContext(TaxReturnContext)
   if (!context) {
-    throw new Error('useTaxReturn must be used within a TaxReturnProvider');
+    throw new Error('useTaxReturn must be used within a TaxReturnProvider')
   }
-  return context;
+  return context
+}
+
+// Export session user info helper
+export function useAuthUser() {
+  const { data: session } = useSession()
+  return session?.user ?? null
 }
