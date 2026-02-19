@@ -53,8 +53,11 @@ export function calculateForm8606(data: Form8606Data): Form8606Calculation {
   // Line 7: Enter value of all traditional IRAs as of December 31 of current year
   const line7 = data.endOfYearTraditionalIRABalance;
 
-  // Line 8: Add lines 6, 7, and line 1
-  const line8 = line6 + line7 + line1;
+  // Line 8: Add lines 6 and 7 (IRS Form 8606 instruction: "Add lines 6 and 7")
+  // Do NOT add line1 here — the current-year contribution is already reflected in
+  // either line7 (if still held at year-end) or line4/5 (if converted/distributed).
+  // Adding it again would double-count and produce an artificially low basis %.
+  const line8 = line6 + line7;
 
   // Line 9: Divide line 3 by line 8 (basis percentage using pro-rata rule)
   // This is the percentage of your IRA that is after-tax (nontaxable)

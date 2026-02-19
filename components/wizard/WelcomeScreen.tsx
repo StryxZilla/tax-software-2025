@@ -42,15 +42,15 @@ const WIZARD_STEPS = [
   },
   {
     number: 5,
-    label: 'Self-Employment',
-    icon: <ClipboardList className="w-5 h-5" />,
-    description: 'Schedule C — freelance & business income',
-  },
-  {
-    number: 6,
     label: 'Capital Gains',
     icon: <TrendingUp className="w-5 h-5" />,
     description: 'Schedule D — stocks, crypto, assets',
+  },
+  {
+    number: 6,
+    label: 'Self-Employment',
+    icon: <ClipboardList className="w-5 h-5" />,
+    description: 'Schedule C — freelance & business income',
   },
   {
     number: 7,

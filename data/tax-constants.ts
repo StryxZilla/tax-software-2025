@@ -3,51 +3,52 @@
 import { FilingStatus } from '../types/tax-types';
 
 // Tax Brackets for 2025
+// Source: IRS Revenue Procedure 2024-40 (inflation adjustments for 2025)
 export const TAX_BRACKETS_2025: Record<FilingStatus, Array<{ rate: number; min: number; max: number | null }>> = {
   'Single': [
-    { rate: 0.10, min: 0, max: 11600 },
-    { rate: 0.12, min: 11601, max: 47150 },
-    { rate: 0.22, min: 47151, max: 100525 },
-    { rate: 0.24, min: 100526, max: 191950 },
-    { rate: 0.32, min: 191951, max: 243725 },
-    { rate: 0.35, min: 243726, max: 609350 },
-    { rate: 0.37, min: 609351, max: null },
+    { rate: 0.10, min: 0,       max: 11925 },
+    { rate: 0.12, min: 11926,   max: 48475 },
+    { rate: 0.22, min: 48476,   max: 103350 },
+    { rate: 0.24, min: 103351,  max: 197300 },
+    { rate: 0.32, min: 197301,  max: 250525 },
+    { rate: 0.35, min: 250526,  max: 626350 },
+    { rate: 0.37, min: 626351,  max: null },
   ],
   'Married Filing Jointly': [
-    { rate: 0.10, min: 0, max: 23200 },
-    { rate: 0.12, min: 23201, max: 94300 },
-    { rate: 0.22, min: 94301, max: 201050 },
-    { rate: 0.24, min: 201051, max: 383900 },
-    { rate: 0.32, min: 383901, max: 487450 },
-    { rate: 0.35, min: 487451, max: 731200 },
-    { rate: 0.37, min: 731201, max: null },
+    { rate: 0.10, min: 0,       max: 23850 },
+    { rate: 0.12, min: 23851,   max: 96950 },
+    { rate: 0.22, min: 96951,   max: 206700 },
+    { rate: 0.24, min: 206701,  max: 394600 },
+    { rate: 0.32, min: 394601,  max: 501050 },
+    { rate: 0.35, min: 501051,  max: 751600 },
+    { rate: 0.37, min: 751601,  max: null },
   ],
   'Married Filing Separately': [
-    { rate: 0.10, min: 0, max: 11600 },
-    { rate: 0.12, min: 11601, max: 47150 },
-    { rate: 0.22, min: 47151, max: 100525 },
-    { rate: 0.24, min: 100526, max: 191950 },
-    { rate: 0.32, min: 191951, max: 243725 },
-    { rate: 0.35, min: 243726, max: 365600 },
-    { rate: 0.37, min: 365601, max: null },
+    { rate: 0.10, min: 0,       max: 11925 },
+    { rate: 0.12, min: 11926,   max: 48475 },
+    { rate: 0.22, min: 48476,   max: 103350 },
+    { rate: 0.24, min: 103351,  max: 197300 },
+    { rate: 0.32, min: 197301,  max: 250525 },
+    { rate: 0.35, min: 250526,  max: 375800 },
+    { rate: 0.37, min: 375801,  max: null },
   ],
   'Head of Household': [
-    { rate: 0.10, min: 0, max: 16550 },
-    { rate: 0.12, min: 16551, max: 63100 },
-    { rate: 0.22, min: 63101, max: 100500 },
-    { rate: 0.24, min: 100501, max: 191950 },
-    { rate: 0.32, min: 191951, max: 243700 },
-    { rate: 0.35, min: 243701, max: 609350 },
-    { rate: 0.37, min: 609351, max: null },
+    { rate: 0.10, min: 0,       max: 17000 },
+    { rate: 0.12, min: 17001,   max: 64850 },
+    { rate: 0.22, min: 64851,   max: 103350 },
+    { rate: 0.24, min: 103351,  max: 197300 },
+    { rate: 0.32, min: 197301,  max: 250500 },
+    { rate: 0.35, min: 250501,  max: 626350 },
+    { rate: 0.37, min: 626351,  max: null },
   ],
   'Qualifying Surviving Spouse': [
-    { rate: 0.10, min: 0, max: 23200 },
-    { rate: 0.12, min: 23201, max: 94300 },
-    { rate: 0.22, min: 94301, max: 201050 },
-    { rate: 0.24, min: 201051, max: 383900 },
-    { rate: 0.32, min: 383901, max: 487450 },
-    { rate: 0.35, min: 487451, max: 731200 },
-    { rate: 0.37, min: 731201, max: null },
+    { rate: 0.10, min: 0,       max: 23850 },
+    { rate: 0.12, min: 23851,   max: 96950 },
+    { rate: 0.22, min: 96951,   max: 206700 },
+    { rate: 0.24, min: 206701,  max: 394600 },
+    { rate: 0.32, min: 394601,  max: 501050 },
+    { rate: 0.35, min: 501051,  max: 751600 },
+    { rate: 0.37, min: 751601,  max: null },
   ],
 };
 
@@ -60,47 +61,49 @@ export const STANDARD_DEDUCTION_2025: Record<FilingStatus, number> = {
   'Qualifying Surviving Spouse': 30000,
 };
 
-// Additional standard deduction for age 65+ or blind
+// Additional standard deduction for age 65+ or blind (per qualifying condition)
+// Single/HOH: $1,550 per condition; Married: $1,250 per condition
 export const ADDITIONAL_STANDARD_DEDUCTION_2025 = {
-  singleOrHOH: 1950,
-  married: 1550,
+  singleOrHOH: 1550,
+  married: 1250,
 };
 
 // Capital Gains Tax Rates for 2025
+// Source: IRS Revenue Procedure 2024-40
 export const CAPITAL_GAINS_BRACKETS_2025: Record<FilingStatus, Array<{ rate: number; max: number | null }>> = {
   'Single': [
-    { rate: 0.00, max: 47025 },
-    { rate: 0.15, max: 518900 },
+    { rate: 0.00, max: 48350 },
+    { rate: 0.15, max: 533400 },
     { rate: 0.20, max: null },
   ],
   'Married Filing Jointly': [
-    { rate: 0.00, max: 94050 },
-    { rate: 0.15, max: 583750 },
+    { rate: 0.00, max: 96700 },
+    { rate: 0.15, max: 600050 },
     { rate: 0.20, max: null },
   ],
   'Married Filing Separately': [
-    { rate: 0.00, max: 47025 },
-    { rate: 0.15, max: 291875 },
+    { rate: 0.00, max: 48350 },
+    { rate: 0.15, max: 300000 },
     { rate: 0.20, max: null },
   ],
   'Head of Household': [
-    { rate: 0.00, max: 63000 },
-    { rate: 0.15, max: 551350 },
+    { rate: 0.00, max: 64750 },
+    { rate: 0.15, max: 566700 },
     { rate: 0.20, max: null },
   ],
   'Qualifying Surviving Spouse': [
-    { rate: 0.00, max: 94050 },
-    { rate: 0.15, max: 583750 },
+    { rate: 0.00, max: 96700 },
+    { rate: 0.15, max: 600050 },
     { rate: 0.20, max: null },
   ],
 };
 
-// Self-Employment Tax
+// Self-Employment Tax for 2025
 export const SELF_EMPLOYMENT_TAX_2025 = {
-  socialSecurityRate: 0.124, // 12.4%
-  medicareRate: 0.029, // 2.9%
-  socialSecurityWageLimit: 168600,
-  additionalMedicareRate: 0.009, // 0.9%
+  socialSecurityRate: 0.124,   // 12.4%
+  medicareRate: 0.029,         // 2.9%
+  socialSecurityWageLimit: 176100, // 2025 SS wage base
+  additionalMedicareRate: 0.009,   // 0.9% Net Investment Income Tax threshold
   additionalMedicareThreshold: {
     single: 200000,
     marriedFilingJointly: 250000,
@@ -109,20 +112,21 @@ export const SELF_EMPLOYMENT_TAX_2025 = {
 };
 
 // Alternative Minimum Tax (AMT) for 2025
+// Source: IRS Revenue Procedure 2024-40
 export const AMT_2025 = {
   exemption: {
-    single: 85700,
-    marriedFilingJointly: 133300,
-    marriedFilingSeparately: 66650,
+    single: 88100,
+    marriedFilingJointly: 137000,
+    marriedFilingSeparately: 68500,
   },
   phaseoutThreshold: {
-    single: 609350,
-    marriedFilingJointly: 1218700,
-    marriedFilingSeparately: 609350,
+    single: 626350,
+    marriedFilingJointly: 1252700,
+    marriedFilingSeparately: 626350,
   },
   phaseoutRate: 0.25,
-  rate1: 0.26, // Up to $220,700
-  rate2: 0.28, // Above $220,700
+  rate1: 0.26,       // Up to $220,700
+  rate2: 0.28,       // Above $220,700
   rate1Threshold: 220700,
 };
 
@@ -214,7 +218,8 @@ export const HSA_LIMITS_2025 = {
 // IRA Contribution Limits for 2025
 export const IRA_LIMITS_2025 = {
   contributionLimit: 7000,
-  catchUpContribution: 1000, // Age 50+
+  catchUpContribution: 1000,   // Age 50+ (total limit becomes $8,000)
+  // Traditional IRA deductibility phase-out (if covered by workplace plan)
   deductibilityPhaseout: {
     single: {
       start: 79000,
@@ -223,6 +228,21 @@ export const IRA_LIMITS_2025 = {
     marriedFilingJointly: {
       start: 126000,
       end: 146000,
+    },
+  },
+  // Roth IRA contribution phase-out (income limits for direct contributions)
+  rothPhaseout: {
+    single: {
+      start: 150000,
+      end: 165000,
+    },
+    marriedFilingJointly: {
+      start: 236000,
+      end: 246000,
+    },
+    marriedFilingSeparately: {
+      start: 0,
+      end: 10000,
     },
   },
 };
@@ -238,3 +258,17 @@ export const CAPITAL_LOSS_LIMIT = 3000;
 
 // Meals and Entertainment Deduction Rate
 export const MEALS_DEDUCTION_RATE = 0.50; // 50% deductible
+
+// QBI (Qualified Business Income) Deduction for 2025
+// 20% of QBI, subject to W-2 wage limits above income thresholds
+export const QBI_DEDUCTION_2025 = {
+  rate: 0.20,
+  wageAndCapitalLimitThreshold: {
+    single: 197300,
+    marriedFilingJointly: 394600,
+  },
+  phaseoutRange: {
+    single: 50000,         // limit phases in over $50,000 above threshold
+    marriedFilingJointly: 100000,
+  },
+};

@@ -194,7 +194,7 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Wages (Box 1) <span className="text-red-500">*</span>
+                        Wages, Tips, Other Compensation <span className="text-red-500">*</span>
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
@@ -208,11 +208,14 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                         />
                       </div>
                       <ValidationError message={getFieldError(`w2-${index}-wages`)} />
+                      {!getFieldError(`w2-${index}-wages`) && (
+                        <p className="mt-1 text-xs text-slate-500">Box 1 on your W-2 — your total taxable wages for the year</p>
+                      )}
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Federal Tax Withheld (Box 2)
+                        Federal Income Tax Withheld
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
@@ -226,11 +229,14 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                         />
                       </div>
                       <ValidationError message={getFieldError(`w2-${index}-federalTax`)} />
+                      {!getFieldError(`w2-${index}-federalTax`) && (
+                        <p className="mt-1 text-xs text-slate-500">Box 2 on your W-2 — already-paid tax that counts toward your refund</p>
+                      )}
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Social Security Wages (Box 3)
+                        Social Security Wages
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
@@ -242,11 +248,12 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                           className="pl-7 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
                         />
                       </div>
+                      <p className="mt-1 text-xs text-slate-500">Box 3 on your W-2 — often same as Box 1, capped at $176,100</p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Social Security Tax Withheld (Box 4)
+                        Social Security Tax Withheld
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
@@ -258,11 +265,12 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                           className="pl-7 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
                         />
                       </div>
+                      <p className="mt-1 text-xs text-slate-500">Box 4 on your W-2 — should be ~6.2% of Box 3</p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Medicare Wages (Box 5)
+                        Medicare Wages and Tips
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
@@ -274,11 +282,12 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                           className="pl-7 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
                         />
                       </div>
+                      <p className="mt-1 text-xs text-slate-500">Box 5 on your W-2 — no cap, usually same as Box 1</p>
                     </div>
 
                     <div>
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
-                        Medicare Tax Withheld (Box 6)
+                        Medicare Tax Withheld
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
@@ -290,6 +299,7 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                           className="pl-7 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
                         />
                       </div>
+                      <p className="mt-1 text-xs text-slate-500">Box 6 on your W-2 — should be ~1.45% of Box 5</p>
                     </div>
                   </div>
                 </div>

@@ -62,10 +62,10 @@ export default function RetirementForm({
 
   const getInputClassName = (fieldName: string) => {
     const hasError = getFieldError(fieldName);
-    return `block w-full rounded-md shadow-sm ${
+    return `block w-full rounded-lg shadow-sm ${
       hasError
         ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-        : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+        : 'border-slate-300 focus:border-blue-600 focus:ring-blue-600'
     }`;
   };
 
@@ -103,15 +103,19 @@ export default function RetirementForm({
   };
 
   return (
-    <div className="space-y-8 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Retirement Accounts</h2>
+    <div className="space-y-8 max-w-4xl mx-auto px-4 py-6 fade-in">
+      {/* Page header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-slate-900 mb-2">Retirement Accounts</h2>
+          <p className="text-slate-600">Enter IRA contributions, Roth conversions, and distributions for 2025.</p>
+        </div>
         <button
           type="button"
           onClick={() => setShowMegaBackdoorHelp(!showMegaBackdoorHelp)}
-          className="text-blue-600 hover:text-blue-500"
+          className="flex items-center space-x-2 rounded-xl border border-blue-200 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-700 hover:bg-blue-100 transition-all"
         >
-          {showMegaBackdoorHelp ? 'Hide Help' : 'Mega Backdoor Help'}
+          {showMegaBackdoorHelp ? 'Hide Help' : '💡 Mega Backdoor Roth Help'}
         </button>
       </div>
 
@@ -135,32 +139,33 @@ export default function RetirementForm({
       )}
 
       {showMegaBackdoorHelp && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-blue-900 mb-4">Mega Backdoor Roth Strategy</h3>
-          <div className="prose prose-blue max-w-none">
-            <p>The mega backdoor Roth strategy allows you to contribute additional after-tax money to your retirement accounts. Here's how it works:</p>
-            <ol>
-              <li>Make after-tax contributions to your traditional IRA</li>
-              <li>Convert these contributions to a Roth IRA (usually immediately)</li>
-              <li>The conversion is tax-free if you have no pre-tax money in any traditional IRAs</li>
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+          <h3 className="text-lg font-semibold text-blue-900 mb-4">💡 Mega Backdoor Roth Strategy</h3>
+          <div className="space-y-3 text-sm text-blue-800">
+            <p>The backdoor Roth strategy lets you contribute to a Roth IRA even if your income exceeds the direct contribution limits. Here's how it works:</p>
+            <ol className="list-decimal list-inside space-y-2 ml-2">
+              <li>Make a <strong>non-deductible (after-tax)</strong> contribution to a Traditional IRA</li>
+              <li><strong>Convert</strong> that contribution to a Roth IRA (ideally immediately)</li>
+              <li>The conversion is <strong>tax-free</strong> if you have no other pre-tax money in any Traditional IRA</li>
             </ol>
-            <p className="font-semibold">Important: Having pre-tax money in any traditional IRA will trigger the pro-rata rule, making part of your conversion taxable.</p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-3">
+              <p className="font-semibold text-yellow-800">⚠️ Pro-Rata Rule Warning</p>
+              <p className="mt-1 text-yellow-700">If you have <em>any</em> pre-tax money in a Traditional, SEP, or SIMPLE IRA, the IRS applies the pro-rata rule. Your conversion will be partially taxable in proportion to how much pre-tax money exists across all your IRAs. To avoid this, roll pre-tax IRA balances into your employer's 401(k) first (if the plan allows incoming rollovers).</p>
+            </div>
           </div>
         </div>
       )}
 
       {/* Traditional IRA Section */}
-      <div className="border rounded-lg p-6 space-y-6 bg-white shadow-sm">
-        <h3 className="text-lg font-semibold">Traditional IRA</h3>
+      <div className="card-premium p-6 space-y-6">
+        <h3 className="text-lg font-semibold text-slate-800">Traditional IRA</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
               Contribution Amount
             </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <span className="text-gray-500 sm:text-sm">$</span>
-              </div>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
                 value={traditionalIRA?.amount || 0}
@@ -173,36 +178,35 @@ export default function RetirementForm({
             </div>
             <ValidationError message={getFieldError('retirement-traditional-amount')} />
             {!getFieldError('retirement-traditional-amount') && (
-              <p className="mt-1 text-xs text-gray-500">2025 limit: $7,000 ($8,000 if age 50+)</p>
+              <p className="mt-1 text-xs text-slate-500">2025 limit: $7,000 ($8,000 if age 50+) — found on Form 5498</p>
             )}
           </div>
 
-          <div className="flex items-center space-x-2 pt-6">
+          <div className="flex items-center space-x-3 pt-8">
             <input
               type="checkbox"
               id="isDeductible"
               checked={traditionalIRA?.isDeductible || false}
               onChange={(e) => handleTraditionalIRAChange({ isDeductible: e.target.checked })}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
             />
-            <label htmlFor="isDeductible" className="text-sm font-medium text-gray-700">
+            <label htmlFor="isDeductible" className="text-sm font-semibold text-slate-700">
               Contribution is deductible
+              <p className="text-xs text-slate-500 font-normal mt-0.5">Deductibility depends on income and whether you have a workplace retirement plan</p>
             </label>
           </div>
         </div>
       </div>
 
       {/* Roth IRA Section */}
-      <div className="border rounded-lg p-6 space-y-6 bg-white shadow-sm">
-        <h3 className="text-lg font-semibold">Roth IRA</h3>
+      <div className="card-premium p-6 space-y-6">
+        <h3 className="text-lg font-semibold text-slate-800">Roth IRA</h3>
         <div>
-          <label className="block text-sm font-medium text-gray-700">
+          <label className="block text-sm font-semibold text-slate-700 mb-2">
             Contribution Amount
           </label>
-          <div className="mt-1 relative rounded-md shadow-sm">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <span className="text-gray-500 sm:text-sm">$</span>
-            </div>
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
             <input
               type="number"
               value={rothIRA?.amount || 0}
@@ -215,7 +219,7 @@ export default function RetirementForm({
           </div>
           <ValidationError message={getFieldError('retirement-roth-amount')} />
           {!getFieldError('retirement-roth-amount') && (
-            <p className="mt-1 text-xs text-gray-500">2025 limit: $7,000 ($8,000 if age 50+)</p>
+            <p className="mt-1 text-xs text-slate-500">2025 limit: $7,000 ($8,000 if age 50+). Phase-out starts at $150,000 (single) / $236,000 (MFJ).</p>
           )}
         </div>
 
@@ -226,21 +230,23 @@ export default function RetirementForm({
       </div>
 
       {/* Form 8606 Section (Mega Backdoor Roth) */}
-      <div className="border rounded-lg p-6 space-y-6 bg-white shadow-sm">
-        <h3 className="text-lg font-semibold">Form 8606 - Nondeductible IRAs</h3>
-        <p className="text-sm text-gray-600 mb-4">
-          Use this section if you made nondeductible (after-tax) contributions or did a Roth conversion.
-        </p>
+      <div className="card-premium p-6 space-y-6">
+        <div>
+          <h3 className="text-lg font-semibold text-slate-800">Form 8606 — Nondeductible IRAs</h3>
+          <p className="text-sm text-slate-500 mt-1">
+            Complete this section if you made nondeductible (after-tax) IRA contributions or did a Roth conversion.
+            The IRS uses the pro-rata rule to determine what portion of conversions and distributions are taxable.
+          </p>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Line 1 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Nondeductible Contributions (Current Year)
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Nondeductible Contributions — Current Year <span className="text-xs font-normal text-slate-400">(Form 8606, Line 1)</span>
             </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <span className="text-gray-500 sm:text-sm">$</span>
-              </div>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
                 value={form8606?.nondeductibleContributions || 0}
@@ -251,16 +257,16 @@ export default function RetirementForm({
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-nondeductible')} />
+            <p className="mt-1 text-xs text-slate-500">After-tax contributions made to a Traditional IRA this year</p>
           </div>
 
+          {/* Line 2 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Prior Year Basis
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Prior Year Basis <span className="text-xs font-normal text-slate-400">(Form 8606, Line 2)</span>
             </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <span className="text-gray-500 sm:text-sm">$</span>
-              </div>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
                 value={form8606?.priorYearBasis || 0}
@@ -271,16 +277,16 @@ export default function RetirementForm({
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-priorBasis')} />
+            <p className="mt-1 text-xs text-slate-500">Total nondeductible contributions from all prior years (from your last Form 8606)</p>
           </div>
 
+          {/* Line 4 */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Amount Converted to Roth
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Amount Converted to Roth IRA <span className="text-xs font-normal text-slate-400">(Form 8606, Line 4)</span>
             </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <span className="text-gray-500 sm:text-sm">$</span>
-              </div>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
                 value={form8606?.conversionsToRoth || 0}
@@ -291,16 +297,36 @@ export default function RetirementForm({
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-conversions')} />
+            <p className="mt-1 text-xs text-slate-500">Total converted from Traditional IRA to Roth IRA during 2025</p>
           </div>
 
+          {/* Line 5 — PREVIOUSLY MISSING FROM UI */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Traditional IRA Balance (End of Year)
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Distributions from Traditional IRA <span className="text-xs font-normal text-slate-400">(Form 8606, Line 5)</span>
             </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                <span className="text-gray-500 sm:text-sm">$</span>
-              </div>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
+              <input
+                type="number"
+                value={form8606?.distributionsFromTraditionalIRA || 0}
+                onChange={(e) => handleForm8606Change({ distributionsFromTraditionalIRA: parseFloat(e.target.value) || 0 })}
+                onBlur={() => touchField('retirement-8606-distributions')}
+                min="0"
+                className={`pl-7 ${getInputClassName('retirement-8606-distributions')}`}
+              />
+            </div>
+            <ValidationError message={getFieldError('retirement-8606-distributions')} />
+            <p className="mt-1 text-xs text-slate-500">Regular withdrawals taken from Traditional IRA (excluding conversions) — from Form 1099-R</p>
+          </div>
+
+          {/* Line 7 */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Traditional IRA Balance at Dec 31, 2025 <span className="text-xs font-normal text-slate-400">(Form 8606, Line 7)</span>
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
                 value={form8606?.endOfYearTraditionalIRABalance || 0}
@@ -311,19 +337,20 @@ export default function RetirementForm({
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-balance')} />
+            <p className="mt-1 text-xs text-slate-500">Combined year-end value of all Traditional, SEP, and SIMPLE IRAs — include all accounts</p>
           </div>
         </div>
 
         {/* Form 8606 Analysis */}
         {form8606 && (form8606.conversionsToRoth > 0 || form8606.nondeductibleContributions > 0) && (
-          <div className="mt-8 space-y-4">
-            <h4 className="font-semibold">Analysis</h4>
-            
+          <div className="mt-6 space-y-4 border-t pt-6">
+            <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Pro-Rata Analysis</h4>
+
             {/* Warnings */}
             {warnings.length > 0 && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
-                <h5 className="text-yellow-800 font-medium mb-2">Warnings</h5>
-                <ul className="list-disc list-inside text-yellow-700 space-y-1">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <h5 className="text-yellow-800 font-semibold mb-2">⚠️ Warnings</h5>
+                <ul className="list-disc list-inside text-yellow-700 space-y-1 text-sm">
                   {warnings.map((warning, i) => (
                     <li key={i}>{warning}</li>
                   ))}
@@ -333,9 +360,9 @@ export default function RetirementForm({
 
             {/* Recommendations */}
             {recommendations.length > 0 && (
-              <div className="bg-green-50 border border-green-200 rounded-md p-4">
-                <h5 className="text-green-800 font-medium mb-2">Recommendations</h5>
-                <ul className="list-disc list-inside text-green-700 space-y-1">
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h5 className="text-green-800 font-semibold mb-2">✅ Recommendations</h5>
+                <ul className="list-disc list-inside text-green-700 space-y-1 text-sm">
                   {recommendations.map((rec, i) => (
                     <li key={i}>{rec}</li>
                   ))}
@@ -344,30 +371,45 @@ export default function RetirementForm({
             )}
 
             {/* Calculation Results */}
-            {form8606 && (form8606.conversionsToRoth > 0) && (
-              <div className="bg-white border rounded-md p-4">
-                <h5 className="font-medium mb-2">Conversion Results</h5>
+            {form8606 && form8606.conversionsToRoth > 0 && (
+              <div className="bg-slate-50 border border-slate-200 rounded-lg p-5">
+                <h5 className="font-semibold text-slate-800 mb-4">Conversion Breakdown (Form 8606, Part II)</h5>
                 {(() => {
                   const results = calculateForm8606(form8606);
+                  const basisPct = (results.line9_basisPercentage * 100).toFixed(2);
                   return (
-                    <dl className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <dt className="text-sm text-gray-600">Total Converted</dt>
-                        <dd className="text-lg font-medium">${results.line16_amountConverted.toLocaleString()}</dd>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center text-sm py-2 border-b border-slate-200">
+                        <span className="text-slate-600">Total basis (after-tax contributions, Line 3)</span>
+                        <span className="font-semibold">${results.line3_totalBasis.toLocaleString()}</span>
                       </div>
-                      <div>
-                        <dt className="text-sm text-gray-600">Nontaxable Amount</dt>
-                        <dd className="text-lg font-medium text-green-600">${results.line17_nontaxablePortion.toLocaleString()}</dd>
+                      <div className="flex justify-between items-center text-sm py-2 border-b border-slate-200">
+                        <span className="text-slate-600">Total IRA pool (Line 8)</span>
+                        <span className="font-semibold">${results.line8_totalIRABalancePlusDistributions.toLocaleString()}</span>
                       </div>
-                      <div>
-                        <dt className="text-sm text-gray-600">Taxable Amount</dt>
-                        <dd className="text-lg font-medium text-red-600">${results.line18_taxablePortion.toLocaleString()}</dd>
+                      <div className="flex justify-between items-center text-sm py-2 border-b border-slate-200">
+                        <span className="text-slate-600">Tax-free percentage (Line 9)</span>
+                        <span className="font-semibold text-blue-600">{basisPct}%</span>
                       </div>
-                      <div>
-                        <dt className="text-sm text-gray-600">Remaining Basis</dt>
-                        <dd className="text-lg font-medium">${results.remainingBasis.toLocaleString()}</dd>
+                      <dl className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                        <div className="bg-white rounded-lg p-3 border border-slate-200 text-center">
+                          <dt className="text-xs text-slate-500 uppercase tracking-wide">Total Converted</dt>
+                          <dd className="text-xl font-bold text-slate-800 mt-1">${results.line16_amountConverted.toLocaleString()}</dd>
+                        </div>
+                        <div className="bg-green-50 rounded-lg p-3 border border-green-200 text-center">
+                          <dt className="text-xs text-green-700 uppercase tracking-wide">Tax-Free Amount</dt>
+                          <dd className="text-xl font-bold text-green-600 mt-1">${results.line17_nontaxablePortion.toLocaleString()}</dd>
+                        </div>
+                        <div className="bg-red-50 rounded-lg p-3 border border-red-200 text-center">
+                          <dt className="text-xs text-red-700 uppercase tracking-wide">Taxable Amount</dt>
+                          <dd className="text-xl font-bold text-red-600 mt-1">${results.line18_taxablePortion.toLocaleString()}</dd>
+                        </div>
+                      </dl>
+                      <div className="flex justify-between items-center text-sm pt-2">
+                        <span className="text-slate-600">Remaining basis carried to 2026</span>
+                        <span className="font-semibold">${results.remainingBasis.toLocaleString()}</span>
                       </div>
-                    </dl>
+                    </div>
                   );
                 })()}
               </div>

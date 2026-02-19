@@ -87,11 +87,13 @@ export default function CapitalGainsForm({ values, onChange, onValidationChange 
     return proceeds - costBasis;
   };
 
-  // Check for wash sale (selling at loss within 30 days of purchase)
-  const isWashSale = (dateAcquired: string, dateSold: string, proceeds: number, costBasis: number): boolean => {
-    const holdingDays = getHoldingPeriod(dateAcquired, dateSold);
-    const gainLoss = getGainLoss(proceeds, costBasis);
-    return holdingDays !== null && holdingDays <= 30 && gainLoss < 0;
+  // Wash sale detection note:
+  // The IRS wash sale rule disallows a loss if you buy the same (or substantially
+  // identical) security within 30 days BEFORE or AFTER the sale — it's about
+  // repurchasing, not the holding period. We can't reliably auto-detect this from
+  // per-transaction data alone, so we flag all losses as needing manual review.
+  const hasWashSaleRisk = (proceeds: number, costBasis: number): boolean => {
+    return getGainLoss(proceeds, costBasis) < 0;
   };
 
   // Calculate totals
@@ -160,7 +162,7 @@ export default function CapitalGainsForm({ values, onChange, onValidationChange 
           {values.map((txn, index) => {
             const holdingDays = getHoldingPeriod(txn.dateAcquired, txn.dateSold);
             const gainLoss = getGainLoss(txn.proceeds, txn.costBasis);
-            const isWash = isWashSale(txn.dateAcquired, txn.dateSold, txn.proceeds, txn.costBasis);
+            const washRisk = hasWashSaleRisk(txn.proceeds, txn.costBasis);
             const isGain = gainLoss > 0;
             const isLoss = gainLoss < 0;
 
@@ -191,7 +193,7 @@ export default function CapitalGainsForm({ values, onChange, onValidationChange 
                   </button>
                 </div>
 
-                {isWash && (
+                {washRisk && (
                   <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
                     <div className="flex">
                       <div className="flex-shrink-0">
@@ -201,8 +203,7 @@ export default function CapitalGainsForm({ values, onChange, onValidationChange 
                       </div>
                       <div className="ml-3">
                         <p className="text-sm text-yellow-700">
-                          <strong>Wash Sale Warning:</strong> This appears to be a wash sale (sold at a loss within 30 days of purchase). 
-                          The loss may not be deductible. Consult a tax professional.
+                          <strong>Wash Sale Check:</strong> This transaction shows a loss. If you purchased the same or substantially identical security within 30 days <em>before or after</em> this sale, the IRS wash sale rule disallows the loss. Check your brokerage 1099-B — wash sales are usually already identified and noted there.
                         </p>
                       </div>
                     </div>

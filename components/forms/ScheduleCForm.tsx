@@ -15,6 +15,7 @@ interface ScheduleCFormProps {
 export default function ScheduleCForm({ value, onChange, onValidationChange }: ScheduleCFormProps) {
   const [showAllErrors, setShowAllErrors] = React.useState(false);
   const [touchedFields, setTouchedFields] = React.useState<Set<string>>(new Set());
+  const [accountingMethod, setAccountingMethod] = React.useState<'cash' | 'accrual'>('cash');
   // Initialize with default values if not provided
   const formData = value || {
     businessName: '',
@@ -225,21 +226,25 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                   type="radio"
                   name="accountingMethod"
                   value="cash"
-                  defaultChecked
+                  checked={accountingMethod === 'cash'}
+                  onChange={() => setAccountingMethod('cash')}
                   className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span className="ml-2 text-sm text-gray-700">Cash</span>
+                <span className="ml-2 text-sm text-gray-700">Cash (most common for freelancers)</span>
               </label>
               <label className="inline-flex items-center">
                 <input
                   type="radio"
                   name="accountingMethod"
                   value="accrual"
+                  checked={accountingMethod === 'accrual'}
+                  onChange={() => setAccountingMethod('accrual')}
                   className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="ml-2 text-sm text-gray-700">Accrual</span>
               </label>
             </div>
+            <p className="mt-1 text-xs text-gray-500">Most sole proprietors and freelancers use the cash method</p>
           </div>
         </div>
       </div>
@@ -409,6 +414,25 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
 
           <div>
             <label className="block text-sm font-medium text-gray-700">
+              Depletion
+            </label>
+            <div className="mt-1 relative rounded-md shadow-sm">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <span className="text-gray-500 sm:text-sm">$</span>
+              </div>
+              <input
+                type="number"
+                value={formData.expenses.depletion}
+                onChange={(e) => updateExpense('depletion', parseFloat(e.target.value) || 0)}
+                min="0"
+                step="0.01"
+                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
               Depreciation
             </label>
             <div className="mt-1 relative rounded-md shadow-sm">
@@ -424,6 +448,46 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Employee Benefit Programs
+            </label>
+            <div className="mt-1 relative rounded-md shadow-sm">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <span className="text-gray-500 sm:text-sm">$</span>
+              </div>
+              <input
+                type="number"
+                value={formData.expenses.employeeBenefitPrograms}
+                onChange={(e) => updateExpense('employeeBenefitPrograms', parseFloat(e.target.value) || 0)}
+                min="0"
+                step="0.01"
+                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <p className="mt-1 text-xs text-gray-500">Health insurance, life insurance, and other employee benefit programs</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Pension and Profit-Sharing Plans
+            </label>
+            <div className="mt-1 relative rounded-md shadow-sm">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <span className="text-gray-500 sm:text-sm">$</span>
+              </div>
+              <input
+                type="number"
+                value={formData.expenses.pension}
+                onChange={(e) => updateExpense('pension', parseFloat(e.target.value) || 0)}
+                min="0"
+                step="0.01"
+                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+              />
+            </div>
+            <p className="mt-1 text-xs text-gray-500">Contributions to employee retirement plans (e.g., SEP-IRA, SIMPLE IRA)</p>
           </div>
 
           <div>

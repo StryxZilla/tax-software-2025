@@ -4,16 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTaxReturn } from '@/lib/context/TaxReturnContext';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ChevronDown, ChevronUp, TrendingUp, TrendingDown, DollarSign, Percent, Loader2, Clock } from 'lucide-react';
-
-const TAX_BRACKETS_2025 = [
-  { rate: 10, min: 0, max: 11600 },
-  { rate: 12, min: 11600, max: 47150 },
-  { rate: 22, min: 47150, max: 100525 },
-  { rate: 24, min: 100525, max: 191950 },
-  { rate: 32, min: 191950, max: 243725 },
-  { rate: 35, min: 243725, max: 609350 },
-  { rate: 37, min: 609350, max: Infinity },
-];
+import { TAX_BRACKETS_2025 } from '../../data/tax-constants';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#ef4444'];
 
@@ -98,31 +89,37 @@ export default function TaxSummarySidebar() {
     );
   }
 
+  // Get the correct brackets for this taxpayer's filing status
+  const filingStatus = taxReturn.personalInfo.filingStatus;
+  const applicableBrackets = TAX_BRACKETS_2025[filingStatus];
+
   // Calculate tax breakdown by bracket
   const taxableIncome = taxCalculation.taxableIncome;
-  const bracketBreakdown = TAX_BRACKETS_2025.map(bracket => {
+  const bracketBreakdown = applicableBrackets.map(bracket => {
+    const bracketMax = bracket.max ?? Infinity;
     const incomeInBracket = Math.max(
       0,
-      Math.min(taxableIncome, bracket.max) - bracket.min
+      Math.min(taxableIncome, bracketMax) - bracket.min
     );
-    const taxInBracket = incomeInBracket * (bracket.rate / 100);
-    
+    const taxInBracket = incomeInBracket * bracket.rate;
+
     return {
-      bracket: `${bracket.rate}%`,
+      bracket: `${Math.round(bracket.rate * 100)}%`,
       income: incomeInBracket,
       tax: taxInBracket,
     };
   }).filter(b => b.income > 0);
 
   // Calculate effective and marginal tax rates
-  const effectiveRate = taxableIncome > 0 
-    ? (taxCalculation.regularTax / taxableIncome) * 100 
+  const effectiveRate = taxableIncome > 0
+    ? (taxCalculation.regularTax / taxableIncome) * 100
     : 0;
-  
-  const marginalBracket = TAX_BRACKETS_2025.find(
-    b => taxableIncome >= b.min && taxableIncome < b.max
-  );
-  const marginalRate = marginalBracket ? marginalBracket.rate : 37;
+
+  const marginalBracket = applicableBrackets.find(b => {
+    const bracketMax = b.max ?? Infinity;
+    return taxableIncome >= b.min && taxableIncome < bracketMax;
+  });
+  const marginalRate = marginalBracket ? Math.round(marginalBracket.rate * 100) : 37;
 
   // Calculate income sources with memoization and performance optimizations
   const incomeSources = useMemo(() => {
