@@ -7,20 +7,28 @@ import {
   SALT_CAP_2025, 
   MEDICAL_EXPENSE_AGI_THRESHOLD 
 } from '../../data/tax-constants';
+import { validateItemizedDeductions } from '../../lib/validation/form-validation';
+import { AlertCircle } from 'lucide-react';
+import ValidationError from '../common/ValidationError';
 
 interface ItemizedDeductionsFormProps {
   values: ItemizedDeductions | undefined;
   onChange: (values: ItemizedDeductions) => void;
   agi: number;
   filingStatus: FilingStatus;
+  onValidationChange?: (isValid: boolean) => void;
 }
 
 export default function ItemizedDeductionsForm({ 
   values, 
   onChange, 
   agi, 
-  filingStatus 
+  filingStatus,
+  onValidationChange,
 }: ItemizedDeductionsFormProps) {
+  const [showAllErrors, setShowAllErrors] = React.useState(false);
+  const [touchedFields, setTouchedFields] = React.useState<Set<string>>(new Set());
+
   // Initialize with defaults if undefined
   const deductions: ItemizedDeductions = values || {
     medicalExpenses: 0,
@@ -34,6 +42,33 @@ export default function ItemizedDeductionsForm({
     charitableNonCash: 0,
     casualtyLosses: 0,
     otherDeductions: 0,
+  };
+
+  // Validation
+  const errors = validateItemizedDeductions(deductions);
+  const isValid = errors.length === 0;
+
+  React.useEffect(() => {
+    onValidationChange?.(isValid);
+  }, [isValid, onValidationChange]);
+
+  const touchField = (fieldName: string) => {
+    setTouchedFields(prev => new Set([...prev, fieldName]));
+  };
+
+  const getFieldError = (fieldName: string): string | undefined => {
+    if (!touchedFields.has(fieldName) && !showAllErrors) return undefined;
+    const error = errors.find(e => e.field === fieldName);
+    return error?.message;
+  };
+
+  const getInputClassName = (fieldName: string) => {
+    const hasError = getFieldError(fieldName);
+    return `block w-full rounded-md pl-7 shadow-sm ${
+      hasError
+        ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+        : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
+    }`;
   };
 
   const updateField = (field: keyof ItemizedDeductions, value: number) => {
@@ -79,6 +114,25 @@ export default function ItemizedDeductionsForm({
           Enter your deductible expenses. We'll compare to the standard deduction and recommend the better option.
         </p>
       </div>
+
+      {/* Validation summary */}
+      {showAllErrors && !isValid && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-start">
+            <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
+            <div>
+              <h3 className="text-sm font-semibold text-red-800 mb-2">
+                Please fix the following errors:
+              </h3>
+              <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                {errors.map((error, idx) => (
+                  <li key={idx}>{error.message}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Comparison Banner */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-lg p-6">
@@ -142,9 +196,12 @@ export default function ItemizedDeductionsForm({
                 type="number"
                 value={deductions.medicalExpenses}
                 onChange={(e) => updateField('medicalExpenses', parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                onBlur={() => touchField('itemized-medicalExpenses')}
+                min="0"
+                className={getInputClassName('itemized-medicalExpenses')}
               />
             </div>
+            <ValidationError message={getFieldError('itemized-medicalExpenses')} />
           </div>
 
           <div className="flex items-center">
@@ -197,9 +254,12 @@ export default function ItemizedDeductionsForm({
                 type="number"
                 value={deductions.stateTaxesPaid}
                 onChange={(e) => updateField('stateTaxesPaid', parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                onBlur={() => touchField('itemized-stateTaxesPaid')}
+                min="0"
+                className={getInputClassName('itemized-stateTaxesPaid')}
               />
             </div>
+            <ValidationError message={getFieldError('itemized-stateTaxesPaid')} />
           </div>
 
           <div>
@@ -214,9 +274,12 @@ export default function ItemizedDeductionsForm({
                 type="number"
                 value={deductions.localTaxesPaid}
                 onChange={(e) => updateField('localTaxesPaid', parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                onBlur={() => touchField('itemized-localTaxesPaid')}
+                min="0"
+                className={getInputClassName('itemized-localTaxesPaid')}
               />
             </div>
+            <ValidationError message={getFieldError('itemized-localTaxesPaid')} />
           </div>
 
           <div>
@@ -231,9 +294,12 @@ export default function ItemizedDeductionsForm({
                 type="number"
                 value={deductions.realEstateTaxes}
                 onChange={(e) => updateField('realEstateTaxes', parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                onBlur={() => touchField('itemized-realEstateTaxes')}
+                min="0"
+                className={getInputClassName('itemized-realEstateTaxes')}
               />
             </div>
+            <ValidationError message={getFieldError('itemized-realEstateTaxes')} />
           </div>
 
           <div>
@@ -248,9 +314,12 @@ export default function ItemizedDeductionsForm({
                 type="number"
                 value={deductions.personalPropertyTaxes}
                 onChange={(e) => updateField('personalPropertyTaxes', parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                onBlur={() => touchField('itemized-personalPropertyTaxes')}
+                min="0"
+                className={getInputClassName('itemized-personalPropertyTaxes')}
               />
             </div>
+            <ValidationError message={getFieldError('itemized-personalPropertyTaxes')} />
           </div>
 
           <div className="md:col-span-2">
@@ -289,9 +358,12 @@ export default function ItemizedDeductionsForm({
                 type="number"
                 value={deductions.homeMortgageInterest}
                 onChange={(e) => updateField('homeMortgageInterest', parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                onBlur={() => touchField('itemized-homeMortgageInterest')}
+                min="0"
+                className={getInputClassName('itemized-homeMortgageInterest')}
               />
             </div>
+            <ValidationError message={getFieldError('itemized-homeMortgageInterest')} />
           </div>
 
           <div>
@@ -306,9 +378,12 @@ export default function ItemizedDeductionsForm({
                 type="number"
                 value={deductions.investmentInterest}
                 onChange={(e) => updateField('investmentInterest', parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                onBlur={() => touchField('itemized-investmentInterest')}
+                min="0"
+                className={getInputClassName('itemized-investmentInterest')}
               />
             </div>
+            <ValidationError message={getFieldError('itemized-investmentInterest')} />
           </div>
         </div>
       </div>
@@ -330,9 +405,12 @@ export default function ItemizedDeductionsForm({
                 type="number"
                 value={deductions.charitableCash}
                 onChange={(e) => updateField('charitableCash', parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                onBlur={() => touchField('itemized-charitableCash')}
+                min="0"
+                className={getInputClassName('itemized-charitableCash')}
               />
             </div>
+            <ValidationError message={getFieldError('itemized-charitableCash')} />
           </div>
 
           <div>
@@ -347,9 +425,12 @@ export default function ItemizedDeductionsForm({
                 type="number"
                 value={deductions.charitableNonCash}
                 onChange={(e) => updateField('charitableNonCash', parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                onBlur={() => touchField('itemized-charitableNonCash')}
+                min="0"
+                className={getInputClassName('itemized-charitableNonCash')}
               />
             </div>
+            <ValidationError message={getFieldError('itemized-charitableNonCash')} />
           </div>
 
           <div className="md:col-span-2">
@@ -382,9 +463,12 @@ export default function ItemizedDeductionsForm({
                 type="number"
                 value={deductions.casualtyLosses}
                 onChange={(e) => updateField('casualtyLosses', parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                onBlur={() => touchField('itemized-casualtyLosses')}
+                min="0"
+                className={getInputClassName('itemized-casualtyLosses')}
               />
             </div>
+            <ValidationError message={getFieldError('itemized-casualtyLosses')} />
           </div>
 
           <div>
@@ -399,9 +483,12 @@ export default function ItemizedDeductionsForm({
                 type="number"
                 value={deductions.otherDeductions}
                 onChange={(e) => updateField('otherDeductions', parseFloat(e.target.value) || 0)}
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                onBlur={() => touchField('itemized-otherDeductions')}
+                min="0"
+                className={getInputClassName('itemized-otherDeductions')}
               />
             </div>
+            <ValidationError message={getFieldError('itemized-otherDeductions')} />
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 // Form Validation Utilities
 // Provides validation functions for all tax forms
 
-import { PersonalInfo, W2Income, Dependent, Interest1099INT, EducationExpenses } from '../../types/tax-types';
+import { PersonalInfo, W2Income, Dependent, Interest1099INT, EducationExpenses, TraditionalIRAContribution, RothIRAContribution, Form8606Data, ItemizedDeductions } from '../../types/tax-types';
 
 export interface ValidationError {
   field: string;
@@ -297,6 +297,101 @@ export function validateRentalProperty(rental: any, index: number): ValidationEr
   }
   if (rental.rentalIncome < 0) {
     errors.push({ field: `rental-${index}-rentalIncome`, message: `${prefix}: Rental income cannot be negative` });
+  }
+
+  return errors;
+}
+
+// IRA / Retirement Validation (2025 limits)
+const IRA_LIMIT_2025 = 7000;
+const IRA_CATCHUP_LIMIT_2025 = 8000; // 50+ years old
+
+export function validateRetirement(
+  traditionalIRA: TraditionalIRAContribution | undefined,
+  rothIRA: RothIRAContribution | undefined,
+  form8606: Form8606Data | undefined
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  if (traditionalIRA) {
+    if (traditionalIRA.amount < 0) {
+      errors.push({ field: 'retirement-traditional-amount', message: 'Traditional IRA contribution cannot be negative' });
+    }
+    if (traditionalIRA.amount > IRA_CATCHUP_LIMIT_2025) {
+      errors.push({
+        field: 'retirement-traditional-amount',
+        message: `Traditional IRA contribution cannot exceed $${IRA_CATCHUP_LIMIT_2025.toLocaleString()} (2025 limit)`,
+      });
+    }
+  }
+
+  if (rothIRA) {
+    if (rothIRA.amount < 0) {
+      errors.push({ field: 'retirement-roth-amount', message: 'Roth IRA contribution cannot be negative' });
+    }
+    if (rothIRA.amount > IRA_CATCHUP_LIMIT_2025) {
+      errors.push({
+        field: 'retirement-roth-amount',
+        message: `Roth IRA contribution cannot exceed $${IRA_CATCHUP_LIMIT_2025.toLocaleString()} (2025 limit)`,
+      });
+    }
+  }
+
+  // Combined traditional + Roth cannot exceed the annual limit
+  const totalIRA = (traditionalIRA?.amount || 0) + (rothIRA?.amount || 0);
+  if (totalIRA > IRA_CATCHUP_LIMIT_2025) {
+    errors.push({
+      field: 'retirement-combined-limit',
+      message: `Combined IRA contributions ($${totalIRA.toLocaleString()}) exceed the 2025 annual limit of $${IRA_CATCHUP_LIMIT_2025.toLocaleString()}`,
+    });
+  }
+
+  if (form8606) {
+    if (form8606.nondeductibleContributions < 0) {
+      errors.push({ field: 'retirement-8606-nondeductible', message: 'Nondeductible contributions cannot be negative' });
+    }
+    if (form8606.priorYearBasis < 0) {
+      errors.push({ field: 'retirement-8606-priorBasis', message: 'Prior year basis cannot be negative' });
+    }
+    if (form8606.conversionsToRoth < 0) {
+      errors.push({ field: 'retirement-8606-conversions', message: 'Roth conversion amount cannot be negative' });
+    }
+    if (form8606.endOfYearTraditionalIRABalance < 0) {
+      errors.push({ field: 'retirement-8606-balance', message: 'End-of-year IRA balance cannot be negative' });
+    }
+  }
+
+  return errors;
+}
+
+// Itemized Deductions Validation
+export function validateItemizedDeductions(deductions: ItemizedDeductions | undefined): ValidationError[] {
+  const errors: ValidationError[] = [];
+
+  if (!deductions) return errors;
+
+  const fields: Array<[keyof ItemizedDeductions, string]> = [
+    ['medicalExpenses', 'Medical expenses'],
+    ['stateTaxesPaid', 'State taxes paid'],
+    ['localTaxesPaid', 'Local taxes paid'],
+    ['realEstateTaxes', 'Real estate taxes'],
+    ['personalPropertyTaxes', 'Personal property taxes'],
+    ['homeMortgageInterest', 'Home mortgage interest'],
+    ['investmentInterest', 'Investment interest'],
+    ['charitableCash', 'Charitable cash contributions'],
+    ['charitableNonCash', 'Charitable non-cash contributions'],
+    ['casualtyLosses', 'Casualty and theft losses'],
+    ['otherDeductions', 'Other deductions'],
+  ];
+
+  for (const [field, label] of fields) {
+    const value = deductions[field];
+    if (typeof value === 'number' && value < 0) {
+      errors.push({
+        field: `itemized-${field}`,
+        message: `${label} cannot be negative`,
+      });
+    }
   }
 
   return errors;
