@@ -1,0 +1,127 @@
+{
+  "testScenario": "Married couple, dual income, kids, itemized deductions",
+  "description": "Realistic middle-class family tax scenario for 2025",
+  
+  "personalInfo": {
+    "filingStatus": "Married Filing Jointly",
+    "firstName": "John",
+    "lastName": "Sample",
+    "ssn": "123-45-6789",
+    "spouseFirstName": "Jane",
+    "spouseLastName": "Sample",
+    "spouseSSN": "987-65-4321",
+    "address": "123 Test Street",
+    "city": "Austin",
+    "state": "TX",
+    "zipCode": "78701",
+    "dateOfBirth": "1985-06-15",
+    "spouseDateOfBirth": "1987-03-22"
+  },
+  
+  "w2Income": [
+    {
+      "employer": "Tech Corp Inc",
+      "ein": "12-3456789",
+      "wages": 95000,
+      "federalWithholding": 14250,
+      "socialSecurityWages": 95000,
+      "socialSecurityWithholding": 5890,
+      "medicareWages": 95000,
+      "medicareWithholding": 1378
+    },
+    {
+      "employer": "Healthcare Partners LLC",
+      "ein": "98-7654321",
+      "wages": 72000,
+      "federalWithholding": 10800,
+      "socialSecurityWages": 72000,
+      "socialSecurityWithholding": 4464,
+      "medicareWages": 72000,
+      "medicareWithholding": 1044
+    }
+  ],
+  
+  "dependents": [
+    {
+      "firstName": "Emma",
+      "lastName": "Sample",
+      "ssn": "111-22-3333",
+      "relationship": "Daughter",
+      "dateOfBirth": "2017-04-10",
+      "monthsLived": 12
+    },
+    {
+      "firstName": "Noah",
+      "lastName": "Sample",
+      "ssn": "444-55-6666",
+      "relationship": "Son",
+      "dateOfBirth": "2014-09-18",
+      "monthsLived": 12
+    }
+  ],
+  
+  "interestIncome": [
+    {
+      "payer": "First National Bank",
+      "amount": 425
+    }
+  ],
+  
+  "capitalGains": [
+    {
+      "description": "AAPL Stock - 100 shares",
+      "dateAcquired": "2020-03-15",
+      "dateSold": "2025-06-20",
+      "salesPrice": 18500,
+      "costBasis": 15300,
+      "type": "Long-term"
+    },
+    {
+      "description": "MSFT Stock - 50 shares",
+      "dateAcquired": "2024-11-10",
+      "dateSold": "2025-04-05",
+      "salesPrice": 9800,
+      "costBasis": 9000,
+      "type": "Short-term"
+    }
+  ],
+  
+  "itemizedDeductions": {
+    "mortgageInterest": 12500,
+    "stateTaxesPaid": 8500,
+    "localTaxesPaid": 1500,
+    "charitableCash": 3500,
+    "medicalExpenses": 2800
+  },
+  
+  "expectedResults": {
+    "totalIncome": 171125,
+    "note": "W-2 wages (167,000) + Interest (425) + Cap gains (3,200 LT + 800 ST) = 171,125",
+    
+    "adjustments": 0,
+    "adjustedGrossIncome": 171125,
+    
+    "standardDeduction": 30000,
+    "itemizedDeductions": 26300,
+    "note2": "SALT capped at $10K. Mortgage interest $12,500 + SALT $10,000 + Charity $3,500 + Medical $300 (over 7.5% AGI) = $26,300",
+    "note3": "Should take STANDARD deduction of $30,000 (higher)",
+    
+    "taxableIncome": 141125,
+    "note4": "AGI 171,125 - Standard deduction 30,000 = 141,125",
+    
+    "taxLiability": "~22,600",
+    "note5": "Marginal rate 22%, effective rate ~13.2%",
+    
+    "childTaxCredit": 4000,
+    "note6": "2 qualifying children x $2,000 each = $4,000",
+    
+    "totalTax": "~18,600",
+    "note7": "Tax liability ~22,600 - Child credit 4,000 = ~18,600",
+    
+    "totalWithholding": 25050,
+    "note8": "Federal withholding: 14,250 + 10,800 = 25,050",
+    
+    "refundExpected": "~6,450",
+    "note9": "Withholding 25,050 - Total tax 18,600 = Refund ~6,450"
+  }
+}
