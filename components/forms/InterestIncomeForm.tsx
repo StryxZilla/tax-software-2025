@@ -5,6 +5,8 @@ import { Interest1099INT } from '../../types/tax-types';
 import { Plus, Trash2, Landmark, DollarSign, TrendingUp, Info, AlertCircle } from 'lucide-react';
 import { validateInterest } from '../../lib/validation/form-validation';
 import ValidationError from '../common/ValidationError';
+import DocumentUpload from '../ocr/DocumentUpload';
+import { extract1099INTData } from '../../lib/ocr/extractors/1099-int-extractor';
 
 interface InterestIncomeFormProps {
   values: Interest1099INT[];
@@ -79,6 +81,23 @@ export default function InterestIncomeForm({ values, onChange, onValidationChang
           <Plus className="w-5 h-5" />
           <span>Add 1099-INT</span>
         </button>
+      </div>
+
+      {/* OCR Upload */}
+      <div className="card-premium p-6">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Upload 1099-INT Image</h3>
+        <p className="text-sm text-slate-600 mb-4">
+          Take a photo of your 1099-INT form or upload a PDF, and we'll automatically extract the data.
+        </p>
+        <DocumentUpload
+          onExtract={extract1099INTData}
+          onDataExtracted={(data) => {
+            addInterest();
+            const newIndex = values.length;
+            updateInterest(newIndex, data);
+          }}
+          label="Upload 1099-INT Document"
+        />
       </div>
 
       {/* Total summary */}

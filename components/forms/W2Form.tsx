@@ -5,6 +5,8 @@ import { W2Income } from '../../types/tax-types';
 import { Plus, Trash2, Briefcase, Building2, DollarSign, AlertCircle } from 'lucide-react';
 import { validateW2 } from '../../lib/validation/form-validation';
 import ValidationError from '../common/ValidationError';
+import DocumentUpload from '../ocr/DocumentUpload';
+import { extractW2Data } from '../../lib/ocr/extractors/w2-extractor';
 
 interface W2FormProps {
   values: W2Income[];
@@ -83,6 +85,24 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
           <Plus className="w-5 h-5" />
           <span>Add W-2</span>
         </button>
+      </div>
+
+      {/* OCR Upload */}
+      <div className="card-premium p-6">
+        <h3 className="text-lg font-semibold text-slate-900 mb-4">Upload W-2 Image</h3>
+        <p className="text-sm text-slate-600 mb-4">
+          Take a photo of your W-2 or upload a PDF, and we'll automatically extract the data.
+        </p>
+        <DocumentUpload
+          onExtract={extractW2Data}
+          onDataExtracted={(data) => {
+            // Add extracted W-2 to the list
+            addW2();
+            const newIndex = values.length;
+            updateW2(newIndex, data);
+          }}
+          label="Upload W-2 Document"
+        />
       </div>
 
       {/* Validation summary */}
