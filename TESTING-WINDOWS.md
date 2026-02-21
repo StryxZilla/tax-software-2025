@@ -21,6 +21,19 @@ Use `test-data.json` and the scenario in `TESTING.md` to run end-to-end manual v
 npm run qa:quick
 npm run qa
 npm run qa:release-gate
+npm run test:unit
+npm run test:e2e
+```
+
+To make unit/e2e checks required in release QA (optional):
+
+```powershell
+$env:QA_REQUIRE_UNIT = "1"
+$env:QA_REQUIRE_E2E = "1"
+npm run qa
+npm run qa:release-gate
+Remove-Item Env:QA_REQUIRE_UNIT
+Remove-Item Env:QA_REQUIRE_E2E
 ```
 
 QA artifacts are generated under `artifacts\qa\<timestamp>\`:

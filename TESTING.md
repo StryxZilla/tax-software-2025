@@ -9,6 +9,7 @@ This is the canonical functional test scenario. For Windows command examples, us
 3. Enter data from `test-data.json`
 4. Verify expected outputs below
 5. Run QA pipeline (`npm run qa`, then `npm run qa:release-gate`)
+6. Run smoke automation: `npm run test:unit` and `npm run test:e2e`
 
 ## Test Scenario: Sample Family
 
@@ -58,6 +59,15 @@ This is the canonical functional test scenario. For Windows command examples, us
 - [ ] Refund matches $8,108
 - [ ] PDF generation succeeds
 - [ ] Generated PDF values match entered data
+
+## QA Gate Configuration
+
+QA defaults remain local-dev friendly (unit/e2e non-critical by default). To require them in release gating:
+
+```bash
+QA_REQUIRE_UNIT=1 QA_REQUIRE_E2E=1 npm run qa
+npm run qa:release-gate
+```
 
 ## QA Artifact Paths
 
