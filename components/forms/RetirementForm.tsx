@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { TraditionalIRAContribution, RothIRAContribution, Form8606Data } from '../../types/tax-types';
 import { calculateForm8606, validateMegaBackdoorRoth } from '../../lib/engine/forms/form-8606';
 import { validateRetirement } from '../../lib/validation/form-validation';
@@ -27,9 +27,16 @@ export default function RetirementForm({
   onValidationChange,
 }: RetirementFormProps) {
   const [showMegaBackdoorHelp, setShowMegaBackdoorHelp] = useState(false);
-  const [warnings, setWarnings] = useState<string[]>([]);
-  const [recommendations, setRecommendations] = useState<string[]>([]);
-  const [showAllErrors, setShowAllErrors] = useState(false);
+  const analysis = useMemo(() => {
+    if (!form8606) {
+      return { warnings: [] as string[], recommendations: [] as string[] };
+    }
+
+    return validateMegaBackdoorRoth(form8606);
+  }, [form8606]);
+
+  const { warnings, recommendations } = analysis;
+  const [showAllErrors] = useState(false);
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
 
   // Validation
@@ -41,14 +48,7 @@ export default function RetirementForm({
     onValidationChange?.(isValid);
   }, [isValid, onValidationChange]);
 
-  // Update Form 8606 analysis when data changes
-  useEffect(() => {
-    if (form8606) {
-      const analysis = validateMegaBackdoorRoth(form8606);
-      setWarnings(analysis.warnings);
-      setRecommendations(analysis.recommendations);
-    }
-  }, [form8606]);
+  // Form 8606 analysis is memoized above.
 
   const touchField = (fieldName: string) => {
     setTouchedFields(prev => new Set([...prev, fieldName]));

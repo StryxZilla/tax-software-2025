@@ -5,12 +5,10 @@ import {
   TAX_BRACKETS_2025,
   STANDARD_DEDUCTION_2025,
   ADDITIONAL_STANDARD_DEDUCTION_2025,
-  CAPITAL_GAINS_BRACKETS_2025,
   SELF_EMPLOYMENT_TAX_2025,
   AMT_2025,
   CHILD_TAX_CREDIT_2025,
   EDUCATION_CREDITS_2025,
-  EITC_2025,
   SALT_CAP_2025,
   MEDICAL_EXPENSE_AGI_THRESHOLD,
   CAPITAL_LOSS_LIMIT,
@@ -67,7 +65,7 @@ export function calculateAdjustments(taxReturn: TaxReturn): number {
   if (taxReturn.selfEmployment) {
     const seProfit = calculateScheduleCProfit(taxReturn.selfEmployment);
     if (seProfit > 400) {
-      const seTax = calculateSelfEmploymentTax(seProfit, taxReturn.personalInfo.filingStatus);
+      const seTax = calculateSelfEmploymentTax(seProfit);
       adjustments += seTax * 0.5;
     }
   }
@@ -314,7 +312,7 @@ export function calculateScheduleCProfit(selfEmployment: any): number {
 /**
  * Calculate self-employment tax
  */
-export function calculateSelfEmploymentTax(netProfit: number, filingStatus: FilingStatus): number {
+export function calculateSelfEmploymentTax(netProfit: number): number {
   if (netProfit <= 400) return 0;
 
   const { socialSecurityRate, medicareRate, socialSecurityWageLimit } = SELF_EMPLOYMENT_TAX_2025;
@@ -467,7 +465,7 @@ export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
   if (taxReturn.selfEmployment) {
     const seProfit = calculateScheduleCProfit(taxReturn.selfEmployment);
     if (seProfit > 400) {
-      selfEmploymentTax = calculateSelfEmploymentTax(seProfit, taxReturn.personalInfo.filingStatus);
+      selfEmploymentTax = calculateSelfEmploymentTax(seProfit);
     }
   }
 

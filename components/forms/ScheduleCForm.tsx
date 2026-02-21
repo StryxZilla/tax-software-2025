@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { SelfEmploymentIncome, ScheduleCExpenses } from '../../types/tax-types';
 import { validateScheduleC } from '../../lib/validation/form-validation';
 import { AlertCircle } from 'lucide-react';
@@ -13,7 +13,7 @@ interface ScheduleCFormProps {
 }
 
 export default function ScheduleCForm({ value, onChange, onValidationChange }: ScheduleCFormProps) {
-  const [showAllErrors, setShowAllErrors] = React.useState(false);
+  const [showAllErrors] = React.useState(false);
   const [touchedFields, setTouchedFields] = React.useState<Set<string>>(new Set());
   const [accountingMethod, setAccountingMethod] = React.useState<'cash' | 'accrual'>('cash');
   // Initialize with default values if not provided
@@ -77,23 +77,17 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
   };
 
   // Calculate derived values
-  const grossIncome = useMemo(() => {
-    return formData.grossReceipts - formData.returns - formData.costOfGoodsSold;
-  }, [formData.grossReceipts, formData.returns, formData.costOfGoodsSold]);
+  const grossIncome = formData.grossReceipts - formData.returns - formData.costOfGoodsSold;
 
-  const totalExpenses = useMemo(() => {
-    const expenses = formData.expenses;
-    // Meals are only 50% deductible
-    const deductibleMeals = expenses.mealsAndEntertainment * 0.5;
-    const otherExpenses = Object.entries(expenses)
-      .filter(([key]) => key !== 'mealsAndEntertainment')
-      .reduce((sum, [, value]) => sum + value, 0);
-    return otherExpenses + deductibleMeals;
-  }, [formData.expenses]);
+  const expenses = formData.expenses;
+  // Meals are only 50% deductible
+  const deductibleMeals = expenses.mealsAndEntertainment * 0.5;
+  const otherExpenses = Object.entries(expenses)
+    .filter(([key]) => key !== 'mealsAndEntertainment')
+    .reduce((sum, [, value]) => sum + value, 0);
+  const totalExpenses = otherExpenses + deductibleMeals;
 
-  const netProfit = useMemo(() => {
-    return grossIncome - totalExpenses;
-  }, [grossIncome, totalExpenses]);
+  const netProfit = grossIncome - totalExpenses;
 
   const updateBusinessInfo = (updates: Partial<Omit<SelfEmploymentIncome, 'expenses'>>) => {
     onChange({
