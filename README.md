@@ -2,6 +2,22 @@
 
 A tax preparation app for the 2025 tax year built with Next.js 16, React 19, TypeScript, Tailwind CSS, Prisma, and SQLite.
 
+## Fast Path (Windows)
+
+```powershell
+cd C:\Users\Stryx\tax-software
+npm run win:setup
+npm run win:run
+```
+
+In a second terminal:
+
+```powershell
+cd C:\Users\Stryx\tax-software
+npm run win:verify   # expects app running on localhost:3000
+npm run win:qa
+```
+
 ## Features
 
 - Guided tax prep workflow across common personal tax scenarios

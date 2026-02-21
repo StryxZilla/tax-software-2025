@@ -2,6 +2,21 @@
 
 Windows/PowerShell testing workflow.
 
+## Fast Path (Copy/Paste)
+
+```powershell
+cd C:\Users\Stryx\tax-software
+npm run win:setup
+npm run win:run
+```
+
+In another terminal:
+
+```powershell
+npm run win:verify
+npm run win:qa
+```
+
 ## Start App
 
 ```powershell

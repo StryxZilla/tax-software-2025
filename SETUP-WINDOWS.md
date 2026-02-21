@@ -2,6 +2,27 @@
 
 Tested on Windows 11 + PowerShell.
 
+## Fast Path (Copy/Paste)
+
+```powershell
+cd C:\Users\Stryx\tax-software
+npm run win:setup
+npm run win:run
+```
+
+Optional test user during setup:
+
+```powershell
+npm run win:setup:test-user
+```
+
+Healthcheck + QA gate:
+
+```powershell
+npm run win:verify
+npm run win:qa
+```
+
 ## Prerequisites
 
 - Node.js 20+ (tested: 24.13.0)
@@ -48,6 +69,11 @@ Expected banner includes `Next.js 16.1.6` and localhost URL.
 ## Useful Commands
 
 ```powershell
+npm run win:setup
+npm run win:setup:test-user
+npm run win:run
+npm run win:verify
+npm run win:qa
 npm run build
 npm start
 npm run lint
