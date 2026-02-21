@@ -1,121 +1,69 @@
 # 2025 Tax Preparation Software
 
-A comprehensive tax preparation software for the 2025 tax year built with Next.js 15, React 19, TypeScript, and Tailwind CSS.
+A tax preparation app for the 2025 tax year built with Next.js 16, React 19, TypeScript, Tailwind CSS, Prisma, and SQLite.
 
 ## Features
 
-- Complete coverage of common personal tax scenarios:
-  - W-2 wage income
-  - Self-employment (Schedule C, SE)
-  - Rental property (Schedule E)
-  - Capital gains (Schedule D, Form 8949)
-  - Retirement accounts including mega backdoor Roth (Form 8606)
-  - HSA contributions (Form 8889)
-  - Itemized/standard deductions (Schedule A)
-  - All major tax credits
-  - Alternative Minimum Tax (Form 6251)
+- Guided tax prep workflow across common personal tax scenarios
+- Built-in calculations for 2025 tax logic
+- Auth + saved return flow
+- OCR-assisted document upload support (W-2 / 1099-INT)
+- PDF output generation
 
-- Smart wizard interface with conditional logic
-- Comprehensive tax calculation engine using 2025 tax law
-- Mobile-responsive design
-- Local storage for data persistence
+## Requirements
 
-## Installation
+- Node.js 20+ (tested on Node 24)
+- npm
 
-1. Clone the repository:
-\`\`\`bash
-git clone [repository-url]
-cd tax-software
-\`\`\`
+## Install
 
-2. Install dependencies:
-\`\`\`bash
+> Windows users should follow the full setup in [`SETUP-WINDOWS.md`](./SETUP-WINDOWS.md).
+
+```powershell
+cd C:\Users\Stryx\tax-software
 npm install
-\`\`\`
+npx prisma db push
+```
 
-3. Run the development server:
-\`\`\`bash
+Create `.env.local` if needed:
+
+```env
+NEXTAUTH_SECRET=taxflow-2025-secret-key-change-in-prod-xK9mP2nQ
+NEXTAUTH_URL=http://localhost:3000
+```
+
+Run locally:
+
+```powershell
 npm run dev
-\`\`\`
+```
 
-Open [http://localhost:3000](http://localhost:3000) to use the application.
+Open http://localhost:3000
 
-## Usage
+## QA / Testing
 
-1. Navigate through the tax preparation wizard using the top navigation bar.
-2. Fill out each section with your tax information:
-   - Personal information and filing status
-   - Income from various sources
-   - Deductions and credits
-   - Retirement account contributions
-   - And more
+```powershell
+npm run qa:quick
+npm run qa
+npm run qa:release-gate
+```
 
-3. Review your tax calculation in the final step.
-4. Your progress is automatically saved to local storage.
+Artifacts are written to `artifacts/qa/<timestamp>/` with:
+- `summary.json`
+- `summary.md`
+- step logs (`lint.log`, `typecheck.log`, `build.log`, etc.)
 
-## Key Components
+Manual scenario testing:
+- [`TESTING.md`](./TESTING.md)
+- [`TESTING-WINDOWS.md`](./TESTING-WINDOWS.md)
 
-- **/components/wizard/** - Wizard navigation and step management
-- **/components/forms/** - Form components for different tax scenarios
-- **/lib/engine/calculations/** - Tax calculation engine
-- **/lib/engine/forms/** - Form-specific calculations (e.g., Form 8606)
-- **/types/** - TypeScript type definitions
-- **/data/** - Tax constants and rates for 2025
+## Tech Stack
 
-## Tax Calculation Features
-
-- Accurate implementation of 2025 tax brackets
-- Alternative Minimum Tax (AMT) calculation
-- Self-employment tax calculation
-- Capital gains categorization and calculation
-- Form 8606 mega backdoor Roth calculations with pro-rata rule
-- Standard vs. itemized deduction optimization
-- Tax credit calculations and phaseouts
-
-## Development
-
-### File Structure
-
-\`\`\`
-tax-software/
-├── app/               # Next.js app router
-├── components/        # React components
-│   ├── forms/        # Tax form components
-│   ├── wizard/       # Wizard navigation
-│   └── review/       # Summary components
-├── lib/              # Core logic
-│   ├── engine/       # Tax calculations
-│   └── context/      # React context
-├── types/            # TypeScript types
-└── data/             # Tax constants
-\`\`\`
-
-### Key Technologies
-
-- Next.js 15
-- React 19
-- TypeScript
-- Tailwind CSS
-- pdf-lib (for PDF generation)
-- Zod (for validation)
-
-## Testing
-
-Run tests with:
-\`\`\`bash
-npm test
-\`\`\`
-
-Tests cover:
-- Tax calculation accuracy
-- Form 8606 pro-rata calculations
-- AMT triggers and calculations
-- Credit phaseout calculations
-
-## Future Enhancements
-
-- PDF generation for all IRS forms
-- E-filing integration
-- Multi-year comparison
-- State tax return support
-- Financial institution import
+- Next.js 16.1.6
+- React 19.2.3
+- TypeScript 5
+- Tailwind CSS 4
+- Prisma 7 + SQLite
+- NextAuth 5 beta
+- pdf-lib
+- tesseract.js
