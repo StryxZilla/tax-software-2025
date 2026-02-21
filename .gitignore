@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+/artifacts/qa/
+/artifacts/qa/
 
 # next.js
 /.next/
@@ -39,3 +41,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local database
+prisma/dev.db

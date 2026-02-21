@@ -3,6 +3,12 @@ import Credentials from 'next-auth/providers/credentials'
 import bcrypt from 'bcryptjs'
 import prisma from './lib/prisma'
 
+const nextAuthSecret = process.env.NEXTAUTH_SECRET
+
+if (!nextAuthSecret && process.env.NODE_ENV !== 'development') {
+  throw new Error('NEXTAUTH_SECRET is required when NODE_ENV is not development.')
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
@@ -69,5 +75,5 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: '/auth/login',
     error: '/auth/login',
   },
-  secret: process.env.NEXTAUTH_SECRET || 'dev-secret-change-in-production-taxflow-2025',
+  secret: nextAuthSecret,
 })

@@ -1,5 +1,11 @@
 import type { NextAuthConfig } from 'next-auth'
 
+const nextAuthSecret = process.env.NEXTAUTH_SECRET
+
+if (!nextAuthSecret && process.env.NODE_ENV !== 'development') {
+  throw new Error('NEXTAUTH_SECRET is required when NODE_ENV is not development.')
+}
+
 // Edge-compatible auth config (no Node.js APIs, no prisma)
 // Used by middleware for JWT token verification only
 export const authConfig: NextAuthConfig = {
@@ -27,5 +33,5 @@ export const authConfig: NextAuthConfig = {
       return session
     },
   },
-  secret: process.env.NEXTAUTH_SECRET || 'taxflow-2025-secret-key-change-in-prod-xK9mP2nQ',
+  secret: nextAuthSecret,
 }
