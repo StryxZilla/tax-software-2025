@@ -106,6 +106,31 @@ describe('form validation hardening', () => {
     expect(errors.some((e) => e.field === 'w2-0-federalTax')).toBe(true)
   })
 
+  it('rejects non-finite W-2 numeric values (NaN/Infinity)', () => {
+    const w2 = {
+      ...createBaseW2(),
+      wages: Number.NaN,
+      federalTaxWithheld: Number.POSITIVE_INFINITY,
+    }
+
+    const errors = validateW2(w2, 0)
+
+    expect(errors.some((e) => e.field === 'w2-0-wages')).toBe(true)
+    expect(errors.some((e) => e.field === 'w2-0-federalTax')).toBe(true)
+  })
+
+  it('does not report withholding exceeds wages when wages is invalid', () => {
+    const w2 = {
+      ...createBaseW2(),
+      wages: Number.NaN,
+      federalTaxWithheld: 999,
+    }
+
+    const errors = validateW2(w2, 0)
+
+    expect(errors.some((e) => e.message.includes('cannot exceed wages'))).toBe(false)
+  })
+
   it('rejects duplicate SSNs across taxpayer and dependents', () => {
     const taxReturn = createBaseTaxReturn()
     taxReturn.dependents = [

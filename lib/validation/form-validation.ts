@@ -74,6 +74,10 @@ export function validateStateCode(state: string): boolean {
   return US_STATE_CODES.has(state?.trim().toUpperCase());
 }
 
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
 // Personal Info Validation
 export function validatePersonalInfo(info: PersonalInfo): ValidationError[] {
   const errors: ValidationError[] = [];
@@ -149,6 +153,21 @@ export function validateW2(w2: W2Income, index: number): ValidationError[] {
   const errors: ValidationError[] = [];
   const prefix = `W-2 #${index + 1}`;
 
+  const numericFields: Array<[keyof W2Income, string, string]> = [
+    ['wages', 'wages', 'Wages'],
+    ['federalTaxWithheld', 'federalTax', 'Federal tax withheld'],
+    ['socialSecurityWages', 'socialSecurityWages', 'Social Security wages'],
+    ['socialSecurityTaxWithheld', 'socialSecurityTaxWithheld', 'Social Security tax withheld'],
+    ['medicareWages', 'medicareWages', 'Medicare wages'],
+    ['medicareTaxWithheld', 'medicareTaxWithheld', 'Medicare tax withheld'],
+  ];
+
+  for (const [field, suffix, label] of numericFields) {
+    if (!isFiniteNumber(w2[field])) {
+      errors.push({ field: `w2-${index}-${suffix}`, message: `${prefix}: ${label} must be a valid number` });
+    }
+  }
+
   if (!w2.employer?.trim()) {
     errors.push({ field: `w2-${index}-employer`, message: `${prefix}: Employer name is required` });
   }
@@ -157,29 +176,29 @@ export function validateW2(w2: W2Income, index: number): ValidationError[] {
   } else if (!validateEIN(w2.ein)) {
     errors.push({ field: `w2-${index}-ein`, message: `${prefix}: EIN must be in format XX-XXXXXXX` });
   }
-  if (w2.wages < 0) {
+  if (isFiniteNumber(w2.wages) && w2.wages < 0) {
     errors.push({ field: `w2-${index}-wages`, message: `${prefix}: Wages cannot be negative` });
   }
-  if (w2.wages === 0) {
+  if (isFiniteNumber(w2.wages) && w2.wages === 0) {
     errors.push({ field: `w2-${index}-wages`, message: `${prefix}: Wages are required` });
   }
-  if (w2.federalTaxWithheld < 0) {
+  if (isFiniteNumber(w2.federalTaxWithheld) && w2.federalTaxWithheld < 0) {
     errors.push({ field: `w2-${index}-federalTax`, message: `${prefix}: Federal tax withheld cannot be negative` });
   }
-  if (w2.federalTaxWithheld > w2.wages && w2.wages > 0) {
+  if (isFiniteNumber(w2.federalTaxWithheld) && isFiniteNumber(w2.wages) && w2.federalTaxWithheld > w2.wages && w2.wages > 0) {
     errors.push({ field: `w2-${index}-federalTax`, message: `${prefix}: Federal tax withheld cannot exceed wages` });
   }
 
-  if (w2.socialSecurityWages < 0) {
+  if (isFiniteNumber(w2.socialSecurityWages) && w2.socialSecurityWages < 0) {
     errors.push({ field: `w2-${index}-socialSecurityWages`, message: `${prefix}: Social Security wages cannot be negative` });
   }
-  if (w2.socialSecurityTaxWithheld < 0) {
+  if (isFiniteNumber(w2.socialSecurityTaxWithheld) && w2.socialSecurityTaxWithheld < 0) {
     errors.push({ field: `w2-${index}-socialSecurityTaxWithheld`, message: `${prefix}: Social Security tax withheld cannot be negative` });
   }
-  if (w2.medicareWages < 0) {
+  if (isFiniteNumber(w2.medicareWages) && w2.medicareWages < 0) {
     errors.push({ field: `w2-${index}-medicareWages`, message: `${prefix}: Medicare wages cannot be negative` });
   }
-  if (w2.medicareTaxWithheld < 0) {
+  if (isFiniteNumber(w2.medicareTaxWithheld) && w2.medicareTaxWithheld < 0) {
     errors.push({ field: `w2-${index}-medicareTaxWithheld`, message: `${prefix}: Medicare tax withheld cannot be negative` });
   }
 
