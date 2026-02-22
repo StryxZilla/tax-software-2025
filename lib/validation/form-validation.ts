@@ -69,13 +69,13 @@ export function validateSSN(ssn: string): boolean {
 // EIN validation
 export function validateEIN(ein: string): boolean {
   const einPattern = /^\d{2}-\d{7}$/;
-  return einPattern.test(ein);
+  return einPattern.test(ein?.trim());
 }
 
 // Zip code validation
 export function validateZipCode(zip: string): boolean {
   const zipPattern = /^\d{5}(-\d{4})?$/;
-  return zipPattern.test(zip);
+  return zipPattern.test(zip?.trim());
 }
 
 export function validateStateCode(state: string): boolean {

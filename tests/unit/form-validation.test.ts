@@ -9,6 +9,8 @@ import {
   validateEducationExpense,
   validateScheduleC,
   validateRentalProperty,
+  validateEIN,
+  validateZipCode,
 } from '../../lib/validation/form-validation'
 import type { Dependent, EducationExpenses, PersonalInfo, TaxReturn, W2Income } from '../../types/tax-types'
 
@@ -78,6 +80,11 @@ describe('form validation hardening', () => {
   it('accepts valid SSN values with surrounding whitespace', () => {
     const errors = validatePersonalInfo({ ...createBasePersonalInfo(), ssn: ' 123-45-6789 ' })
     expect(errors.some((e) => e.field === 'ssn')).toBe(false)
+  })
+
+  it('accepts EIN and ZIP values with surrounding whitespace after normalization', () => {
+    expect(validateEIN(' 12-3456789 ')).toBe(true)
+    expect(validateZipCode(' 78701-1234 ')).toBe(true)
   })
 
   it('rejects invalid dependent birth date values', () => {
