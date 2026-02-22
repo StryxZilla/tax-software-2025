@@ -553,6 +553,9 @@ export function validateRetirement(
   return errors;
 }
 
+// SALT deduction cap (Tax Cuts and Jobs Act, 2018-2025)
+const SALT_CAP_2025 = 10000;
+
 // Itemized Deductions Validation
 export function validateItemizedDeductions(deductions: ItemizedDeductions | undefined): ValidationError[] {
   const errors: ValidationError[] = [];
@@ -575,12 +578,35 @@ export function validateItemizedDeductions(deductions: ItemizedDeductions | unde
 
   for (const [field, label] of fields) {
     const value = deductions[field];
-    if (typeof value === 'number' && value < 0) {
+    if (value !== undefined && value !== null && !isFiniteNumber(value)) {
+      errors.push({
+        field: `itemized-${field}`,
+        message: `${label} must be a valid number`,
+      });
+    } else if (isFiniteNumber(value) && value < 0) {
       errors.push({
         field: `itemized-${field}`,
         message: `${label} cannot be negative`,
       });
     }
+  }
+
+  // SALT cap: state taxes + local taxes + real estate taxes + personal property taxes
+  const saltComponents = [
+    deductions.stateTaxesPaid,
+    deductions.localTaxesPaid,
+    deductions.realEstateTaxes,
+    deductions.personalPropertyTaxes,
+  ];
+  const totalSALT = saltComponents.reduce<number>(
+    (sum, v) => sum + (isFiniteNumber(v) && v > 0 ? v : 0),
+    0,
+  );
+  if (totalSALT > SALT_CAP_2025) {
+    errors.push({
+      field: 'itemized-saltCap',
+      message: `State and local tax (SALT) deductions total $${totalSALT.toLocaleString()}, which exceeds the $${SALT_CAP_2025.toLocaleString()} annual cap. Only $${SALT_CAP_2025.toLocaleString()} is deductible.`,
+    });
   }
 
   return errors;

@@ -12,6 +12,7 @@ import {
   validateEIN,
   validateZipCode,
   validateRetirement,
+  validateItemizedDeductions,
 } from '../../lib/validation/form-validation'
 import type { Dependent, EducationExpenses, PersonalInfo, TaxReturn, W2Income } from '../../types/tax-types'
 
@@ -326,6 +327,65 @@ describe('form validation hardening', () => {
   it('still validates valid IRA contributions normally', () => {
     const errors = validateRetirement({ amount: 5000, isDeductible: true }, { amount: 2000 }, undefined)
     expect(errors).toHaveLength(0)
+  })
+
+  it('rejects non-finite itemized deduction values (NaN, Infinity)', () => {
+    for (const bad of [NaN, Infinity, -Infinity]) {
+      const errors = validateItemizedDeductions({ medicalExpenses: bad } as any)
+      expect(errors.some((e) => e.field === 'itemized-medicalExpenses' && e.message.includes('valid number'))).toBe(true)
+    }
+  })
+
+  it('accepts valid itemized deductions with no errors', () => {
+    const errors = validateItemizedDeductions({
+      medicalExpenses: 5000,
+      stateTaxesPaid: 3000,
+      localTaxesPaid: 1000,
+      realEstateTaxes: 2000,
+      personalPropertyTaxes: 500,
+      homeMortgageInterest: 8000,
+      investmentInterest: 0,
+      charitableCash: 1000,
+      charitableNonCash: 200,
+      casualtyLosses: 0,
+      otherDeductions: 0,
+    })
+    expect(errors).toHaveLength(0)
+  })
+
+  it('warns when SALT deductions exceed $10,000 cap', () => {
+    const errors = validateItemizedDeductions({
+      medicalExpenses: 0,
+      stateTaxesPaid: 5000,
+      localTaxesPaid: 3000,
+      realEstateTaxes: 4000,
+      personalPropertyTaxes: 1000,
+      homeMortgageInterest: 0,
+      investmentInterest: 0,
+      charitableCash: 0,
+      charitableNonCash: 0,
+      casualtyLosses: 0,
+      otherDeductions: 0,
+    })
+    expect(errors.some((e) => e.field === 'itemized-saltCap')).toBe(true)
+    expect(errors.some((e) => e.message.includes('$10,000'))).toBe(true)
+  })
+
+  it('does not warn when SALT deductions are at exactly $10,000', () => {
+    const errors = validateItemizedDeductions({
+      medicalExpenses: 0,
+      stateTaxesPaid: 5000,
+      localTaxesPaid: 2000,
+      realEstateTaxes: 3000,
+      personalPropertyTaxes: 0,
+      homeMortgageInterest: 0,
+      investmentInterest: 0,
+      charitableCash: 0,
+      charitableNonCash: 0,
+      casualtyLosses: 0,
+      otherDeductions: 0,
+    })
+    expect(errors.some((e) => e.field === 'itemized-saltCap')).toBe(false)
   })
 
   it('rejects non-finite proceeds and costBasis (NaN, undefined, Infinity)', () => {
