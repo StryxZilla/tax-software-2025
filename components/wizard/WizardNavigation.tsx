@@ -118,7 +118,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                     <div className={`
                       flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold
                       ${isActive
-                        ? 'bg-primary-600 text-white ring-2 ring-primary-200'
+                        ? 'bg-white text-primary-700 ring-2 ring-primary-200'
                         : isCompleted
                         ? 'bg-emerald-600 text-white'
                         : 'bg-slate-200 text-slate-500'
@@ -264,7 +264,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                   className={`
                     w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
                     ${isActive
-                      ? 'bg-primary-700 text-white'
+                      ? 'bg-white text-primary-700'
                       : isCompleted
                       ? 'bg-emerald-600 text-white'
                       : 'bg-slate-300 text-slate-600'
