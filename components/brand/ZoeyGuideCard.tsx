@@ -35,7 +35,14 @@ export default function ZoeyGuideCard({ variant = 'tip', title, message, classNa
 
   return (
     <div
-      className={`rounded-2xl border ${style.border} bg-gradient-to-br ${style.bg} p-4 shadow-sm ${className}`}
+      data-zoey-guide
+      className={`
+        rounded-2xl border ${style.border} bg-gradient-to-br ${style.bg} p-4
+        shadow-sm hover:shadow transition-all duration-200 ease-in-out
+        group hover:-translate-y-0.5
+        ${variant === 'tip' ? 'brand-surface-warm' : ''}
+        ${className}
+      `}
       role="note"
       aria-label="Zoey guidance"
     >
@@ -43,7 +50,11 @@ export default function ZoeyGuideCard({ variant = 'tip', title, message, classNa
         <img
           src="/brand/zoey-corgi.svg"
           alt="Zoey the corgi guide"
-          className="h-14 w-14 shrink-0 rounded-xl border border-slate-200 bg-white p-1"
+          className="
+            w-[3.25rem] h-[3.25rem] md:w-14 md:h-14 shrink-0 
+            rounded-xl border border-slate-200 bg-white p-1
+            transition-transform duration-200 ease-in-out group-hover:scale-110
+          "
         />
         <div className="min-w-0">
           <div className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold ${style.badge}`}>
