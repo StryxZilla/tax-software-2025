@@ -50,8 +50,14 @@ function WizardStepContent() {
   } = useTaxReturn()
 
   const [isCurrentFormValid, setIsCurrentFormValid] = React.useState(true)
+  const [blockedNextAttempts, setBlockedNextAttempts] = React.useState(0)
 
   const currentIndex = STEP_ORDER.indexOf(currentStep)
+
+  React.useEffect(() => {
+    setBlockedNextAttempts(0)
+  }, [currentStep])
+
   const handleNext = () => {
     if (currentIndex < STEP_ORDER.length - 1) {
       setCurrentStep(STEP_ORDER[currentIndex + 1])
@@ -113,12 +119,14 @@ function WizardStepContent() {
               recalculateTaxes()
             }}
             onValidationChange={setIsCurrentFormValid}
+            blockedNextAttempts={blockedNextAttempts}
           />
           <FormNavigation
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
             canProceed={isCurrentFormValid}
+            onBlockedNext={() => setBlockedNextAttempts((count) => count + 1)}
           />
         </>
       )

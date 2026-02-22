@@ -8,6 +8,7 @@ interface FormNavigationProps {
   onNext?: () => void;
   onPrevious?: () => void;
   canProceed?: boolean;
+  onBlockedNext?: () => void;
 }
 
 const STEP_ORDER: WizardStep[] = [
@@ -24,7 +25,7 @@ const STEP_ORDER: WizardStep[] = [
   'review',
 ];
 
-export default function FormNavigation({ currentStep, onNext, onPrevious, canProceed = true }: FormNavigationProps) {
+export default function FormNavigation({ currentStep, onNext, onPrevious, canProceed = true, onBlockedNext }: FormNavigationProps) {
   const currentIndex = STEP_ORDER.indexOf(currentStep);
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === STEP_ORDER.length - 1;
@@ -44,8 +45,15 @@ export default function FormNavigation({ currentStep, onNext, onPrevious, canPro
 
       {!isLast && (
         <button
-          onClick={onNext}
-          disabled={!canProceed}
+          onClick={() => {
+            if (canProceed) {
+              onNext?.()
+              return
+            }
+
+            onBlockedNext?.()
+          }}
+          aria-disabled={!canProceed}
           className={`px-6 py-2.5 rounded-lg font-medium transition-colors ${
             canProceed
               ? 'bg-blue-600 text-white hover:bg-blue-700'
