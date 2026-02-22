@@ -5,10 +5,9 @@ This walkthrough is the default no-script flow.
 ## 1) Start the app
 
 ```powershell
-cd C:\Users\Stryx\tax-software
-npm install
-npx prisma db push
-npm run dev
+cd C:\Users\Andy\tax-software-2025
+npm run win:setup
+npm run win:run
 ```
 
 Open http://localhost:3000

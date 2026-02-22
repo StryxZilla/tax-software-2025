@@ -7,7 +7,7 @@ A tax preparation app for the 2025 tax year built with Next.js 16, React 19, Typ
 For a complete first-use walkthrough (create account in-app, save, sign out, sign in), see [`FIRST-RUN.md`](./FIRST-RUN.md).
 
 ```powershell
-cd C:\Users\Stryx\tax-software
+cd C:\Users\Andy\tax-software-2025
 npm run win:setup
 npm run win:run
 ```
@@ -15,7 +15,7 @@ npm run win:run
 In a second terminal:
 
 ```powershell
-cd C:\Users\Stryx\tax-software
+cd C:\Users\Andy\tax-software-2025
 npm run win:verify   # expects app running on localhost:3000
 npm run win:qa
 ```

@@ -5,7 +5,7 @@ Tested on Windows 11 + PowerShell.
 ## Fast Path (Copy/Paste)
 
 ```powershell
-cd C:\Users\Stryx\tax-software
+cd C:\Users\Andy\tax-software-2025
 npm run win:setup
 npm run win:run
 ```
@@ -25,7 +25,7 @@ npm run win:qa
 ## Setup
 
 ```powershell
-cd C:\Users\Stryx\tax-software
+cd C:\Users\Andy\tax-software-2025
 npm install
 ```
 
@@ -70,6 +70,15 @@ npx prisma studio
 ```
 
 ## Troubleshooting
+
+If `npm run win:setup` says missing script (stale checkout):
+
+```powershell
+git fetch --all --prune
+git checkout master
+git pull --ff-only
+npm install
+```
 
 Port 3000 in use:
 
