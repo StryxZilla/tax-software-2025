@@ -8,6 +8,44 @@ import ValidationError from '../common/ValidationError';
 import DocumentUpload from '../ocr/DocumentUpload';
 import { extract1099INTData } from '../../lib/ocr/extractors/1099-int-extractor';
 
+function build1099IntExtractionReport(data: Partial<Interest1099INT>) {
+  const expectedFields: Array<{ key: keyof Interest1099INT; label: string }> = [
+    { key: 'payer', label: 'Payer name' },
+    { key: 'amount', label: 'Interest income (Box 1)' },
+  ];
+
+  const foundFields = expectedFields
+    .filter(({ key }) => {
+      const value = data[key];
+      return typeof value === 'number' ? value > 0 : Boolean(value);
+    })
+    .map(({ label }) => label);
+
+  const missingFields = expectedFields
+    .filter(({ key }) => {
+      const value = data[key];
+      return typeof value === 'number' ? value <= 0 : !value;
+    })
+    .map(({ label }) => label);
+
+  const warnings: string[] = [];
+  if (!data.amount) warnings.push('Box 1 interest income was not detected or parsed as 0.');
+
+  return {
+    documentType: '1099-INT',
+    expectedFields: expectedFields.map((f) => f.label),
+    foundFields,
+    missingFields,
+    warnings,
+    guidance: [
+      'Retake the photo in bright, even lighting and avoid glare.',
+      'Crop tightly so payer name and Box 1 are clearly visible.',
+      'Increase contrast and ensure text is in focus.',
+      'If available, upload a clean PDF copy or screenshot the PDF at high resolution.',
+    ],
+  };
+}
+
 interface InterestIncomeFormProps {
   values: Interest1099INT[];
   onChange: (values: Interest1099INT[]) => void;
@@ -91,6 +129,7 @@ export default function InterestIncomeForm({ values, onChange, onValidationChang
         </p>
         <DocumentUpload
           onExtract={extract1099INTData}
+          buildReport={build1099IntExtractionReport}
           onDataExtracted={(data) => {
             addInterest();
             const newIndex = values.length;

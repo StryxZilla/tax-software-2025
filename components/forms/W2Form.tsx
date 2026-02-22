@@ -8,15 +8,67 @@ import ValidationError from '../common/ValidationError';
 import DocumentUpload from '../ocr/DocumentUpload';
 import { extractW2Data } from '../../lib/ocr/extractors/w2-extractor';
 
+function buildW2ExtractionReport(data: Partial<W2Income>) {
+  const expectedFields: Array<{ key: keyof W2Income; label: string }> = [
+    { key: 'employer', label: 'Employer name (Box c)' },
+    { key: 'ein', label: 'Employer EIN (Box b)' },
+    { key: 'wages', label: 'Wages (Box 1)' },
+    { key: 'federalTaxWithheld', label: 'Federal tax withheld (Box 2)' },
+    { key: 'socialSecurityWages', label: 'Social Security wages (Box 3)' },
+    { key: 'socialSecurityTaxWithheld', label: 'Social Security tax withheld (Box 4)' },
+    { key: 'medicareWages', label: 'Medicare wages (Box 5)' },
+    { key: 'medicareTaxWithheld', label: 'Medicare tax withheld (Box 6)' },
+  ];
+
+  const foundFields = expectedFields
+    .filter(({ key }) => {
+      const value = data[key];
+      return typeof value === 'number' ? value > 0 : Boolean(value);
+    })
+    .map(({ label }) => label);
+
+  const missingFields = expectedFields
+    .filter(({ key }) => {
+      const value = data[key];
+      return typeof value === 'number' ? value <= 0 : !value;
+    })
+    .map(({ label }) => label);
+
+  const warnings: string[] = [];
+
+  if (!data.ein) warnings.push('Employer EIN was not detected; verify Box b manually.');
+  if (!data.wages) warnings.push('Box 1 wages were not detected or parsed as 0.');
+  if (typeof data.wages === 'number' && typeof data.federalTaxWithheld === 'number' && data.federalTaxWithheld > data.wages) {
+    warnings.push('Federal withholding appears higher than wages; double-check OCR values.');
+  }
+
+  return {
+    documentType: 'W-2',
+    expectedFields: expectedFields.map((f) => f.label),
+    foundFields,
+    missingFields,
+    warnings,
+    guidance: [
+      'Retake the photo with brighter, even lighting and no shadows.',
+      'Crop tightly to include only the W-2 form and all box labels.',
+      'Use higher contrast and ensure text is sharp before uploading.',
+      'If available, upload a clean PDF copy or screenshot page 1 of the PDF at high resolution.',
+    ],
+  };
+}
+
 interface W2FormProps {
   values: W2Income[];
   onChange: (values: W2Income[]) => void;
   onValidationChange?: (isValid: boolean) => void;
+  blockedNextAttempts?: number;
 }
 
-export default function W2Form({ values, onChange, onValidationChange }: W2FormProps) {
+export default function W2Form({ values, onChange, onValidationChange, blockedNextAttempts = 0 }: W2FormProps) {
   const [showAllErrors, setShowAllErrors] = React.useState(false);
   const [touchedFields, setTouchedFields] = React.useState<Set<string>>(new Set());
+  const summaryRef = React.useRef<HTMLDivElement | null>(null);
+  const fieldRefs = React.useRef<Record<string, HTMLInputElement | null>>({});
 
   // Validate all W-2s
   const allErrors = values.flatMap((w2, index) => validateW2(w2, index));
@@ -26,6 +78,24 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
   React.useEffect(() => {
     onValidationChange?.(isValid);
   }, [isValid, onValidationChange]);
+
+  React.useEffect(() => {
+    if (blockedNextAttempts === 0 || isValid) return;
+
+    setShowAllErrors(true);
+    setTouchedFields((prev) => new Set([...prev, ...allErrors.map((error) => error.field)]));
+
+    const firstErrorField = allErrors[0]?.field;
+    const firstInvalidInput = firstErrorField ? fieldRefs.current[firstErrorField] : null;
+
+    if (firstInvalidInput) {
+      firstInvalidInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      window.setTimeout(() => firstInvalidInput.focus(), 150);
+      return;
+    }
+
+    summaryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [blockedNextAttempts, isValid, allErrors]);
 
   const touchField = (fieldName: string) => {
     setTouchedFields(prev => new Set([...prev, fieldName]));
@@ -95,6 +165,7 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
         </p>
         <DocumentUpload
           onExtract={extractW2Data}
+          buildReport={buildW2ExtractionReport}
           onDataExtracted={(data) => {
             // Add extracted W-2 to the list
             addW2();
@@ -107,7 +178,7 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
 
       {/* Validation summary */}
       {showAllErrors && !isValid && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+        <div ref={summaryRef} className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="flex items-start">
             <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0" />
             <div>
@@ -175,6 +246,9 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                         Employer Name <span className="text-red-500">*</span>
                       </label>
                       <input
+                        ref={(element) => {
+                          fieldRefs.current[`w2-${index}-employer`] = element;
+                        }}
                         type="text"
                         value={w2.employer}
                         onChange={(e) => updateW2(index, { employer: e.target.value })}
@@ -190,6 +264,9 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                         Employer EIN <span className="text-red-500">*</span>
                       </label>
                       <input
+                        ref={(element) => {
+                          fieldRefs.current[`w2-${index}-ein`] = element;
+                        }}
                         type="text"
                         value={w2.ein}
                         onChange={(e) => updateW2(index, { ein: e.target.value })}
@@ -219,6 +296,9 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
                         <input
+                          ref={(element) => {
+                            fieldRefs.current[`w2-${index}-wages`] = element;
+                          }}
                           type="number"
                           value={w2.wages || ''}
                           onChange={(e) => updateW2(index, { wages: parseFloat(e.target.value) || 0 })}
@@ -240,6 +320,9 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
                         <input
+                          ref={(element) => {
+                            fieldRefs.current[`w2-${index}-federalTax`] = element;
+                          }}
                           type="number"
                           value={w2.federalTaxWithheld || ''}
                           onChange={(e) => updateW2(index, { federalTaxWithheld: parseFloat(e.target.value) || 0 })}
@@ -261,14 +344,21 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
                         <input
+                          ref={(element) => {
+                            fieldRefs.current[`w2-${index}-socialSecurityWages`] = element;
+                          }}
                           type="number"
                           value={w2.socialSecurityWages || ''}
                           onChange={(e) => updateW2(index, { socialSecurityWages: parseFloat(e.target.value) || 0 })}
+                          onBlur={() => touchField(`w2-${index}-socialSecurityWages`)}
                           placeholder="0.00"
-                          className="pl-7 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+                          className={`pl-7 ${getInputClassName(`w2-${index}-socialSecurityWages`)}`}
                         />
                       </div>
-                      <p className="mt-1 text-xs text-slate-500">Box 3 on your W-2 — often same as Box 1, capped at $176,100</p>
+                      <ValidationError message={getFieldError(`w2-${index}-socialSecurityWages`)} />
+                      {!getFieldError(`w2-${index}-socialSecurityWages`) && (
+                        <p className="mt-1 text-xs text-slate-500">Box 3 on your W-2 — often same as Box 1, capped at $176,100</p>
+                      )}
                     </div>
 
                     <div>
@@ -278,14 +368,21 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
                         <input
+                          ref={(element) => {
+                            fieldRefs.current[`w2-${index}-socialSecurityTaxWithheld`] = element;
+                          }}
                           type="number"
                           value={w2.socialSecurityTaxWithheld || ''}
                           onChange={(e) => updateW2(index, { socialSecurityTaxWithheld: parseFloat(e.target.value) || 0 })}
+                          onBlur={() => touchField(`w2-${index}-socialSecurityTaxWithheld`)}
                           placeholder="0.00"
-                          className="pl-7 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+                          className={`pl-7 ${getInputClassName(`w2-${index}-socialSecurityTaxWithheld`)}`}
                         />
                       </div>
-                      <p className="mt-1 text-xs text-slate-500">Box 4 on your W-2 — should be ~6.2% of Box 3</p>
+                      <ValidationError message={getFieldError(`w2-${index}-socialSecurityTaxWithheld`)} />
+                      {!getFieldError(`w2-${index}-socialSecurityTaxWithheld`) && (
+                        <p className="mt-1 text-xs text-slate-500">Box 4 on your W-2 — should be ~6.2% of Box 3</p>
+                      )}
                     </div>
 
                     <div>
@@ -295,14 +392,21 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
                         <input
+                          ref={(element) => {
+                            fieldRefs.current[`w2-${index}-medicareWages`] = element;
+                          }}
                           type="number"
                           value={w2.medicareWages || ''}
                           onChange={(e) => updateW2(index, { medicareWages: parseFloat(e.target.value) || 0 })}
+                          onBlur={() => touchField(`w2-${index}-medicareWages`)}
                           placeholder="0.00"
-                          className="pl-7 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+                          className={`pl-7 ${getInputClassName(`w2-${index}-medicareWages`)}`}
                         />
                       </div>
-                      <p className="mt-1 text-xs text-slate-500">Box 5 on your W-2 — no cap, usually same as Box 1</p>
+                      <ValidationError message={getFieldError(`w2-${index}-medicareWages`)} />
+                      {!getFieldError(`w2-${index}-medicareWages`) && (
+                        <p className="mt-1 text-xs text-slate-500">Box 5 on your W-2 — no cap, usually same as Box 1</p>
+                      )}
                     </div>
 
                     <div>
@@ -312,14 +416,21 @@ export default function W2Form({ values, onChange, onValidationChange }: W2FormP
                       <div className="relative">
                         <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
                         <input
+                          ref={(element) => {
+                            fieldRefs.current[`w2-${index}-medicareTaxWithheld`] = element;
+                          }}
                           type="number"
                           value={w2.medicareTaxWithheld || ''}
                           onChange={(e) => updateW2(index, { medicareTaxWithheld: parseFloat(e.target.value) || 0 })}
+                          onBlur={() => touchField(`w2-${index}-medicareTaxWithheld`)}
                           placeholder="0.00"
-                          className="pl-7 block w-full rounded-lg border-slate-300 shadow-sm focus:border-blue-600 focus:ring-blue-600"
+                          className={`pl-7 ${getInputClassName(`w2-${index}-medicareTaxWithheld`)}`}
                         />
                       </div>
-                      <p className="mt-1 text-xs text-slate-500">Box 6 on your W-2 — should be ~1.45% of Box 5</p>
+                      <ValidationError message={getFieldError(`w2-${index}-medicareTaxWithheld`)} />
+                      {!getFieldError(`w2-${index}-medicareTaxWithheld`) && (
+                        <p className="mt-1 text-xs text-slate-500">Box 6 on your W-2 — should be ~1.45% of Box 5</p>
+                      )}
                     </div>
                   </div>
                 </div>
