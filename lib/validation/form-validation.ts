@@ -1,17 +1,46 @@
 // Form Validation Utilities
 // Provides validation functions for all tax forms
 
-import { PersonalInfo, W2Income, Dependent, Interest1099INT, EducationExpenses, TraditionalIRAContribution, RothIRAContribution, Form8606Data, ItemizedDeductions } from '../../types/tax-types';
+import { PersonalInfo, W2Income, Dependent, Interest1099INT, EducationExpenses, TraditionalIRAContribution, RothIRAContribution, Form8606Data, ItemizedDeductions, TaxReturn } from '../../types/tax-types';
 
 export interface ValidationError {
   field: string;
   message: string;
 }
 
+const US_STATE_CODES = new Set([
+  'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA',
+  'HI','ID','IL','IN','IA','KS','KY','LA','ME','MD',
+  'MA','MI','MN','MS','MO','MT','NE','NV','NH','NJ',
+  'NM','NY','NC','ND','OH','OK','OR','PA','RI','SC',
+  'SD','TN','TX','UT','VT','VA','WA','WV','WI','WY',
+  'DC',
+]);
+
+function isValidPastOrPresentDate(value: string): boolean {
+  const normalized = value?.trim();
+  if (!normalized) return false;
+
+  const parsed = new Date(normalized);
+  if (Number.isNaN(parsed.getTime())) return false;
+
+  const today = new Date();
+  today.setHours(23, 59, 59, 999);
+  return parsed <= today;
+}
+
 // SSN validation
 export function validateSSN(ssn: string): boolean {
-  const ssnPattern = /^\d{3}-\d{2}-\d{4}$/;
-  return ssnPattern.test(ssn);
+  const ssnPattern = /^(\d{3})-(\d{2})-(\d{4})$/;
+  const match = ssnPattern.exec(ssn);
+  if (!match) return false;
+
+  const [, area, group, serial] = match;
+  if (area === '000' || area === '666' || area.startsWith('9')) return false;
+  if (group === '00') return false;
+  if (serial === '0000') return false;
+
+  return true;
 }
 
 // EIN validation
@@ -24,6 +53,10 @@ export function validateEIN(ein: string): boolean {
 export function validateZipCode(zip: string): boolean {
   const zipPattern = /^\d{5}(-\d{4})?$/;
   return zipPattern.test(zip);
+}
+
+export function validateStateCode(state: string): boolean {
+  return US_STATE_CODES.has(state?.trim().toUpperCase());
 }
 
 // Personal Info Validation
@@ -45,6 +78,8 @@ export function validatePersonalInfo(info: PersonalInfo): ValidationError[] {
   }
   if (!info.state?.trim()) {
     errors.push({ field: 'state', message: 'State is required' });
+  } else if (!validateStateCode(info.state)) {
+    errors.push({ field: 'state', message: 'Enter a valid 2-letter US state code' });
   }
 
   // SSN format validation
@@ -116,6 +151,22 @@ export function validateW2(w2: W2Income, index: number): ValidationError[] {
   if (w2.federalTaxWithheld < 0) {
     errors.push({ field: `w2-${index}-federalTax`, message: `${prefix}: Federal tax withheld cannot be negative` });
   }
+  if (w2.federalTaxWithheld > w2.wages && w2.wages > 0) {
+    errors.push({ field: `w2-${index}-federalTax`, message: `${prefix}: Federal tax withheld cannot exceed wages` });
+  }
+
+  if (w2.socialSecurityWages < 0) {
+    errors.push({ field: `w2-${index}-socialSecurityWages`, message: `${prefix}: Social Security wages cannot be negative` });
+  }
+  if (w2.socialSecurityTaxWithheld < 0) {
+    errors.push({ field: `w2-${index}-socialSecurityTaxWithheld`, message: `${prefix}: Social Security tax withheld cannot be negative` });
+  }
+  if (w2.medicareWages < 0) {
+    errors.push({ field: `w2-${index}-medicareWages`, message: `${prefix}: Medicare wages cannot be negative` });
+  }
+  if (w2.medicareTaxWithheld < 0) {
+    errors.push({ field: `w2-${index}-medicareTaxWithheld`, message: `${prefix}: Medicare tax withheld cannot be negative` });
+  }
 
   return errors;
 }
@@ -141,13 +192,8 @@ export function validateDependent(dependent: Dependent, index: number): Validati
   }
   if (!dependent.birthDate?.trim()) {
     errors.push({ field: `dependent-${index}-birthDate`, message: `${prefix}: Birth date is required` });
-  } else {
-    // Validate birth date is not in the future
-    const birthDate = new Date(dependent.birthDate);
-    const today = new Date();
-    if (birthDate > today) {
-      errors.push({ field: `dependent-${index}-birthDate`, message: `${prefix}: Birth date cannot be in the future` });
-    }
+  } else if (!isValidPastOrPresentDate(dependent.birthDate)) {
+    errors.push({ field: `dependent-${index}-birthDate`, message: `${prefix}: Enter a valid birth date that is not in the future` });
   }
   if (dependent.monthsLivedWithTaxpayer < 0 || dependent.monthsLivedWithTaxpayer > 12) {
     errors.push({ field: `dependent-${index}-months`, message: `${prefix}: Months lived with you must be between 0 and 12` });
@@ -198,6 +244,50 @@ export function validateEducationExpense(expense: EducationExpenses, index: numb
   }
 
   return errors;
+}
+
+function validateUniqueSSNs(taxReturn: TaxReturn): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const seen = new Map<string, string>();
+
+  const track = (ssn: string | undefined, field: string, label: string) => {
+    if (!ssn || !validateSSN(ssn)) return;
+    const existing = seen.get(ssn);
+    if (existing) {
+      errors.push({ field, message: `${label}: SSN duplicates ${existing}` });
+    } else {
+      seen.set(ssn, label);
+    }
+  };
+
+  track(taxReturn.personalInfo.ssn, 'ssn', 'Taxpayer');
+  track(taxReturn.personalInfo.spouseInfo?.ssn, 'spouseSSN', 'Spouse');
+
+  taxReturn.dependents.forEach((dep, index) => {
+    track(dep.ssn, `dependent-${index}-ssn`, `Dependent #${index + 1}`);
+  });
+
+  taxReturn.educationExpenses.forEach((exp, index) => {
+    track(exp.ssn, `education-${index}-ssn`, `Student #${index + 1}`);
+  });
+
+  return errors;
+}
+
+export function validateTaxReturn(taxReturn: TaxReturn): ValidationError[] {
+  return [
+    ...validatePersonalInfo(taxReturn.personalInfo),
+    ...taxReturn.w2Income.flatMap((w2, index) => validateW2(w2, index)),
+    ...taxReturn.dependents.flatMap((dep, index) => validateDependent(dep, index)),
+    ...taxReturn.interest.flatMap((interest, index) => validateInterest(interest, index)),
+    ...taxReturn.educationExpenses.flatMap((exp, index) => validateEducationExpense(exp, index)),
+    ...taxReturn.capitalGains.flatMap((gain, index) => validateCapitalGain(gain, index)),
+    ...(taxReturn.selfEmployment ? validateScheduleC(taxReturn.selfEmployment) : []),
+    ...taxReturn.rentalProperties.flatMap((rental, index) => validateRentalProperty(rental, index)),
+    ...validateRetirement(taxReturn.traditionalIRAContribution, taxReturn.rothIRAContribution, taxReturn.form8606),
+    ...validateItemizedDeductions(taxReturn.itemizedDeductions),
+    ...validateUniqueSSNs(taxReturn),
+  ];
 }
 
 // Utility function to check if there are any errors
@@ -280,6 +370,8 @@ export function validateRentalProperty(rental: any, index: number): ValidationEr
   }
   if (!rental.state?.trim()) {
     errors.push({ field: `rental-${index}-state`, message: `${prefix}: State is required` });
+  } else if (!validateStateCode(rental.state)) {
+    errors.push({ field: `rental-${index}-state`, message: `${prefix}: Enter a valid 2-letter US state code` });
   }
   if (!rental.zipCode?.trim()) {
     errors.push({ field: `rental-${index}-zipCode`, message: `${prefix}: ZIP code is required` });

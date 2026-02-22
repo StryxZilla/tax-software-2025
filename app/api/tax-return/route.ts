@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '../../../auth'
 import prisma from '../../../lib/prisma'
+import { validateTaxReturn } from '../../../lib/validation/form-validation'
 
 export async function GET() {
   const session = await auth()
@@ -39,6 +40,14 @@ export async function PUT(request: Request) {
 
   try {
     const { data } = await request.json()
+
+    const validationErrors = validateTaxReturn(data)
+    if (validationErrors.length > 0) {
+      return NextResponse.json(
+        { error: 'Validation failed', validationErrors },
+        { status: 400 }
+      )
+    }
 
     const taxReturn = await prisma.taxReturn.upsert({
       where: {
