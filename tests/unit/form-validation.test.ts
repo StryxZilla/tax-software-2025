@@ -73,6 +73,11 @@ describe('form validation hardening', () => {
     expect(errors.some((e) => e.field === 'ssn')).toBe(true)
   })
 
+  it('accepts valid SSN values with surrounding whitespace', () => {
+    const errors = validatePersonalInfo({ ...createBasePersonalInfo(), ssn: ' 123-45-6789 ' })
+    expect(errors.some((e) => e.field === 'ssn')).toBe(false)
+  })
+
   it('rejects invalid dependent birth date values', () => {
     const dependent: Dependent = {
       firstName: 'Kid',
@@ -123,10 +128,7 @@ describe('form validation hardening', () => {
       ssn: '234-56-7890',
       institution: 'State University',
       tuitionAndFees: 1000,
-      scholarships: 0,
-      grants: 0,
-      isEligibleForAOTC: false,
-      isEligibleForLLC: false,
+      isFirstFourYears: true,
     }
 
     const nanErrors = validateEducationExpense({ ...baseExpense, tuitionAndFees: Number.NaN }, 0)
