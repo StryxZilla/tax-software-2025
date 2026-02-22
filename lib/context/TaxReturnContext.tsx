@@ -111,6 +111,9 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
   // Auto-save: localStorage always, DB when authenticated (debounced)
   useEffect(() => {
     if (status === 'loading') return
+    // Don't overwrite localStorage before DB restore completes (prevents
+    // the initial 'welcome' state from clobbering the persisted step).
+    if (isAuthenticated && !dbLoaded) return
 
     // Always save to localStorage as fallback
     saveToLocalStorage()
@@ -128,7 +131,7 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
       if (saveTimeout) clearTimeout(saveTimeout)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taxReturn])
+  }, [taxReturn, currentStep])
 
   const loadFromDb = async () => {
     try {
@@ -137,6 +140,19 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
       const { data } = await res.json()
       if (data) {
         setTaxReturn(data)
+      } else {
+        // DB has no data yet — fall back to localStorage (covers the case
+        // where a debounced DB save hadn't completed before refresh).
+        const localData = localStorage.getItem('taxReturn2025')
+        if (localData) {
+          const parsed = JSON.parse(localData)
+          setTaxReturn(parsed)
+        }
+      }
+      // Restore wizard step from localStorage (not stored in DB)
+      const savedStep = localStorage.getItem('currentStep')
+      if (savedStep) {
+        setCurrentStep(savedStep as WizardStep)
       }
       setDbLoaded(true)
     } catch (error) {

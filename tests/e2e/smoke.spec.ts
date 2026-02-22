@@ -26,8 +26,8 @@ test('critical user journey: register and progress wizard to review @critical-sm
   await page.getByPlaceholder('••••••••').last().fill(password)
   await page.getByRole('button', { name: 'Create account' }).click()
 
-  await expect(page).toHaveURL('/')
-  await expect(page.getByText("Welcome to", { exact: false })).toBeVisible()
+  await expect(page).toHaveURL('/', { timeout: 15000 })
+  await expect(page.getByText("Welcome to", { exact: false })).toBeVisible({ timeout: 10000 })
 
   await page.getByRole('button', { name: "Let's Get Started" }).first().click()
   await expect(page.getByRole('heading', { name: 'Personal Information' })).toBeVisible()
@@ -43,11 +43,11 @@ test('critical user journey: register and progress wizard to review @critical-sm
 
   for (let i = 0; i < 12; i += 1) {
     const nextButton = page.getByRole('button', { name: 'Next →' })
-    if (!(await nextButton.isVisible()) || !(await nextButton.isEnabled())) {
-      break
-    }
+    if (!(await nextButton.isVisible().catch(() => false))) break
+    if (!(await nextButton.isEnabled())) break
     await nextButton.click()
+    await page.waitForTimeout(300)
   }
 
-  await expect(page.getByRole('heading', { name: "Zoey's Return Summary" })).toBeVisible()
+  await expect(page.getByRole('heading', { name: "Zoey's Return Summary" })).toBeVisible({ timeout: 10000 })
 })

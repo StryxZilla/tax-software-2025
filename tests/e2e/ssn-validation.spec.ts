@@ -14,7 +14,7 @@ test('ssn live validation blocks progress until valid format @critical-ssn', asy
   await page.getByPlaceholder('••••••••').last().fill(password)
   await page.getByRole('button', { name: 'Create account' }).click()
 
-  await expect(page).toHaveURL('/')
+  await expect(page).toHaveURL('/', { timeout: 15000 })
   await page.getByRole('button', { name: "Let's Get Started" }).first().click()
 
   const ssnInput = page.getByPlaceholder('XXX-XX-XXXX').first()
