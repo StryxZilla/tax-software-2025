@@ -20,7 +20,10 @@ npm install
 $envFile = Join-Path $repoRoot '.env.local'
 if (-not (Test-Path $envFile)) {
   Step "Creating .env.local with local defaults"
-  $generatedSecret = [Convert]::ToHexString((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
+  $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+  $bytes = New-Object byte[] 32
+  $rng.GetBytes($bytes)
+  $generatedSecret = ($bytes | ForEach-Object { $_.ToString('x2') }) -join ''
   @"
 NEXTAUTH_SECRET=$generatedSecret
 NEXTAUTH_URL=http://localhost:3000
@@ -29,7 +32,10 @@ NEXTAUTH_URL=http://localhost:3000
   Step "Validating .env.local"
   $envRaw = Get-Content $envFile -Raw
   if ($envRaw -notmatch 'NEXTAUTH_SECRET=') {
-    $generatedSecret = [Convert]::ToHexString((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
+    $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+    $bytes = New-Object byte[] 32
+    $rng.GetBytes($bytes)
+    $generatedSecret = ($bytes | ForEach-Object { $_.ToString('x2') }) -join ''
     Add-Content -Path $envFile -Value "`nNEXTAUTH_SECRET=$generatedSecret"
     Write-Host "Added NEXTAUTH_SECRET to .env.local"
   }
