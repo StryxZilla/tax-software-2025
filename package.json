@@ -12,7 +12,6 @@
     "qa:quick": "node scripts/qa/qa-runner.mjs --mode quick",
     "qa:release-gate": "node scripts/qa/release-gate.mjs",
     "win:setup": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/bootstrap.ps1",
-    "win:setup:test-user": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/bootstrap.ps1 -CreateTestUser",
     "win:run": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/run-local.ps1",
     "win:verify": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/verify.ps1",
     "win:qa": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/qa-bootstrap.ps1",

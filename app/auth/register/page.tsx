@@ -76,7 +76,10 @@ export default function RegisterPage() {
 
         <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-1">Create your account</h2>
-          <p className="text-slate-500 text-sm mb-6">Free to use — your data stays private</p>
+          <p className="text-slate-500 text-sm mb-2">Free to use — your data stays private</p>
+          <p className="text-xs text-slate-500 mb-6">
+            Personal mode: by default, the first account created on this install gets admin access for local user management.
+          </p>
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-5 text-sm">

@@ -10,12 +10,6 @@ npm run win:setup
 npm run win:run
 ```
 
-Optional test user during setup:
-
-```powershell
-npm run win:setup:test-user
-```
-
 Healthcheck + QA gate:
 
 ```powershell
@@ -38,8 +32,11 @@ npm install
 Create `.env.local` in project root if missing:
 
 ```env
-NEXTAUTH_SECRET=taxflow-2025-secret-key-change-in-prod-xK9mP2nQ
+# Generate once: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+NEXTAUTH_SECRET=replace-with-a-random-secret
 NEXTAUTH_URL=http://localhost:3000
+# Optional: set false to disable first-user admin assignment
+# PERSONAL_MODE_FIRST_USER_ADMIN=true
 ```
 
 Initialize Prisma/SQLite:
@@ -48,29 +45,18 @@ Initialize Prisma/SQLite:
 npx prisma db push
 ```
 
-Optional test user:
-
-```powershell
-node create-test-user.js
-```
-
-Default test credentials:
-- `john.sample@testmail.com`
-- `testpassword123`
-
-## Run
+Run app:
 
 ```powershell
 npm run dev
 ```
 
-Expected banner includes `Next.js 16.1.6` and localhost URL.
+Open http://localhost:3000 and create your account from the UI.
 
 ## Useful Commands
 
 ```powershell
 npm run win:setup
-npm run win:setup:test-user
 npm run win:run
 npm run win:verify
 npm run win:qa
@@ -95,7 +81,6 @@ Reset DB (destructive):
 
 ```powershell
 npx prisma db push --force-reset
-node create-test-user.js
 ```
 
 Clean local build artifacts:

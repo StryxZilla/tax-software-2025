@@ -4,6 +4,8 @@ A tax preparation app for the 2025 tax year built with Next.js 16, React 19, Typ
 
 ## Fast Path (Windows)
 
+For a complete first-use walkthrough (create account in-app, save, sign out, sign in), see [`FIRST-RUN.md`](./FIRST-RUN.md).
+
 ```powershell
 cd C:\Users\Stryx\tax-software
 npm run win:setup
@@ -44,8 +46,11 @@ npx prisma db push
 Create `.env.local` if needed:
 
 ```env
-NEXTAUTH_SECRET=taxflow-2025-secret-key-change-in-prod-xK9mP2nQ
+# Generate a strong secret: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+NEXTAUTH_SECRET=replace-with-a-random-secret
 NEXTAUTH_URL=http://localhost:3000
+# Optional: set to false to disable first-user admin assignment
+# PERSONAL_MODE_FIRST_USER_ADMIN=true
 ```
 
 Run locally:

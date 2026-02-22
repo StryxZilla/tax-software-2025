@@ -1,7 +1,3 @@
-param(
-  [switch]$CreateTestUser
-)
-
 $ErrorActionPreference = 'Stop'
 
 Write-Host "== Tax Software Windows Bootstrap ==" -ForegroundColor Cyan
@@ -23,16 +19,18 @@ npm install
 
 $envFile = Join-Path $repoRoot '.env.local'
 if (-not (Test-Path $envFile)) {
-  Step "Creating .env.local with safe local defaults"
+  Step "Creating .env.local with local defaults"
+  $generatedSecret = [Convert]::ToHexString((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
   @"
-NEXTAUTH_SECRET=taxflow-local-dev-secret-change-me
+NEXTAUTH_SECRET=$generatedSecret
 NEXTAUTH_URL=http://localhost:3000
 "@ | Set-Content -Path $envFile -Encoding UTF8
 } else {
   Step "Validating .env.local"
   $envRaw = Get-Content $envFile -Raw
   if ($envRaw -notmatch 'NEXTAUTH_SECRET=') {
-    Add-Content -Path $envFile -Value "`nNEXTAUTH_SECRET=taxflow-local-dev-secret-change-me"
+    $generatedSecret = [Convert]::ToHexString((1..32 | ForEach-Object { Get-Random -Maximum 256 }))
+    Add-Content -Path $envFile -Value "`nNEXTAUTH_SECRET=$generatedSecret"
     Write-Host "Added NEXTAUTH_SECRET to .env.local"
   }
   if ($envRaw -notmatch 'NEXTAUTH_URL=') {
@@ -44,15 +42,10 @@ NEXTAUTH_URL=http://localhost:3000
 Step "Applying Prisma schema to local DB"
 npx prisma db push
 
-if ($CreateTestUser) {
-  Step "Creating optional test user"
-  node create-test-user.js
-} else {
-  Write-Host "`n(Optional) To create test user now: npm run win:setup:test-user" -ForegroundColor DarkCyan
-}
-
 Write-Host "`n[OK] Bootstrap complete" -ForegroundColor Green
 Write-Host "Next steps:"
 Write-Host "  1) Run app:      npm run win:run"
-Write-Host "  2) Verify health: npm run win:verify"
-Write-Host "  3) QA gate:      npm run win:qa"
+Write-Host "  2) Open app:     http://localhost:3000"
+Write-Host "  3) Create account from /auth/register"
+Write-Host "  4) Verify health: npm run win:verify"
+Write-Host "  5) QA gate:      npm run win:qa"

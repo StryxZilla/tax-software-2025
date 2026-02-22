@@ -5,6 +5,7 @@ import { checkRateLimit, getClientIp } from '../../../../lib/security/rate-limit
 
 const REGISTER_RATE_LIMIT_WINDOW_MS = Number(process.env.AUTH_REGISTER_RATE_LIMIT_WINDOW_MS ?? 60_000)
 const REGISTER_RATE_LIMIT_MAX_ATTEMPTS = Number(process.env.AUTH_REGISTER_RATE_LIMIT_MAX_ATTEMPTS ?? 20)
+const PERSONAL_MODE_FIRST_USER_ADMIN = process.env.PERSONAL_MODE_FIRST_USER_ADMIN !== 'false'
 
 export async function POST(request: Request) {
   try {
@@ -52,7 +53,8 @@ export async function POST(request: Request) {
     }
 
     const userCount = await prisma.user.count()
-    const isAdmin = userCount === 0
+    const isFirstUser = userCount === 0
+    const isAdmin = PERSONAL_MODE_FIRST_USER_ADMIN && isFirstUser
 
     const passwordHash = await bcrypt.hash(password, 12)
 
@@ -70,6 +72,7 @@ export async function POST(request: Request) {
       email: user.email,
       name: user.name,
       isAdmin: user.isAdmin,
+      firstUserAdminGranted: isFirstUser && user.isAdmin,
     })
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {

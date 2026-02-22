@@ -26,9 +26,14 @@ npm run dev
 
 Open: http://localhost:3000
 
-## Use Sample Data
+## Manual first-run validation
 
-Use `test-data.json` and the scenario in `TESTING.md` to run end-to-end manual validation.
+Follow `FIRST-RUN.md` and confirm:
+- register through `/auth/register`
+- complete at least one return section
+- sign out
+- sign back in
+- previously entered data is still present
 
 ## QA Commands
 
@@ -56,13 +61,12 @@ QA artifacts are generated under `artifacts\qa\<timestamp>\`:
 - `summary.md`
 - per-step logs (for example `lint.log`, `typecheck.log`, `build.log`)
 
-## Database / User Utilities
+## Database Utilities
 
 ```powershell
 npx prisma studio
 npx prisma db push
 npx prisma db push --force-reset   # destructive
-node create-test-user.js
 ```
 
 ## Port / Process Utilities
