@@ -56,7 +56,7 @@ function LoginForm() {
           <ZoeyGuideCard
             variant="tip"
             title="Nerdy prep tip"
-            message="Have your W-2 and any 1099s nearby. You'll cruise through the first sections way faster."
+            message="Have your W-2 and any 1099s nearby. You'll move through the first sections faster, and Zoey can save her treat break for later."
             className="mb-6"
           />
 

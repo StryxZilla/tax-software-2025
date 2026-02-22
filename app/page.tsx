@@ -276,7 +276,7 @@ function WizardStepContent() {
           <ZoeyGuideCard
             variant="warning"
             title="Final pass before export"
-            message="Double-check SSNs, withholding, and bank details. These three fields catch most last-minute surprises."
+            message="Double-check SSNs, withholding, and bank details. These three fields catch most last-minute surprises (and keep Zoey from requesting emergency treats)."
             className="max-w-2xl mx-auto"
           />
 

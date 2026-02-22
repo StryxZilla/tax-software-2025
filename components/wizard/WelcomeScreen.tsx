@@ -84,7 +84,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             <ZoeyGuideCard
               variant="tip"
               title="Quick mission plan"
-              message="11 steps, save-as-you-go, and no chaos. We focus on the fields that most often cause delays."
+              message="11 steps, save-as-you-go, and no chaos. Finish each clean section and Zoey mentally awards herself a tiny treat."
               className="w-full text-left"
             />
           </div>
