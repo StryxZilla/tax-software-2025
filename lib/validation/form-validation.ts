@@ -490,31 +490,41 @@ export function validateRetirement(
   const errors: ValidationError[] = [];
 
   if (traditionalIRA) {
-    if (traditionalIRA.amount < 0) {
-      errors.push({ field: 'retirement-traditional-amount', message: 'Traditional IRA contribution cannot be negative' });
-    }
-    if (traditionalIRA.amount > IRA_CATCHUP_LIMIT_2025) {
-      errors.push({
-        field: 'retirement-traditional-amount',
-        message: `Traditional IRA contribution cannot exceed $${IRA_CATCHUP_LIMIT_2025.toLocaleString()} (2025 limit)`,
-      });
+    if (!isFiniteNumber(traditionalIRA.amount)) {
+      errors.push({ field: 'retirement-traditional-amount', message: 'Traditional IRA contribution must be a valid number' });
+    } else {
+      if (traditionalIRA.amount < 0) {
+        errors.push({ field: 'retirement-traditional-amount', message: 'Traditional IRA contribution cannot be negative' });
+      }
+      if (traditionalIRA.amount > IRA_CATCHUP_LIMIT_2025) {
+        errors.push({
+          field: 'retirement-traditional-amount',
+          message: `Traditional IRA contribution cannot exceed $${IRA_CATCHUP_LIMIT_2025.toLocaleString()} (2025 limit)`,
+        });
+      }
     }
   }
 
   if (rothIRA) {
-    if (rothIRA.amount < 0) {
-      errors.push({ field: 'retirement-roth-amount', message: 'Roth IRA contribution cannot be negative' });
-    }
-    if (rothIRA.amount > IRA_CATCHUP_LIMIT_2025) {
-      errors.push({
-        field: 'retirement-roth-amount',
-        message: `Roth IRA contribution cannot exceed $${IRA_CATCHUP_LIMIT_2025.toLocaleString()} (2025 limit)`,
-      });
+    if (!isFiniteNumber(rothIRA.amount)) {
+      errors.push({ field: 'retirement-roth-amount', message: 'Roth IRA contribution must be a valid number' });
+    } else {
+      if (rothIRA.amount < 0) {
+        errors.push({ field: 'retirement-roth-amount', message: 'Roth IRA contribution cannot be negative' });
+      }
+      if (rothIRA.amount > IRA_CATCHUP_LIMIT_2025) {
+        errors.push({
+          field: 'retirement-roth-amount',
+          message: `Roth IRA contribution cannot exceed $${IRA_CATCHUP_LIMIT_2025.toLocaleString()} (2025 limit)`,
+        });
+      }
     }
   }
 
   // Combined traditional + Roth cannot exceed the annual limit
-  const totalIRA = (traditionalIRA?.amount || 0) + (rothIRA?.amount || 0);
+  const traditionalAmount = traditionalIRA && isFiniteNumber(traditionalIRA.amount) ? traditionalIRA.amount : 0;
+  const rothAmount = rothIRA && isFiniteNumber(rothIRA.amount) ? rothIRA.amount : 0;
+  const totalIRA = traditionalAmount + rothAmount;
   if (totalIRA > IRA_CATCHUP_LIMIT_2025) {
     errors.push({
       field: 'retirement-combined-limit',
@@ -523,17 +533,20 @@ export function validateRetirement(
   }
 
   if (form8606) {
-    if (form8606.nondeductibleContributions < 0) {
-      errors.push({ field: 'retirement-8606-nondeductible', message: 'Nondeductible contributions cannot be negative' });
-    }
-    if (form8606.priorYearBasis < 0) {
-      errors.push({ field: 'retirement-8606-priorBasis', message: 'Prior year basis cannot be negative' });
-    }
-    if (form8606.conversionsToRoth < 0) {
-      errors.push({ field: 'retirement-8606-conversions', message: 'Roth conversion amount cannot be negative' });
-    }
-    if (form8606.endOfYearTraditionalIRABalance < 0) {
-      errors.push({ field: 'retirement-8606-balance', message: 'End-of-year IRA balance cannot be negative' });
+    const form8606Fields: Array<[keyof Form8606Data, string, string]> = [
+      ['nondeductibleContributions', 'retirement-8606-nondeductible', 'Nondeductible contributions'],
+      ['priorYearBasis', 'retirement-8606-priorBasis', 'Prior year basis'],
+      ['conversionsToRoth', 'retirement-8606-conversions', 'Roth conversion amount'],
+      ['endOfYearTraditionalIRABalance', 'retirement-8606-balance', 'End-of-year IRA balance'],
+    ];
+
+    for (const [key, field, label] of form8606Fields) {
+      const value = form8606[key];
+      if (!isFiniteNumber(value)) {
+        errors.push({ field, message: `${label} must be a valid number` });
+      } else if (value < 0) {
+        errors.push({ field, message: `${label} cannot be negative` });
+      }
     }
   }
 

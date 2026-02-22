@@ -11,6 +11,7 @@ import {
   validateRentalProperty,
   validateEIN,
   validateZipCode,
+  validateRetirement,
 } from '../../lib/validation/form-validation'
 import type { Dependent, EducationExpenses, PersonalInfo, TaxReturn, W2Income } from '../../types/tax-types'
 
@@ -291,6 +292,40 @@ describe('form validation hardening', () => {
     )
 
     expect(errors.some((e) => e.field === 'capital-0-dateSold')).toBe(true)
+  })
+
+  it('rejects non-finite IRA contribution amounts', () => {
+    for (const bad of [NaN, Infinity, -Infinity]) {
+      const tradErrors = validateRetirement({ amount: bad as number, isDeductible: true }, undefined, undefined)
+      expect(tradErrors.some((e) => e.field === 'retirement-traditional-amount' && e.message.includes('valid number'))).toBe(true)
+
+      const rothErrors = validateRetirement(undefined, { amount: bad as number }, undefined)
+      expect(rothErrors.some((e) => e.field === 'retirement-roth-amount' && e.message.includes('valid number'))).toBe(true)
+    }
+  })
+
+  it('skips combined IRA limit check when amounts are non-finite', () => {
+    const errors = validateRetirement({ amount: NaN, isDeductible: true }, { amount: NaN }, undefined)
+    expect(errors.some((e) => e.field === 'retirement-combined-limit')).toBe(false)
+  })
+
+  it('rejects non-finite Form 8606 fields', () => {
+    const errors = validateRetirement(undefined, undefined, {
+      nondeductibleContributions: NaN,
+      priorYearBasis: Infinity,
+      conversionsToRoth: -Infinity,
+      endOfYearTraditionalIRABalance: NaN,
+      distributionsFromTraditionalIRA: 0,
+    })
+    expect(errors.some((e) => e.field === 'retirement-8606-nondeductible' && e.message.includes('valid number'))).toBe(true)
+    expect(errors.some((e) => e.field === 'retirement-8606-priorBasis' && e.message.includes('valid number'))).toBe(true)
+    expect(errors.some((e) => e.field === 'retirement-8606-conversions' && e.message.includes('valid number'))).toBe(true)
+    expect(errors.some((e) => e.field === 'retirement-8606-balance' && e.message.includes('valid number'))).toBe(true)
+  })
+
+  it('still validates valid IRA contributions normally', () => {
+    const errors = validateRetirement({ amount: 5000, isDeductible: true }, { amount: 2000 }, undefined)
+    expect(errors).toHaveLength(0)
   })
 
   it('rejects non-finite proceeds and costBasis (NaN, undefined, Infinity)', () => {
