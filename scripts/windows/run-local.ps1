@@ -48,9 +48,11 @@ function Ensure-PrismaClient {
 }
 
 $port = 3000
-$conns = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
+# Only treat LISTENING sockets as "in use". Ignore TIME_WAIT/CLOSE_WAIT noise.
+$conns = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue |
+  Where-Object { $_.OwningProcess -gt 0 }
 if ($conns) {
-  $ownerPid = $conns[0].OwningProcess
+  $ownerPid = ($conns | Select-Object -First 1).OwningProcess
   Write-Host "[ERROR] Port $port is already in use by PID $ownerPid" -ForegroundColor Red
   Write-Host "Troubleshooting:" -ForegroundColor Yellow
   Write-Host "  Inspect process: Get-Process -Id $ownerPid"
