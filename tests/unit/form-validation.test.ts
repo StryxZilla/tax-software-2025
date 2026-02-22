@@ -248,4 +248,20 @@ describe('form validation hardening', () => {
 
     expect(errors.some((e) => e.field === 'capital-0-dateSold')).toBe(true)
   })
+
+  it('rejects non-finite proceeds and costBasis (NaN, undefined, Infinity)', () => {
+    const base = {
+      description: 'Stock sale',
+      dateAcquired: '2024-01-01',
+      dateSold: '2024-06-01',
+    }
+
+    for (const bad of [NaN, undefined, Infinity, -Infinity]) {
+      const errors = validateCapitalGain({ ...base, proceeds: bad, costBasis: 500 }, 0)
+      expect(errors.some((e) => e.field === 'capital-0-proceeds' && e.message.includes('valid number'))).toBe(true)
+
+      const errors2 = validateCapitalGain({ ...base, proceeds: 1000, costBasis: bad }, 0)
+      expect(errors2.some((e) => e.field === 'capital-0-costBasis' && e.message.includes('valid number'))).toBe(true)
+    }
+  })
 })

@@ -375,13 +375,16 @@ export function validateCapitalGain(gain: any, index: number): ValidationError[]
   if (acquired && sold && sold < acquired) {
     errors.push({ field: `capital-${index}-dateSold`, message: `${prefix}: Sale date cannot be before acquisition date` });
   }
-  if (gain.proceeds < 0) {
+  if (!isFiniteNumber(gain.proceeds)) {
+    errors.push({ field: `capital-${index}-proceeds`, message: `${prefix}: Proceeds must be a valid number` });
+  } else if (gain.proceeds < 0) {
     errors.push({ field: `capital-${index}-proceeds`, message: `${prefix}: Proceeds cannot be negative` });
-  }
-  if (gain.proceeds === 0) {
+  } else if (gain.proceeds === 0) {
     errors.push({ field: `capital-${index}-proceeds`, message: `${prefix}: Proceeds amount is required` });
   }
-  if (gain.costBasis < 0) {
+  if (!isFiniteNumber(gain.costBasis)) {
+    errors.push({ field: `capital-${index}-costBasis`, message: `${prefix}: Cost basis must be a valid number` });
+  } else if (gain.costBasis < 0) {
     errors.push({ field: `capital-${index}-costBasis`, message: `${prefix}: Cost basis cannot be negative` });
   }
 
