@@ -398,13 +398,26 @@ export function validateScheduleC(scheduleC: any): ValidationError[] {
   if (scheduleC.ein && !validateEIN(scheduleC.ein)) {
     errors.push({ field: 'scheduleC-ein', message: 'EIN must be in format XX-XXXXXXX' });
   }
-  if (scheduleC.grossReceipts < 0) {
+
+  const numericFields: Array<[unknown, string, string]> = [
+    [scheduleC.grossReceipts, 'scheduleC-grossReceipts', 'Gross receipts'],
+    [scheduleC.returns, 'scheduleC-returns', 'Returns'],
+    [scheduleC.costOfGoodsSold, 'scheduleC-cogs', 'Cost of goods sold'],
+  ];
+
+  for (const [value, field, label] of numericFields) {
+    if (!isFiniteNumber(value)) {
+      errors.push({ field, message: `${label} must be a valid number` });
+    }
+  }
+
+  if (isFiniteNumber(scheduleC.grossReceipts) && scheduleC.grossReceipts < 0) {
     errors.push({ field: 'scheduleC-grossReceipts', message: 'Gross receipts cannot be negative' });
   }
-  if (scheduleC.returns < 0) {
+  if (isFiniteNumber(scheduleC.returns) && scheduleC.returns < 0) {
     errors.push({ field: 'scheduleC-returns', message: 'Returns cannot be negative' });
   }
-  if (scheduleC.costOfGoodsSold < 0) {
+  if (isFiniteNumber(scheduleC.costOfGoodsSold) && scheduleC.costOfGoodsSold < 0) {
     errors.push({ field: 'scheduleC-cogs', message: 'Cost of goods sold cannot be negative' });
   }
 

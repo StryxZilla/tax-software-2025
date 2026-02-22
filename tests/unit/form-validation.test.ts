@@ -7,6 +7,7 @@ import {
   validateCapitalGain,
   validateInterest,
   validateEducationExpense,
+  validateScheduleC,
 } from '../../lib/validation/form-validation'
 import type { Dependent, EducationExpenses, PersonalInfo, TaxReturn, W2Income } from '../../types/tax-types'
 
@@ -150,6 +151,20 @@ describe('form validation hardening', () => {
 
     expect(errors.some((e) => e.field === 'w2-0-wages')).toBe(true)
     expect(errors.some((e) => e.field === 'w2-0-federalTax')).toBe(true)
+  })
+
+  it('rejects non-finite Schedule C numeric values', () => {
+    const errors = validateScheduleC({
+      businessName: 'Side Gig LLC',
+      ein: '12-3456789',
+      grossReceipts: Number.NaN,
+      returns: Number.POSITIVE_INFINITY,
+      costOfGoodsSold: Number.NaN,
+    })
+
+    expect(errors.some((e) => e.field === 'scheduleC-grossReceipts')).toBe(true)
+    expect(errors.some((e) => e.field === 'scheduleC-returns')).toBe(true)
+    expect(errors.some((e) => e.field === 'scheduleC-cogs')).toBe(true)
   })
 
   it('does not report withholding exceeds wages when wages is invalid', () => {
