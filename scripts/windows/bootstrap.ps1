@@ -17,6 +17,9 @@ Write-Host "npm:  $npmVersion"
 Step "Installing dependencies"
 npm install
 
+Step "Generating Prisma client"
+npx prisma generate
+
 $envFile = Join-Path $repoRoot '.env.local'
 if (-not (Test-Path $envFile)) {
   Step "Creating .env.local with local defaults"
