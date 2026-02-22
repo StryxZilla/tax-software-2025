@@ -5,8 +5,10 @@ import {
   validateTaxReturn,
   validateW2,
   validateCapitalGain,
+  validateInterest,
+  validateEducationExpense,
 } from '../../lib/validation/form-validation'
-import type { Dependent, PersonalInfo, TaxReturn, W2Income } from '../../types/tax-types'
+import type { Dependent, EducationExpenses, PersonalInfo, TaxReturn, W2Income } from '../../types/tax-types'
 
 function createBasePersonalInfo(): PersonalInfo {
   return {
@@ -105,6 +107,33 @@ describe('form validation hardening', () => {
     const w2 = { ...createBaseW2(), federalTaxWithheld: 51000 }
     const errors = validateW2(w2, 0)
     expect(errors.some((e) => e.field === 'w2-0-federalTax')).toBe(true)
+  })
+
+  it('rejects non-finite 1099-INT amounts (NaN/Infinity)', () => {
+    const nanErrors = validateInterest({ payer: 'Bank', amount: Number.NaN }, 0)
+    const infinityErrors = validateInterest({ payer: 'Bank', amount: Number.POSITIVE_INFINITY }, 0)
+
+    expect(nanErrors.some((e) => e.field === 'interest-0-amount')).toBe(true)
+    expect(infinityErrors.some((e) => e.field === 'interest-0-amount')).toBe(true)
+  })
+
+  it('rejects non-finite education tuition amounts (NaN/Infinity)', () => {
+    const baseExpense: EducationExpenses = {
+      studentName: 'Student Doe',
+      ssn: '234-56-7890',
+      institution: 'State University',
+      tuitionAndFees: 1000,
+      scholarships: 0,
+      grants: 0,
+      isEligibleForAOTC: false,
+      isEligibleForLLC: false,
+    }
+
+    const nanErrors = validateEducationExpense({ ...baseExpense, tuitionAndFees: Number.NaN }, 0)
+    const infinityErrors = validateEducationExpense({ ...baseExpense, tuitionAndFees: Number.POSITIVE_INFINITY }, 0)
+
+    expect(nanErrors.some((e) => e.field === 'education-0-tuition')).toBe(true)
+    expect(infinityErrors.some((e) => e.field === 'education-0-tuition')).toBe(true)
   })
 
   it('rejects non-finite W-2 numeric values (NaN/Infinity)', () => {

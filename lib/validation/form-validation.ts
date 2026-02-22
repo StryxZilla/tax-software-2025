@@ -249,6 +249,10 @@ export function validateInterest(interest: Interest1099INT, index: number): Vali
   if (!interest.payer?.trim()) {
     errors.push({ field: `interest-${index}-payer`, message: `${prefix}: Payer name is required` });
   }
+  if (!isFiniteNumber(interest.amount)) {
+    errors.push({ field: `interest-${index}-amount`, message: `${prefix}: Interest amount must be a valid number` });
+    return errors;
+  }
   if (interest.amount < 0) {
     errors.push({ field: `interest-${index}-amount`, message: `${prefix}: Interest amount cannot be negative` });
   }
@@ -274,6 +278,10 @@ export function validateEducationExpense(expense: EducationExpenses, index: numb
   }
   if (!expense.institution?.trim()) {
     errors.push({ field: `education-${index}-institution`, message: `${prefix}: Institution name is required` });
+  }
+  if (!isFiniteNumber(expense.tuitionAndFees)) {
+    errors.push({ field: `education-${index}-tuition`, message: `${prefix}: Tuition must be a valid number` });
+    return errors;
   }
   if (expense.tuitionAndFees < 0) {
     errors.push({ field: `education-${index}-tuition`, message: `${prefix}: Tuition cannot be negative` });
