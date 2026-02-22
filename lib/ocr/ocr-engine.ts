@@ -6,13 +6,61 @@ export interface OCRResult {
   confidence: number;
 }
 
+export class OCRExtractionError extends Error {
+  constructor(
+    message: string,
+    public readonly code:
+      | 'UNSUPPORTED_FILE_TYPE'
+      | 'PDF_NOT_SUPPORTED'
+      | 'OCR_ASSET_LOAD_FAILED'
+      | 'OCR_PROCESSING_FAILED'
+  ) {
+    super(message);
+    this.name = 'OCRExtractionError';
+  }
+}
+
+function getFriendlyOCRError(error: unknown): OCRExtractionError {
+  const message = error instanceof Error ? error.message : String(error);
+  const lower = message.toLowerCase();
+
+  if (lower.includes('worker') || lower.includes('traineddata') || lower.includes('fetch')) {
+    return new OCRExtractionError(
+      'Could not load OCR language assets. Please refresh and try again. If it keeps failing, upload a clear JPG/PNG screenshot of your form instead of a PDF.',
+      'OCR_ASSET_LOAD_FAILED'
+    );
+  }
+
+  return new OCRExtractionError(
+    'Could not read text from this file. Try a sharper, well-lit JPG or PNG where all form boxes are visible.',
+    'OCR_PROCESSING_FAILED'
+  );
+}
+
 /**
- * Extract text from an image or PDF using Tesseract OCR
+ * Extract text from an image using Tesseract OCR
  */
-export async function extractText(imageFile: File): Promise<OCRResult> {
+export async function extractText(file: File): Promise<OCRResult> {
+  const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+  const isImage = file.type.startsWith('image/');
+
+  if (isPdf) {
+    throw new OCRExtractionError(
+      'PDF upload is not supported by the current OCR engine. Please upload a JPG or PNG image of page 1 (screenshot or phone photo).',
+      'PDF_NOT_SUPPORTED'
+    );
+  }
+
+  if (!isImage) {
+    throw new OCRExtractionError(
+      `Unsupported file type: ${file.type || 'unknown'}. Please upload a JPG or PNG image.`,
+      'UNSUPPORTED_FILE_TYPE'
+    );
+  }
+
   try {
-    const result = await Tesseract.recognize(imageFile, 'eng', {
-      logger: (m) => console.log(m), // Progress logging
+    const result = await Tesseract.recognize(file, 'eng', {
+      logger: (m) => console.log(m),
     });
 
     return {
@@ -21,7 +69,7 @@ export async function extractText(imageFile: File): Promise<OCRResult> {
     };
   } catch (error) {
     console.error('OCR extraction failed:', error);
-    throw new Error('Failed to extract text from image');
+    throw getFriendlyOCRError(error);
   }
 }
 
@@ -50,7 +98,7 @@ export async function extractTextFromRegion(
     };
   } catch (error) {
     console.error('OCR extraction failed:', error);
-    throw new Error('Failed to extract text from image region');
+    throw getFriendlyOCRError(error);
   } finally {
     if (worker) {
       await worker.terminate();

@@ -84,7 +84,7 @@ export default function DocumentUpload({
                 Extracting data...
               </span>
             ) : (
-              'Extract Data from Image'
+              'Extract Data'
             )}
           </button>
         </div>
@@ -96,6 +96,7 @@ export default function DocumentUpload({
           <div className="flex-1">
             <p className="text-sm font-medium text-red-800">Extraction failed</p>
             <p className="text-sm text-red-700">{error}</p>
+            <p className="text-xs text-red-700 mt-1">You can continue by entering values manually below.</p>
           </div>
         </div>
       )}
