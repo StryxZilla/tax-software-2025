@@ -20,11 +20,13 @@ const requireUnit = isTruthy(process.env.QA_REQUIRE_UNIT);
 const requireE2E = isTruthy(process.env.QA_REQUIRE_E2E);
 
 const allSteps = [
-  { id: 'lint', critical: true, candidates: ['lint'] },
-  { id: 'typecheck', critical: true, candidates: ['typecheck', 'check-types'] },
-  { id: 'unit', critical: requireUnit, candidates: ['test:unit', 'test', 'unit'] },
-  { id: 'e2e', critical: requireE2E, candidates: ['test:e2e', 'e2e'] },
-  { id: 'build', critical: true, candidates: ['build'] },
+  { id: 'lint', critical: true, required: true, candidates: ['lint'] },
+  { id: 'typecheck', critical: true, required: true, candidates: ['typecheck', 'check-types'] },
+  { id: 'unit', critical: requireUnit, required: false, candidates: ['test:unit', 'test', 'unit'] },
+  { id: 'unit:critical', critical: true, required: true, candidates: ['test:unit:critical'] },
+  { id: 'e2e', critical: requireE2E, required: false, candidates: ['test:e2e', 'e2e'] },
+  { id: 'e2e:critical', critical: true, required: true, candidates: ['test:e2e:critical'] },
+  { id: 'build', critical: true, required: true, candidates: ['build'] },
 ];
 
 const quickStepIds = new Set(['lint', 'typecheck']);
@@ -49,10 +51,11 @@ for (const step of steps) {
   const logPath = path.join(artifactsDir, `${step.id}.log`);
 
   if (!scriptName) {
+    const status = step.required ? 'fail' : 'skipped';
     const skipped = {
       id: step.id,
       critical: step.critical,
-      status: 'skipped',
+      status,
       reason: `No npm script found (${step.candidates.join(', ')})`,
       scriptName: null,
       exitCode: null,
@@ -61,6 +64,10 @@ for (const step of steps) {
     };
     fs.writeFileSync(logPath, `${skipped.reason}\n`, 'utf8');
     summary.steps.push(skipped);
+    if (step.critical && status !== 'pass') {
+      summary.criticalFailed = true;
+      summary.overallStatus = 'fail';
+    }
     continue;
   }
 

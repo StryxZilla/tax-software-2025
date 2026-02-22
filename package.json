@@ -16,8 +16,10 @@
     "win:verify": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/verify.ps1",
     "win:qa": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/windows/qa-bootstrap.ps1",
     "test:unit": "vitest run",
+    "test:unit:critical": "vitest run tests/unit/TaxSummarySidebar.stability.test.tsx",
     "test:unit:watch": "vitest",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:critical": "playwright test --grep @critical"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
@@ -41,6 +43,7 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/react": "^16.3.2",
     "@types/bcryptjs": "^2.4.6",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
@@ -49,6 +52,7 @@
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "jsdom": "^28.1.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.0.18"
