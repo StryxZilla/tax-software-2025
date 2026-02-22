@@ -48,7 +48,7 @@ export default function ZoeyGuideCard({ variant = 'tip', title, message, classNa
     >
       <div className="flex items-start gap-3">
         <img
-          src="/brand/zoey-corgi.svg"
+          src="/brand/zoey-custom.svg"
           alt="Zoey the corgi guide"
           className="
             w-[3.25rem] h-[3.25rem] md:w-14 md:h-14 shrink-0 

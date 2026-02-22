@@ -119,7 +119,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
 
         <div className="flex flex-col items-center gap-5 mb-10">
           <img
-            src="/brand/zoey-corgi.svg"
+            src="/brand/zoey-custom.svg"
             alt="Zoey the corgi mascot"
             className="w-52 h-auto drop-shadow-md"
           />

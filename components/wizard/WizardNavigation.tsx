@@ -106,7 +106,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                       ${isActive
                         ? 'bg-primary-50 border-l-2 border-l-primary-500'
                         : isCompleted
-                        ? 'hover:bg-success-50 cursor-pointer'
+                        ? 'hover:bg-emerald-50 cursor-pointer'
                         : isAccessible
                         ? 'hover:bg-slate-100 cursor-pointer'
                         : 'opacity-40 cursor-not-allowed'
@@ -119,7 +119,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                       ${isActive
                         ? 'bg-primary-600 text-white ring-2 ring-primary-200'
                         : isCompleted
-                        ? 'bg-success text-white'
+                        ? 'bg-emerald-600 text-white'
                         : 'bg-slate-200 text-slate-500'
                       }
                     `}>
@@ -131,7 +131,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className={`text-sm font-semibold truncate ${isActive ? 'text-primary-700' : isCompleted ? 'text-success-800' : 'text-slate-700'}`}>
+                      <div className={`text-sm font-semibold truncate ${isActive ? 'text-primary-700' : isCompleted ? 'text-emerald-800' : 'text-slate-700'}`}>
                         {step.label}
                       </div>
                       <div className="text-xs text-slate-400 truncate">{step.description}</div>
@@ -171,7 +171,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                         ${isActive
                           ? 'bg-primary-600 text-white ring-4 ring-primary-100 scale-110'
                           : isCompleted
-                          ? 'bg-success text-white hover:bg-success-600'
+                          ? 'bg-emerald-600 text-white hover:bg-emerald-700'
                           : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                         }
                       `}
@@ -190,7 +190,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                         ${isActive
                           ? 'text-primary-700 font-semibold'
                           : isCompleted
-                          ? 'text-success-700'
+                          ? 'text-emerald-700'
                           : 'text-slate-600'
                         }
                       `}
@@ -221,7 +221,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                     <div
                       className={`
                         absolute inset-0 transition-all duration-500 ease-out
-                        ${index < safeIndex ? 'bg-success' : 'bg-slate-200'}
+                        ${index < safeIndex ? 'bg-emerald-600' : 'bg-slate-200'}
                       `}
                       style={{
                         width: index < safeIndex ? '100%' : '0%'
@@ -252,7 +252,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                   ${isActive
                     ? 'bg-primary-600 text-white shadow-lg shadow-primary-200 scale-105'
                     : isCompleted
-                    ? 'bg-success-50 text-success-800 border border-success-200 hover:bg-success-100'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
                     : isAccessible
                     ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
                     : 'bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed'
@@ -265,7 +265,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                     ${isActive
                       ? 'bg-white/20 text-white'
                       : isCompleted
-                      ? 'bg-success text-white'
+                      ? 'bg-emerald-600 text-white'
                       : 'bg-slate-300 text-slate-600'
                     }
                   `}

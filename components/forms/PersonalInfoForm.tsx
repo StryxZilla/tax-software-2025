@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { PersonalInfo, FilingStatus } from '../../types/tax-types';
-import { User, MapPin, Shield, Heart, AlertCircle } from 'lucide-react';
+import { User, MapPin, Heart, AlertCircle } from 'lucide-react';
 import { validatePersonalInfo, validateSSN } from '../../lib/validation/form-validation';
 import { useFormValidation } from '../../lib/hooks/useFormValidation';
 import ValidationError from '../common/ValidationError';
@@ -141,17 +141,14 @@ export default function PersonalInfoForm({ value, onChange, onValidationChange }
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Social Security Number <span className="text-red-500">*</span>
             </label>
-            <div className="relative">
-              <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={value.ssn}
-                onChange={(e) => handleChange('ssn', e.target.value)}
-                onBlur={() => validation.touchField('ssn')}
-                placeholder="XXX-XX-XXXX"
-                className={`pl-10 ${getInputClassName('ssn')}`}
-              />
-            </div>
+            <input
+              type="text"
+              value={value.ssn}
+              onChange={(e) => handleChange('ssn', e.target.value)}
+              onBlur={() => validation.touchField('ssn')}
+              placeholder="XXX-XX-XXXX"
+              className={getInputClassName('ssn')}
+            />
             <ValidationError message={getSsnFeedbackMessage(value.ssn) || validation.getFieldError('ssn')} />
             {!getSsnFeedbackMessage(value.ssn) && !validation.getFieldError('ssn') && (
               <p className="mt-1 text-xs text-slate-500">Your information is secure and encrypted</p>
@@ -325,27 +322,24 @@ export default function PersonalInfoForm({ value, onChange, onValidationChange }
               <label className="block text-sm font-semibold text-slate-700 mb-2">
                 Spouse SSN <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  value={value.spouseInfo?.ssn || ''}
-                  onChange={(e) => {
-                    const formattedSpouseSSN = formatSSNInput(e.target.value);
-                    handleChange('spouseInfo', { 
-                      ...value.spouseInfo,
-                      ssn: formattedSpouseSSN
-                    });
+              <input
+                type="text"
+                value={value.spouseInfo?.ssn || ''}
+                onChange={(e) => {
+                  const formattedSpouseSSN = formatSSNInput(e.target.value);
+                  handleChange('spouseInfo', { 
+                    ...value.spouseInfo,
+                    ssn: formattedSpouseSSN
+                  });
 
-                    if (formattedSpouseSSN.length > 0) {
-                      validation.touchField('spouseSSN');
-                    }
-                  }}
-                  onBlur={() => validation.touchField('spouseSSN')}
-                  placeholder="XXX-XX-XXXX"
-                  className={`pl-10 ${getInputClassName('spouseSSN')}`}
-                />
-              </div>
+                  if (formattedSpouseSSN.length > 0) {
+                    validation.touchField('spouseSSN');
+                  }
+                }}
+                onBlur={() => validation.touchField('spouseSSN')}
+                placeholder="XXX-XX-XXXX"
+                className={getInputClassName('spouseSSN')}
+              />
               <ValidationError message={validation.getFieldError('spouseSSN')} />
             </div>
 
