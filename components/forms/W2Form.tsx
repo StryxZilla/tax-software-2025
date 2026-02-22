@@ -83,7 +83,14 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
     if (blockedNextAttempts === 0 || isValid) return;
 
     setShowAllErrors(true);
-    setTouchedFields((prev) => new Set([...prev, ...allErrors.map((error) => error.field)]));
+
+    // Collect error field names and only update if there are genuinely new fields
+    const errorFields = allErrors.map((error) => error.field);
+    setTouchedFields((prev) => {
+      const hasNew = errorFields.some((f) => !prev.has(f));
+      if (!hasNew) return prev; // stable reference — no re-render
+      return new Set([...prev, ...errorFields]);
+    });
 
     const firstErrorField = allErrors[0]?.field;
     const firstInvalidInput = firstErrorField ? fieldRefs.current[firstErrorField] : null;
@@ -95,7 +102,8 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
     }
 
     summaryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [blockedNextAttempts, isValid, allErrors]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blockedNextAttempts]);
 
   const touchField = (fieldName: string) => {
     setTouchedFields(prev => new Set([...prev, fieldName]));
