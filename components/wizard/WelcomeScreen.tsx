@@ -14,6 +14,7 @@ import {
   ChevronRight,
   ClipboardList,
 } from 'lucide-react';
+import ZoeyGuideCard from '../brand/ZoeyGuideCard';
 
 const WIZARD_STEPS = [
   {
@@ -107,14 +108,28 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
 
         {/* Headline */}
         <h1 className="text-5xl sm:text-6xl font-extrabold text-slate-900 mb-4 leading-tight">
-          Let's file your{' '}
+          Welcome to{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-            2025 taxes
+            Zoey's Tax Advisory
           </span>
         </h1>
-        <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Walk through 11 simple steps at your own pace. Your progress is saved automatically — pick up right where you left off.
+        <p className="text-xl text-slate-600 max-w-2xl mx-auto mb-8 leading-relaxed">
+          File your 2025 return with a clean, step-by-step workflow and nerdy-helpful guidance from Zoey.
         </p>
+
+        <div className="flex flex-col items-center gap-5 mb-10">
+          <img
+            src="/brand/zoey-corgi.svg"
+            alt="Zoey the corgi mascot"
+            className="w-52 h-auto drop-shadow-md"
+          />
+          <ZoeyGuideCard
+            variant="tip"
+            title="Quick mission plan"
+            message="11 steps, save-as-you-go, and no chaos. We'll keep the tax math boring and predictable."
+            className="w-full max-w-2xl text-left"
+          />
+        </div>
 
         {/* CTA Button */}
         <button

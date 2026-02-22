@@ -1,0 +1,29 @@
+<svg width="320" height="280" viewBox="0 0 320 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="320" height="280" rx="28" fill="#F8FAFC"/>
+  <ellipse cx="160" cy="236" rx="92" ry="18" fill="#E2E8F0"/>
+
+  <path d="M82 122L58 70L102 96L82 122Z" fill="#ECA66B"/>
+  <path d="M238 122L262 70L218 96L238 122Z" fill="#ECA66B"/>
+  <path d="M90 120L70 82L104 101L90 120Z" fill="#F7D7B4"/>
+  <path d="M230 120L250 82L216 101L230 120Z" fill="#F7D7B4"/>
+
+  <rect x="82" y="88" width="156" height="140" rx="72" fill="#F3B47A"/>
+  <rect x="112" y="138" width="96" height="70" rx="35" fill="#FFF7ED"/>
+
+  <circle cx="122" cy="142" r="18" fill="#FFF"/>
+  <circle cx="198" cy="142" r="18" fill="#FFF"/>
+  <circle cx="124" cy="145" r="8" fill="#0F172A"/>
+  <circle cx="196" cy="145" r="8" fill="#0F172A"/>
+  <circle cx="127" cy="142" r="2.5" fill="#FFF"/>
+  <circle cx="199" cy="142" r="2.5" fill="#FFF"/>
+
+  <path d="M160 164L148 178H172L160 164Z" fill="#1E293B"/>
+  <path d="M147 183C152 192 168 192 173 183" stroke="#1E293B" stroke-width="4" stroke-linecap="round"/>
+
+  <circle cx="106" cy="176" r="8" fill="#FCA5A5" fill-opacity="0.55"/>
+  <circle cx="214" cy="176" r="8" fill="#FCA5A5" fill-opacity="0.55"/>
+
+  <rect x="120" y="218" width="80" height="28" rx="14" fill="#2563EB"/>
+  <circle cx="132" cy="232" r="6" fill="#BFDBFE"/>
+  <text x="160" y="236" text-anchor="middle" font-size="11" font-family="Arial, sans-serif" font-weight="700" fill="#FFFFFF">ZOEY GUIDE</text>
+</svg>

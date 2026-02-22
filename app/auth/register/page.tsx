@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import ZoeyGuideCard from '../../../components/brand/ZoeyGuideCard'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -70,13 +71,20 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-slate-900">TaxFlow</h1>
-          <p className="text-slate-500 mt-1 font-medium">2025 Tax Preparation</p>
+          <h1 className="text-4xl font-extrabold text-slate-900">Zoey's Tax Advisory</h1>
+          <p className="text-slate-500 mt-1 font-medium">2025 filing workspace</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-1">Create your account</h2>
-          <p className="text-slate-500 text-sm mb-2">Free to use — your data stays private</p>
+          <p className="text-slate-500 text-sm mb-4">Free to use — your data stays private.</p>
+
+          <ZoeyGuideCard
+            variant="success"
+            title="Quick setup"
+            message="Use an email you can access on desktop now. Recovery and session handoff get easier later."
+            className="mb-4"
+          />
           <p className="text-xs text-slate-500 mb-6">
             Personal mode: by default, the first account created on this install gets admin access for local user management.
           </p>

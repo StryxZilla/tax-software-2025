@@ -21,6 +21,7 @@ import PdfDownloadButton from '../components/review/PdfDownloadButton'
 import { useTaxReturn, useAuthUser } from '../lib/context/TaxReturnContext'
 import { calculateAGI } from '../lib/engine/calculations/tax-calculator'
 import FormNavigation from '../components/common/FormNavigation'
+import ZoeyGuideCard from '../components/brand/ZoeyGuideCard'
 import { WizardStep } from '../types/tax-types'
 
 const STEP_ORDER: WizardStep[] = [
@@ -268,9 +269,16 @@ function WizardStepContent() {
       return (
         <div className="max-w-5xl mx-auto space-y-8 px-4 py-6 fade-in">
           <div className="text-center space-y-3">
-            <h2 className="text-4xl font-bold text-slate-900">Tax Return Summary</h2>
+            <h2 className="text-4xl font-bold text-slate-900">Zoey's Return Summary</h2>
             <p className="text-slate-600 text-lg">Review your complete 2025 tax return</p>
           </div>
+
+          <ZoeyGuideCard
+            variant="warning"
+            title="Final pass before export"
+            message="Double-check SSNs, withholding, and bank details. These three fields catch most last-minute surprises."
+            className="max-w-2xl mx-auto"
+          />
 
           {taxCalculation ? (
             <>
@@ -450,16 +458,12 @@ function WizardStepContent() {
 // Import localStorage banner shown after login
 function ImportBanner() {
   const { importFromLocalStorage } = useTaxReturn()
-  const [show, setShow] = useState(false)
-  const [dismissed, setDismissed] = useState(false)
-
-  useEffect(() => {
+  const [show] = useState(() => {
     const hasLocalData = !!localStorage.getItem('taxReturn2025')
     const alreadyAsked = !!sessionStorage.getItem('importAsked')
-    if (hasLocalData && !alreadyAsked) {
-      setShow(true)
-    }
-  }, [])
+    return hasLocalData && !alreadyAsked
+  })
+  const [dismissed, setDismissed] = useState(false)
 
   if (!show || dismissed) return null
 
@@ -515,8 +519,8 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="text-4xl font-extrabold text-slate-900 mb-2">TaxFlow</div>
-          <p className="text-slate-400 text-sm animate-pulse">Loading your return…</p>
+          <div className="text-4xl font-extrabold text-slate-900 mb-2">Zoey's Tax Advisory</div>
+          <p className="text-slate-400 text-sm animate-pulse">Loading your advisory workspace…</p>
         </div>
       </div>
     )
@@ -546,8 +550,9 @@ function AppShell() {
             className="flex items-center gap-2 group"
             title="Back to Welcome"
           >
+            <img src="/brand/zoey-corgi.svg" alt="Zoey mascot" className="h-9 w-9 rounded-lg border border-slate-200 bg-white p-0.5" />
             <span className="text-2xl font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors">
-              TaxFlow
+              Zoey's Tax Advisory
             </span>
             <span className="hidden sm:inline text-sm font-medium text-slate-400 group-hover:text-blue-400 transition-colors">
               2025

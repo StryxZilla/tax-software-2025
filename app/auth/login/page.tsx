@@ -4,6 +4,7 @@ import React, { useState, Suspense } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import ZoeyGuideCard from '../../../components/brand/ZoeyGuideCard'
 
 function LoginForm() {
   const router = useRouter()
@@ -44,13 +45,20 @@ function LoginForm() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-slate-900">TaxFlow</h1>
-          <p className="text-slate-500 mt-1 font-medium">2025 Tax Preparation</p>
+          <h1 className="text-4xl font-extrabold text-slate-900">Zoey's Tax Advisory</h1>
+          <p className="text-slate-500 mt-1 font-medium">2025 filing workspace</p>
         </div>
 
         <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-1">Welcome back</h2>
-          <p className="text-slate-500 text-sm mb-6">Sign in to access your tax return</p>
+          <p className="text-slate-500 text-sm mb-4">Sign in to pick up your return with Zoey.</p>
+
+          <ZoeyGuideCard
+            variant="tip"
+            title="Nerdy prep tip"
+            message="Have your W-2 and any 1099s nearby. You'll cruise through the first sections way faster."
+            className="mb-6"
+          />
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 mb-5 text-sm">
