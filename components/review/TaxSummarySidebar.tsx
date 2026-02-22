@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTaxReturn } from '@/lib/context/TaxReturnContext';
-import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChevronDown, ChevronUp, TrendingUp, TrendingDown, DollarSign, Percent, Loader2, Clock } from 'lucide-react';
 import { TAX_BRACKETS_2025 } from '../../data/tax-constants';
 
@@ -10,15 +10,10 @@ const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4'
 
 export default function TaxSummarySidebar() {
   const { taxCalculation, taxReturn, isCalculating, lastSaved } = useTaxReturn();
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  
-  // Load collapsed state from localStorage
-  useEffect(() => {
+  const [isCollapsed, setIsCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebarCollapsed');
-    if (saved !== null) {
-      setIsCollapsed(JSON.parse(saved));
-    }
-  }, []);
+    return saved !== null ? JSON.parse(saved) : false;
+  });
 
   // Save collapsed state to localStorage
   const toggleCollapsed = () => {
@@ -38,6 +33,73 @@ export default function TaxSummarySidebar() {
     if (diff < 3600) return `Saved ${Math.floor(diff / 60)}m ago`;
     return `Saved ${Math.floor(diff / 3600)}h ago`;
   };
+
+  const filingStatus = taxReturn.personalInfo.filingStatus;
+
+  const applicableBrackets = useMemo(() => {
+    return TAX_BRACKETS_2025[filingStatus];
+  }, [filingStatus]);
+
+  const taxableIncome = taxCalculation?.taxableIncome ?? 0;
+
+  const bracketBreakdown = useMemo(() => {
+    if (!taxCalculation) return [];
+
+    return applicableBrackets.map(bracket => {
+      const bracketMax = bracket.max ?? Infinity;
+      const incomeInBracket = Math.max(
+        0,
+        Math.min(taxableIncome, bracketMax) - bracket.min
+      );
+      const taxInBracket = incomeInBracket * bracket.rate;
+
+      return {
+        bracket: `${Math.round(bracket.rate * 100)}%`,
+        income: incomeInBracket,
+        tax: taxInBracket,
+      };
+    }).filter(b => b.income > 0);
+  }, [applicableBrackets, taxableIncome, taxCalculation]);
+
+  const effectiveRate = useMemo(() => {
+    if (!taxCalculation || taxableIncome <= 0) return 0;
+    return (taxCalculation.regularTax / taxableIncome) * 100;
+  }, [taxCalculation, taxableIncome]);
+
+  const marginalRate = useMemo(() => {
+    if (!taxCalculation) return 37;
+
+    const marginalBracket = applicableBrackets.find(b => {
+      const bracketMax = b.max ?? Infinity;
+      return taxableIncome >= b.min && taxableIncome < bracketMax;
+    });
+
+    return marginalBracket ? Math.round(marginalBracket.rate * 100) : 37;
+  }, [applicableBrackets, taxCalculation, taxableIncome]);
+
+  const incomeSources = useMemo(() => {
+    const sources: Array<{ name: string; value: number }> = [];
+
+    const totalW2 = taxReturn.w2Income.reduce((sum, w2) => sum + w2.wages, 0);
+    const totalInterest = taxReturn.interest.reduce((sum, int) => sum + int.amount, 0);
+    const totalDividends = taxReturn.dividends.reduce((sum, div) => sum + div.ordinaryDividends, 0);
+    const totalCapitalGains = taxReturn.capitalGains.reduce((sum, cg) => sum + (cg.proceeds - cg.costBasis), 0);
+    const selfEmploymentIncome = taxReturn.selfEmployment ? (
+      taxReturn.selfEmployment.grossReceipts -
+      taxReturn.selfEmployment.returns -
+      taxReturn.selfEmployment.costOfGoodsSold
+    ) : 0;
+
+    if (totalW2 > 0) sources.push({ name: 'W-2 Wages', value: totalW2 });
+    if (totalInterest > 0) sources.push({ name: 'Interest', value: totalInterest });
+    if (totalDividends > 0) sources.push({ name: 'Dividends', value: totalDividends });
+    if (totalCapitalGains > 0) sources.push({ name: 'Capital Gains', value: totalCapitalGains });
+    if (selfEmploymentIncome > 0) sources.push({ name: 'Self-Employment', value: selfEmploymentIncome });
+
+    return sources;
+  }, [taxReturn]);
+
+  const isRefund = (taxCalculation?.refundOrAmountOwed ?? 0) > 0;
 
   if (isCalculating) {
     return (
@@ -88,64 +150,6 @@ export default function TaxSummarySidebar() {
       </div>
     );
   }
-
-  // Get the correct brackets for this taxpayer's filing status
-  const filingStatus = taxReturn.personalInfo.filingStatus;
-  const applicableBrackets = TAX_BRACKETS_2025[filingStatus];
-
-  // Calculate tax breakdown by bracket
-  const taxableIncome = taxCalculation.taxableIncome;
-  const bracketBreakdown = applicableBrackets.map(bracket => {
-    const bracketMax = bracket.max ?? Infinity;
-    const incomeInBracket = Math.max(
-      0,
-      Math.min(taxableIncome, bracketMax) - bracket.min
-    );
-    const taxInBracket = incomeInBracket * bracket.rate;
-
-    return {
-      bracket: `${Math.round(bracket.rate * 100)}%`,
-      income: incomeInBracket,
-      tax: taxInBracket,
-    };
-  }).filter(b => b.income > 0);
-
-  // Calculate effective and marginal tax rates
-  const effectiveRate = taxableIncome > 0
-    ? (taxCalculation.regularTax / taxableIncome) * 100
-    : 0;
-
-  const marginalBracket = applicableBrackets.find(b => {
-    const bracketMax = b.max ?? Infinity;
-    return taxableIncome >= b.min && taxableIncome < bracketMax;
-  });
-  const marginalRate = marginalBracket ? Math.round(marginalBracket.rate * 100) : 37;
-
-  // Calculate income sources with memoization and performance optimizations
-  const incomeSources = useMemo(() => {
-    const sources = [];
-    
-    // Using separate reduce operations for better performance than multiple array iterations
-    const totalW2 = taxReturn.w2Income.reduce((sum, w2) => sum + w2.wages, 0);
-    const totalInterest = taxReturn.interest.reduce((sum, int) => sum + int.amount, 0);
-    const totalDividends = taxReturn.dividends.reduce((sum, div) => sum + div.ordinaryDividends, 0);
-    const totalCapitalGains = taxReturn.capitalGains.reduce((sum, cg) => sum + (cg.proceeds - cg.costBasis), 0);
-    const selfEmploymentIncome = taxReturn.selfEmployment ? (
-      taxReturn.selfEmployment.grossReceipts - 
-      taxReturn.selfEmployment.returns - 
-      taxReturn.selfEmployment.costOfGoodsSold
-    ) : 0;
-    
-    if (totalW2 > 0) sources.push({ name: 'W-2 Wages', value: totalW2 });
-    if (totalInterest > 0) sources.push({ name: 'Interest', value: totalInterest });
-    if (totalDividends > 0) sources.push({ name: 'Dividends', value: totalDividends });
-    if (totalCapitalGains > 0) sources.push({ name: 'Capital Gains', value: totalCapitalGains });
-    if (selfEmploymentIncome > 0) sources.push({ name: 'Self-Employment', value: selfEmploymentIncome });
-    
-    return sources;
-  }, [taxReturn.w2Income, taxReturn.interest, taxReturn.dividends, taxReturn.capitalGains, taxReturn.selfEmployment]);
-
-  const isRefund = taxCalculation.refundOrAmountOwed > 0;
 
   return (
     <>

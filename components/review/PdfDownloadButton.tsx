@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Download, FileText, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { TaxReturn } from '../../types/tax-types';
 import { generateAllForms } from '../../lib/engine/pdf/pdf-generator';
+import { validateSSN } from '../../lib/validation/form-validation';
 
 interface PdfDownloadButtonProps {
   taxReturn: TaxReturn;
@@ -26,6 +27,10 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
       // Pre-validation check
       if (!taxReturn.personalInfo.firstName || !taxReturn.personalInfo.lastName || !taxReturn.personalInfo.ssn) {
         throw new Error('required:Personal information incomplete. Please fill out all required fields.');
+      }
+
+      if (!validateSSN(taxReturn.personalInfo.ssn)) {
+        throw new Error('format:Please enter a valid SSN (XXX-XX-XXXX) before downloading.');
       }
 
       // Generate the PDF with a timeout

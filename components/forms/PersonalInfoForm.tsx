@@ -3,7 +3,7 @@
 import React from 'react';
 import { PersonalInfo, FilingStatus } from '../../types/tax-types';
 import { User, MapPin, Shield, Heart, AlertCircle } from 'lucide-react';
-import { validatePersonalInfo } from '../../lib/validation/form-validation';
+import { validatePersonalInfo, validateSSN } from '../../lib/validation/form-validation';
 import { useFormValidation } from '../../lib/hooks/useFormValidation';
 import ValidationError from '../common/ValidationError';
 
@@ -32,8 +32,23 @@ export default function PersonalInfoForm({ value, onChange, onValidationChange }
     onValidationChange?.(validation.isValid);
   }, [validation.isValid, onValidationChange]);
 
+  const formatSSNInput = (rawValue: string) => {
+    const digits = rawValue.replace(/\D/g, '').slice(0, 9);
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 5) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3, 5)}-${digits.slice(5)}`;
+  };
+
   const handleChange = (field: keyof PersonalInfo, newValue: any) => {
-    onChange({ [field]: newValue });
+    const nextValue = field === 'ssn' && typeof newValue === 'string'
+      ? formatSSNInput(newValue)
+      : newValue;
+
+    onChange({ [field]: nextValue });
+
+    if (field === 'ssn' && typeof nextValue === 'string' && nextValue.length > 0) {
+      validation.touchField('ssn');
+    }
   };
 
   const getInputClassName = (fieldName: string) => {
@@ -43,6 +58,18 @@ export default function PersonalInfoForm({ value, onChange, onValidationChange }
         ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
         : 'border-slate-300 focus:border-blue-600 focus:ring-blue-600'
     }`;
+  };
+
+  const getSsnFeedbackMessage = (ssn: string) => {
+    if (!ssn) return undefined;
+    if (validateSSN(ssn)) return undefined;
+
+    const digitsEntered = ssn.replace(/\D/g, '').length;
+    if (digitsEntered < 9) {
+      return `Keep typing: ${digitsEntered}/9 digits entered`;
+    }
+
+    return 'SSN must be in format XXX-XX-XXXX';
   };
 
   return (
@@ -125,8 +152,8 @@ export default function PersonalInfoForm({ value, onChange, onValidationChange }
                 className={`pl-10 ${getInputClassName('ssn')}`}
               />
             </div>
-            <ValidationError message={validation.getFieldError('ssn')} />
-            {!validation.getFieldError('ssn') && (
+            <ValidationError message={getSsnFeedbackMessage(value.ssn) || validation.getFieldError('ssn')} />
+            {!getSsnFeedbackMessage(value.ssn) && !validation.getFieldError('ssn') && (
               <p className="mt-1 text-xs text-slate-500">Your information is secure and encrypted</p>
             )}
           </div>
@@ -303,10 +330,17 @@ export default function PersonalInfoForm({ value, onChange, onValidationChange }
                 <input
                   type="text"
                   value={value.spouseInfo?.ssn || ''}
-                  onChange={(e) => handleChange('spouseInfo', { 
-                    ...value.spouseInfo,
-                    ssn: e.target.value 
-                  })}
+                  onChange={(e) => {
+                    const formattedSpouseSSN = formatSSNInput(e.target.value);
+                    handleChange('spouseInfo', { 
+                      ...value.spouseInfo,
+                      ssn: formattedSpouseSSN
+                    });
+
+                    if (formattedSpouseSSN.length > 0) {
+                      validation.touchField('spouseSSN');
+                    }
+                  }}
                   onBlur={() => validation.touchField('spouseSSN')}
                   placeholder="XXX-XX-XXXX"
                   className={`pl-10 ${getInputClassName('spouseSSN')}`}
