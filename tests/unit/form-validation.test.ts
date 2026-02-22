@@ -85,6 +85,21 @@ describe('form validation hardening', () => {
     expect(errors.some((e) => e.field === 'dependent-0-birthDate')).toBe(true)
   })
 
+  it('rejects impossible calendar dates for dependent birth date', () => {
+    const dependent: Dependent = {
+      firstName: 'Kid',
+      lastName: 'Doe',
+      ssn: '234-56-7890',
+      relationshipToTaxpayer: 'Daughter',
+      birthDate: '2025-02-30',
+      isQualifyingChildForCTC: false,
+      monthsLivedWithTaxpayer: 12,
+    }
+
+    const errors = validateDependent(dependent, 0)
+    expect(errors.some((e) => e.field === 'dependent-0-birthDate')).toBe(true)
+  })
+
   it('rejects W-2 withholding greater than wages', () => {
     const w2 = { ...createBaseW2(), federalTaxWithheld: 51000 }
     const errors = validateW2(w2, 0)

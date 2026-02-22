@@ -21,12 +21,27 @@ function isValidPastOrPresentDate(value: string): boolean {
   const normalized = value?.trim();
   if (!normalized) return false;
 
-  const parsed = new Date(normalized);
-  if (Number.isNaN(parsed.getTime())) return false;
+  // Date input fields emit YYYY-MM-DD. Parse strictly to avoid JS Date rollover
+  // accepting impossible dates like 2025-02-30.
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(normalized);
+  if (!match) return false;
+
+  const [, yearRaw, monthRaw, dayRaw] = match;
+  const year = Number(yearRaw);
+  const month = Number(monthRaw);
+  const day = Number(dayRaw);
+
+  const parsed = new Date(Date.UTC(year, month - 1, day));
+  const isExactDate =
+    parsed.getUTCFullYear() === year &&
+    parsed.getUTCMonth() === month - 1 &&
+    parsed.getUTCDate() === day;
+
+  if (!isExactDate) return false;
 
   const today = new Date();
-  today.setHours(23, 59, 59, 999);
-  return parsed <= today;
+  const todayUtcMidnight = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
+  return parsed.getTime() <= todayUtcMidnight;
 }
 
 // SSN validation
