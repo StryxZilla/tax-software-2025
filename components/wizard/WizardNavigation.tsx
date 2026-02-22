@@ -105,7 +105,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                       flex items-center gap-3 px-5 py-3.5 text-left border-b border-r border-accent-100
                       transition-colors duration-150
                       ${isActive
-                        ? 'bg-primary-100 border-l-2 border-l-primary-600'
+                        ? 'bg-primary-700 text-white border-2 border-primary-800 shadow-sm'
                         : isCompleted
                         ? 'hover:bg-emerald-50 cursor-pointer'
                         : isAccessible
@@ -132,13 +132,13 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className={`text-sm font-semibold truncate ${isActive ? 'text-primary-900' : isCompleted ? 'text-emerald-800' : 'text-slate-700'}`}>
+                      <div className={`text-sm font-semibold truncate ${isActive ? 'text-white' : isCompleted ? 'text-emerald-800' : 'text-slate-700'}`}>
                         {step.label}
                       </div>
-                      <div className="text-xs text-slate-400 truncate">{step.description}</div>
+                      <div className={`text-xs truncate ${isActive ? 'text-primary-100' : 'text-slate-400'}`}>{step.description}</div>
                     </div>
 
-                    {isActive && <ChevronRight className="w-4 h-4 text-primary-400 flex-shrink-0" />}
+                    {isActive && <ChevronRight className="w-4 h-4 text-primary-100 flex-shrink-0" />}
                   </button>
                 );
               })}
@@ -170,7 +170,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                         w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm
                         transition-all duration-200 ease-in-out
                         ${isActive
-                          ? 'bg-primary-600 text-white ring-4 ring-primary-100 scale-110'
+                          ? 'bg-primary-700 text-white border-2 border-primary-900 ring-4 ring-primary-200 scale-110 shadow-sm'
                           : isCompleted
                           ? 'bg-emerald-600 text-white hover:bg-emerald-700'
                           : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
@@ -251,7 +251,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                   flex items-center space-x-2 px-4 py-2.5 rounded-lg whitespace-nowrap
                   transition-all duration-200 ease-in-out flex-shrink-0
                   ${isActive
-                    ? 'bg-primary-100 text-primary-900 border border-primary-300 shadow-sm'
+                    ? 'bg-primary-700 text-white border-2 border-primary-900 shadow-sm'
                     : isCompleted
                     ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
                     : isAccessible

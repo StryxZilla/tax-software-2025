@@ -617,6 +617,12 @@ function AppShell() {
 function MainContent() {
   const { currentStep, setCurrentStep } = useTaxReturn()
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    document.documentElement.scrollTop = 0
+    document.body.scrollTop = 0
+  }, [currentStep])
+
   if (currentStep === 'welcome') {
     return <WelcomeScreen onStart={() => setCurrentStep('personal-info')} />
   }
