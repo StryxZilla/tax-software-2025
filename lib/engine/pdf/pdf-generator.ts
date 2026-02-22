@@ -6,7 +6,7 @@
  * representations of the forms that match the official layout.
  */
 
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { PDFDocument, PDFPage, rgb, StandardFonts } from 'pdf-lib';
 import { TaxReturn, TaxCalculation } from '../../../types/tax-types';
 import { calculateTaxReturn } from '../calculations/tax-calculator';
 
@@ -828,32 +828,32 @@ export async function generateAllForms(taxReturn: TaxReturn): Promise<Uint8Array
   const form1040Bytes = await generateForm1040(taxReturn);
   const form1040Doc = await PDFDocument.load(form1040Bytes);
   const form1040Pages = await mainPdf.copyPages(form1040Doc, form1040Doc.getPageIndices());
-  form1040Pages.forEach(page => mainPdf.addPage(page));
+  form1040Pages.forEach((page: PDFPage) => mainPdf.addPage(page));
 
   // Schedule 1 (always included)
   const schedule1Bytes = await generateSchedule1(taxReturn);
   const schedule1Doc = await PDFDocument.load(schedule1Bytes);
   const schedule1Pages = await mainPdf.copyPages(schedule1Doc, schedule1Doc.getPageIndices());
-  schedule1Pages.forEach(page => mainPdf.addPage(page));
+  schedule1Pages.forEach((page: PDFPage) => mainPdf.addPage(page));
 
   // Schedule 2 (always included)
   const schedule2Bytes = await generateSchedule2(taxReturn);
   const schedule2Doc = await PDFDocument.load(schedule2Bytes);
   const schedule2Pages = await mainPdf.copyPages(schedule2Doc, schedule2Doc.getPageIndices());
-  schedule2Pages.forEach(page => mainPdf.addPage(page));
+  schedule2Pages.forEach((page: PDFPage) => mainPdf.addPage(page));
 
   // Schedule 3 (always included)
   const schedule3Bytes = await generateSchedule3(taxReturn);
   const schedule3Doc = await PDFDocument.load(schedule3Bytes);
   const schedule3Pages = await mainPdf.copyPages(schedule3Doc, schedule3Doc.getPageIndices());
-  schedule3Pages.forEach(page => mainPdf.addPage(page));
+  schedule3Pages.forEach((page: PDFPage) => mainPdf.addPage(page));
 
   // Schedule A (if itemized deductions)
   const scheduleABytes = await generateScheduleA(taxReturn);
   if (scheduleABytes) {
     const scheduleADoc = await PDFDocument.load(scheduleABytes);
     const scheduleAPages = await mainPdf.copyPages(scheduleADoc, scheduleADoc.getPageIndices());
-    scheduleAPages.forEach(page => mainPdf.addPage(page));
+    scheduleAPages.forEach((page: PDFPage) => mainPdf.addPage(page));
   }
 
   // Schedule C (if self-employed)
@@ -861,7 +861,7 @@ export async function generateAllForms(taxReturn: TaxReturn): Promise<Uint8Array
   if (scheduleCBytes) {
     const scheduleCDoc = await PDFDocument.load(scheduleCBytes);
     const scheduleCPages = await mainPdf.copyPages(scheduleCDoc, scheduleCDoc.getPageIndices());
-    scheduleCPages.forEach(page => mainPdf.addPage(page));
+    scheduleCPages.forEach((page: PDFPage) => mainPdf.addPage(page));
   }
 
   // Schedule D (if capital gains)
@@ -869,7 +869,7 @@ export async function generateAllForms(taxReturn: TaxReturn): Promise<Uint8Array
   if (scheduleDBytes) {
     const scheduleDDoc = await PDFDocument.load(scheduleDBytes);
     const scheduleDPages = await mainPdf.copyPages(scheduleDDoc, scheduleDDoc.getPageIndices());
-    scheduleDPages.forEach(page => mainPdf.addPage(page));
+    scheduleDPages.forEach((page: PDFPage) => mainPdf.addPage(page));
   }
 
   // Schedule E (if rental properties)
@@ -877,7 +877,7 @@ export async function generateAllForms(taxReturn: TaxReturn): Promise<Uint8Array
   if (scheduleEBytes) {
     const scheduleEDoc = await PDFDocument.load(scheduleEBytes);
     const scheduleEPages = await mainPdf.copyPages(scheduleEDoc, scheduleEDoc.getPageIndices());
-    scheduleEPages.forEach(page => mainPdf.addPage(page));
+    scheduleEPages.forEach((page: PDFPage) => mainPdf.addPage(page));
   }
 
   // Form 8606 (if mega backdoor Roth)
@@ -885,7 +885,7 @@ export async function generateAllForms(taxReturn: TaxReturn): Promise<Uint8Array
   if (form8606Bytes) {
     const form8606Doc = await PDFDocument.load(form8606Bytes);
     const form8606Pages = await mainPdf.copyPages(form8606Doc, form8606Doc.getPageIndices());
-    form8606Pages.forEach(page => mainPdf.addPage(page));
+    form8606Pages.forEach((page: PDFPage) => mainPdf.addPage(page));
   }
 
   return mainPdf.save();

@@ -5,6 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),
+      'pdf-lib': path.resolve(__dirname, 'node_modules/pdf-lib/cjs/index.js'),
     },
   },
   test: {

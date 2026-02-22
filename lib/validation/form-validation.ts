@@ -9,6 +9,8 @@ export interface ValidationError {
   message: string;
 }
 
+const TAX_YEAR = 2025;
+
 const US_STATE_CODES = new Set([
   'AL','AK','AZ','AR','CA','CO','CT','DE','FL','GA',
   'HI','ID','IL','IN','IA','KS','KY','LA','ME','MD',
@@ -220,7 +222,7 @@ export function validateW2(w2: W2Income, index: number): ValidationError[] {
   if (isFiniteNumber(w2.socialSecurityWages) && w2.socialSecurityWages > ssWageLimit) {
     errors.push({
       field: `w2-${index}-socialSecurityWages`,
-      message: `${prefix}: Social Security wages cannot exceed the ${new Date().getFullYear()} wage base ($${ssWageLimit.toLocaleString()})`,
+      message: `${prefix}: Social Security wages cannot exceed the ${TAX_YEAR} wage base ($${ssWageLimit.toLocaleString()})`,
     });
   }
 

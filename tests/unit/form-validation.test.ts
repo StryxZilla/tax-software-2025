@@ -408,6 +408,7 @@ describe('form validation hardening', () => {
     const w2 = { ...createBaseW2(), socialSecurityWages: 200000, socialSecurityTaxWithheld: 10912 }
     const errors = validateW2(w2, 0)
     expect(errors.some((e) => e.field === 'w2-0-socialSecurityWages' && e.message.includes('wage base'))).toBe(true)
+    expect(errors.some((e) => e.field === 'w2-0-socialSecurityWages' && e.message.includes('2025 wage base'))).toBe(true)
   })
 
   it('accepts W-2 Social Security wages at the wage base limit', () => {
