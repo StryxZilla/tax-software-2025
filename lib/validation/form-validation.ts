@@ -124,11 +124,12 @@ export function validatePersonalInfo(info: PersonalInfo): ValidationError[] {
   }
 
   // Age validation
-  if (info.age < 0 || info.age > 120) {
-    errors.push({ field: 'age', message: 'Age must be between 0 and 120' });
-  }
-  if (info.age === 0) {
+  if (!isFiniteNumber(info.age)) {
+    errors.push({ field: 'age', message: 'Age must be a valid number' });
+  } else if (info.age === 0) {
     errors.push({ field: 'age', message: 'Age is required' });
+  } else if (info.age < 0 || info.age > 120) {
+    errors.push({ field: 'age', message: 'Age must be between 0 and 120' });
   }
 
   // Spouse validation for Married Filing Jointly
@@ -146,9 +147,11 @@ export function validatePersonalInfo(info: PersonalInfo): ValidationError[] {
     } else if (info.spouseInfo.ssn === info.ssn) {
       errors.push({ field: 'spouseSSN', message: 'Spouse SSN must be different from your SSN' });
     }
-    if (!info.spouseInfo?.age || info.spouseInfo.age === 0) {
+    if (!isFiniteNumber(info.spouseInfo?.age)) {
+      errors.push({ field: 'spouseAge', message: 'Spouse age must be a valid number' });
+    } else if (info.spouseInfo!.age === 0) {
       errors.push({ field: 'spouseAge', message: 'Spouse age is required when filing jointly' });
-    } else if (info.spouseInfo.age < 0 || info.spouseInfo.age > 120) {
+    } else if (info.spouseInfo!.age < 0 || info.spouseInfo!.age > 120) {
       errors.push({ field: 'spouseAge', message: 'Spouse age must be between 0 and 120' });
     }
   }
@@ -237,7 +240,9 @@ export function validateDependent(dependent: Dependent, index: number): Validati
   } else if (!isValidPastOrPresentDate(dependent.birthDate)) {
     errors.push({ field: `dependent-${index}-birthDate`, message: `${prefix}: Enter a valid birth date that is not in the future` });
   }
-  if (dependent.monthsLivedWithTaxpayer < 0 || dependent.monthsLivedWithTaxpayer > 12) {
+  if (!isFiniteNumber(dependent.monthsLivedWithTaxpayer)) {
+    errors.push({ field: `dependent-${index}-months`, message: `${prefix}: Months lived with you must be a valid number` });
+  } else if (dependent.monthsLivedWithTaxpayer < 0 || dependent.monthsLivedWithTaxpayer > 12) {
     errors.push({ field: `dependent-${index}-months`, message: `${prefix}: Months lived with you must be between 0 and 12` });
   }
 

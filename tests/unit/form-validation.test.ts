@@ -195,6 +195,43 @@ describe('form validation hardening', () => {
     expect(errors.some((e) => e.field === 'rental-0-rentalIncome')).toBe(true)
   })
 
+  it('rejects non-finite age in personal info', () => {
+    const info = { ...createBasePersonalInfo(), age: Number.NaN }
+    const errors = validatePersonalInfo(info)
+    expect(errors.some((e) => e.field === 'age' && e.message.includes('valid number'))).toBe(true)
+
+    const infErrors = validatePersonalInfo({ ...createBasePersonalInfo(), age: Number.POSITIVE_INFINITY })
+    expect(infErrors.some((e) => e.field === 'age' && e.message.includes('valid number'))).toBe(true)
+  })
+
+  it('rejects non-finite spouse age when filing jointly', () => {
+    const info: PersonalInfo = {
+      ...createBasePersonalInfo(),
+      filingStatus: 'Married Filing Jointly',
+      spouseInfo: { firstName: 'John', lastName: 'Doe', ssn: '987-65-4321', age: Number.NaN, isBlind: false },
+    }
+    const errors = validatePersonalInfo(info)
+    expect(errors.some((e) => e.field === 'spouseAge' && e.message.includes('valid number'))).toBe(true)
+  })
+
+  it('rejects non-finite dependent monthsLivedWithTaxpayer', () => {
+    const dep: Dependent = {
+      firstName: 'Kid',
+      lastName: 'Doe',
+      ssn: '234-56-7890',
+      relationshipToTaxpayer: 'Son',
+      birthDate: '2020-01-01',
+      isQualifyingChildForCTC: true,
+      monthsLivedWithTaxpayer: Number.NaN,
+    }
+    const errors = validateDependent(dep, 0)
+    expect(errors.some((e) => e.field === 'dependent-0-months' && e.message.includes('valid number'))).toBe(true)
+
+    const infDep = { ...dep, monthsLivedWithTaxpayer: Number.POSITIVE_INFINITY }
+    const infErrors = validateDependent(infDep, 0)
+    expect(infErrors.some((e) => e.field === 'dependent-0-months' && e.message.includes('valid number'))).toBe(true)
+  })
+
   it('does not report withholding exceeds wages when wages is invalid', () => {
     const w2 = {
       ...createBaseW2(),
