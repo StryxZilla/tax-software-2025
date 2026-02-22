@@ -445,16 +445,25 @@ export function validateRentalProperty(rental: any, index: number): ValidationEr
   } else if (!validateZipCode(rental.zipCode)) {
     errors.push({ field: `rental-${index}-zipCode`, message: `${prefix}: ZIP code must be in format XXXXX or XXXXX-XXXX` });
   }
-  if (rental.daysRented < 0 || rental.daysRented > 365) {
+  if (!isFiniteNumber(rental.daysRented)) {
+    errors.push({ field: `rental-${index}-daysRented`, message: `${prefix}: Days rented must be a valid number` });
+  } else if (rental.daysRented < 0 || rental.daysRented > 365) {
     errors.push({ field: `rental-${index}-daysRented`, message: `${prefix}: Days rented must be between 0 and 365` });
   }
-  if (rental.daysPersonalUse < 0 || rental.daysPersonalUse > 365) {
+
+  if (!isFiniteNumber(rental.daysPersonalUse)) {
+    errors.push({ field: `rental-${index}-daysPersonalUse`, message: `${prefix}: Days of personal use must be a valid number` });
+  } else if (rental.daysPersonalUse < 0 || rental.daysPersonalUse > 365) {
     errors.push({ field: `rental-${index}-daysPersonalUse`, message: `${prefix}: Days of personal use must be between 0 and 365` });
   }
-  if (rental.daysRented + rental.daysPersonalUse > 365) {
+
+  if (isFiniteNumber(rental.daysRented) && isFiniteNumber(rental.daysPersonalUse) && rental.daysRented + rental.daysPersonalUse > 365) {
     errors.push({ field: `rental-${index}-daysRented`, message: `${prefix}: Total days (rented + personal) cannot exceed 365` });
   }
-  if (rental.rentalIncome < 0) {
+
+  if (!isFiniteNumber(rental.rentalIncome)) {
+    errors.push({ field: `rental-${index}-rentalIncome`, message: `${prefix}: Rental income must be a valid number` });
+  } else if (rental.rentalIncome < 0) {
     errors.push({ field: `rental-${index}-rentalIncome`, message: `${prefix}: Rental income cannot be negative` });
   }
 

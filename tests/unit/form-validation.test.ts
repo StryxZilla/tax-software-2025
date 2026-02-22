@@ -8,6 +8,7 @@ import {
   validateInterest,
   validateEducationExpense,
   validateScheduleC,
+  validateRentalProperty,
 } from '../../lib/validation/form-validation'
 import type { Dependent, EducationExpenses, PersonalInfo, TaxReturn, W2Income } from '../../types/tax-types'
 
@@ -165,6 +166,26 @@ describe('form validation hardening', () => {
     expect(errors.some((e) => e.field === 'scheduleC-grossReceipts')).toBe(true)
     expect(errors.some((e) => e.field === 'scheduleC-returns')).toBe(true)
     expect(errors.some((e) => e.field === 'scheduleC-cogs')).toBe(true)
+  })
+
+  it('rejects non-finite rental property day and income fields', () => {
+    const errors = validateRentalProperty(
+      {
+        address: '123 Main St',
+        city: 'Austin',
+        state: 'TX',
+        zipCode: '78701',
+        daysRented: Number.NaN,
+        daysPersonalUse: Number.POSITIVE_INFINITY,
+        rentalIncome: Number.NaN,
+        expenses: {},
+      },
+      0,
+    )
+
+    expect(errors.some((e) => e.field === 'rental-0-daysRented')).toBe(true)
+    expect(errors.some((e) => e.field === 'rental-0-daysPersonalUse')).toBe(true)
+    expect(errors.some((e) => e.field === 'rental-0-rentalIncome')).toBe(true)
   })
 
   it('does not report withholding exceeds wages when wages is invalid', () => {
