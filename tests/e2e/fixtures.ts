@@ -7,7 +7,7 @@ const ALLOWED_CONSOLE_PATTERNS: RegExp[] = [
 export const test = base.extend<{
   runtimeErrors: string[]
 }>({
-  runtimeErrors: async ({ page }, useRuntimeErrors) => {
+  runtimeErrors: async ({ page }, provideRuntimeErrors) => {
     const runtimeErrors: string[] = []
 
     page.on('pageerror', (error) => {
@@ -21,7 +21,7 @@ export const test = base.extend<{
       runtimeErrors.push(`[console.error] ${text}`)
     })
 
-    await useRuntimeErrors(runtimeErrors)
+    await provideRuntimeErrors(runtimeErrors)
 
     expect.soft(runtimeErrors, runtimeErrors.join('\n')).toEqual([])
   },
