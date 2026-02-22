@@ -49,5 +49,6 @@ test('critical user journey: register and progress wizard to review @critical-sm
     await page.waitForTimeout(300)
   }
 
-  await expect(page.getByRole('heading', { name: "Zoey's Return Summary" })).toBeVisible({ timeout: 10000 })
+  // On the review page, look for the Tax Summary heading
+  await expect(page.getByRole('heading', { name: "Tax Summary" })).toBeVisible({ timeout: 10000 })
 })

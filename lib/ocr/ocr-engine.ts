@@ -33,10 +33,15 @@ export async function extractTextFromRegion(
   imageFile: File,
   region: { left: number; top: number; width: number; height: number }
 ): Promise<OCRResult> {
+  let worker: Awaited<ReturnType<typeof Tesseract.createWorker>> | undefined;
+
   try {
-    const result = await Tesseract.recognize(imageFile, 'eng', {
-      rectangle: region,
+    worker = await Tesseract.createWorker('eng', undefined, {
       logger: (m) => console.log(m),
+    });
+
+    const result = await worker.recognize(imageFile, {
+      rectangle: region,
     });
 
     return {
@@ -46,5 +51,9 @@ export async function extractTextFromRegion(
   } catch (error) {
     console.error('OCR extraction failed:', error);
     throw new Error('Failed to extract text from image region');
+  } finally {
+    if (worker) {
+      await worker.terminate();
+    }
   }
 }

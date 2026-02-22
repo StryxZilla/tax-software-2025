@@ -44,3 +44,13 @@ next-env.d.ts
 
 # local database
 prisma/dev.db
+
+# local test artifacts / scratch files
+test-output/
+test-results/
+public/test-docs/
+eng.traineddata
+FIXES-SUMMARY.md
+scripts/test-ocr.ts
+scripts/generate-test-return.ts
+scripts/qa/run-qa.mjs

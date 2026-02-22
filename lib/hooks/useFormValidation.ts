@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { ValidationError } from '../validation/form-validation';
 
 /**
@@ -8,17 +8,13 @@ import { ValidationError } from '../validation/form-validation';
  */
 export function useFormValidation(
   validationFn: () => ValidationError[],
-  dependencies: any[]
+  dependencies: unknown[]
 ) {
-  const [errors, setErrors] = useState<ValidationError[]>([]);
   const [touched, setTouched] = useState<Set<string>>(new Set());
   const [showAllErrors, setShowAllErrors] = useState(false);
 
-  // Re-validate when dependencies change
-  useEffect(() => {
-    const validationErrors = validationFn();
-    setErrors(validationErrors);
-  }, dependencies);
+  void dependencies;
+  const errors = validationFn();
 
   // Mark a field as touched
   const touchField = (fieldName: string) => {
