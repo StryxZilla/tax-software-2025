@@ -51,8 +51,11 @@ function isValidPastOrPresentDate(value: string): boolean {
 
 // SSN validation
 export function validateSSN(ssn: string): boolean {
+  const normalized = ssn?.trim();
+  if (!normalized) return false;
+
   const ssnPattern = /^(\d{3})-(\d{2})-(\d{4})$/;
-  const match = ssnPattern.exec(ssn);
+  const match = ssnPattern.exec(normalized);
   if (!match) return false;
 
   const [, area, group, serial] = match;

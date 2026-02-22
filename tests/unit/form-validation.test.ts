@@ -136,6 +136,7 @@ describe('form validation hardening', () => {
 
     expect(nanErrors.some((e) => e.field === 'education-0-tuition')).toBe(true)
     expect(infinityErrors.some((e) => e.field === 'education-0-tuition')).toBe(true)
+    expect(nanErrors.some((e) => e.message.includes('cannot be negative'))).toBe(false)
   })
 
   it('rejects non-finite W-2 numeric values (NaN/Infinity)', () => {
