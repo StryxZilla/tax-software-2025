@@ -4,6 +4,7 @@ import {
   validateDependent,
   validateTaxReturn,
   validateW2,
+  validateCapitalGain,
 } from '../../lib/validation/form-validation'
 import type { Dependent, PersonalInfo, TaxReturn, W2Income } from '../../types/tax-types'
 
@@ -147,5 +148,36 @@ describe('form validation hardening', () => {
 
     const errors = validateTaxReturn(taxReturn)
     expect(errors.some((e) => e.field === 'dependent-0-ssn')).toBe(true)
+  })
+
+  it('rejects impossible capital gains dates', () => {
+    const errors = validateCapitalGain(
+      {
+        description: 'Stock sale',
+        dateAcquired: '2025-02-30',
+        dateSold: '2025-03-15',
+        proceeds: 1000,
+        costBasis: 500,
+      },
+      0,
+    )
+
+    expect(errors.some((e) => e.field === 'capital-0-dateAcquired')).toBe(true)
+  })
+
+  it('rejects capital gains sale dates in the future', () => {
+    const nextYear = new Date().getUTCFullYear() + 1
+    const errors = validateCapitalGain(
+      {
+        description: 'Stock sale',
+        dateAcquired: '2024-01-01',
+        dateSold: `${nextYear}-01-01`,
+        proceeds: 1000,
+        costBasis: 500,
+      },
+      0,
+    )
+
+    expect(errors.some((e) => e.field === 'capital-0-dateSold')).toBe(true)
   })
 })

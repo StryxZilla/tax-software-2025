@@ -17,14 +17,14 @@ const US_STATE_CODES = new Set([
   'DC',
 ]);
 
-function isValidPastOrPresentDate(value: string): boolean {
+function parseStrictIsoDate(value: string): Date | null {
   const normalized = value?.trim();
-  if (!normalized) return false;
+  if (!normalized) return null;
 
   // Date input fields emit YYYY-MM-DD. Parse strictly to avoid JS Date rollover
   // accepting impossible dates like 2025-02-30.
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(normalized);
-  if (!match) return false;
+  if (!match) return null;
 
   const [, yearRaw, monthRaw, dayRaw] = match;
   const year = Number(yearRaw);
@@ -37,7 +37,12 @@ function isValidPastOrPresentDate(value: string): boolean {
     parsed.getUTCMonth() === month - 1 &&
     parsed.getUTCDate() === day;
 
-  if (!isExactDate) return false;
+  return isExactDate ? parsed : null;
+}
+
+function isValidPastOrPresentDate(value: string): boolean {
+  const parsed = parseStrictIsoDate(value);
+  if (!parsed) return false;
 
   const today = new Date();
   const todayUtcMidnight = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
@@ -344,16 +349,20 @@ export function validateCapitalGain(gain: any, index: number): ValidationError[]
   }
   if (!gain.dateAcquired?.trim()) {
     errors.push({ field: `capital-${index}-dateAcquired`, message: `${prefix}: Acquisition date is required` });
+  } else if (!isValidPastOrPresentDate(gain.dateAcquired)) {
+    errors.push({ field: `capital-${index}-dateAcquired`, message: `${prefix}: Enter a valid acquisition date that is not in the future` });
   }
+
   if (!gain.dateSold?.trim()) {
     errors.push({ field: `capital-${index}-dateSold`, message: `${prefix}: Sale date is required` });
-  } else if (gain.dateAcquired && gain.dateSold) {
-    // Validate sale date is after acquisition date
-    const acquired = new Date(gain.dateAcquired);
-    const sold = new Date(gain.dateSold);
-    if (sold < acquired) {
-      errors.push({ field: `capital-${index}-dateSold`, message: `${prefix}: Sale date cannot be before acquisition date` });
-    }
+  } else if (!isValidPastOrPresentDate(gain.dateSold)) {
+    errors.push({ field: `capital-${index}-dateSold`, message: `${prefix}: Enter a valid sale date that is not in the future` });
+  }
+
+  const acquired = parseStrictIsoDate(gain.dateAcquired);
+  const sold = parseStrictIsoDate(gain.dateSold);
+  if (acquired && sold && sold < acquired) {
+    errors.push({ field: `capital-${index}-dateSold`, message: `${prefix}: Sale date cannot be before acquisition date` });
   }
   if (gain.proceeds < 0) {
     errors.push({ field: `capital-${index}-proceeds`, message: `${prefix}: Proceeds cannot be negative` });
