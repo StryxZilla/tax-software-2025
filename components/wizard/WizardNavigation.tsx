@@ -100,11 +100,12 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                       }
                     }}
                     disabled={!isAccessible}
+                    aria-current={isActive ? 'step' : undefined}
                     className={`
                       flex items-center gap-3 px-5 py-3.5 text-left border-b border-r border-accent-100
                       transition-colors duration-150
                       ${isActive
-                        ? 'bg-primary-50 border-l-2 border-l-primary-500'
+                        ? 'bg-primary-100 border-l-2 border-l-primary-600'
                         : isCompleted
                         ? 'hover:bg-emerald-50 cursor-pointer'
                         : isAccessible
@@ -131,7 +132,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className={`text-sm font-semibold truncate ${isActive ? 'text-primary-700' : isCompleted ? 'text-emerald-800' : 'text-slate-700'}`}>
+                      <div className={`text-sm font-semibold truncate ${isActive ? 'text-primary-900' : isCompleted ? 'text-emerald-800' : 'text-slate-700'}`}>
                         {step.label}
                       </div>
                       <div className="text-xs text-slate-400 truncate">{step.description}</div>
@@ -250,7 +251,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                   flex items-center space-x-2 px-4 py-2.5 rounded-lg whitespace-nowrap
                   transition-all duration-200 ease-in-out flex-shrink-0
                   ${isActive
-                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-200 scale-105'
+                    ? 'bg-primary-100 text-primary-900 border border-primary-300 shadow-sm'
                     : isCompleted
                     ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
                     : isAccessible
@@ -263,7 +264,7 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                   className={`
                     w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
                     ${isActive
-                      ? 'bg-white/20 text-white'
+                      ? 'bg-primary-700 text-white'
                       : isCompleted
                       ? 'bg-emerald-600 text-white'
                       : 'bg-slate-300 text-slate-600'
