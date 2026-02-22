@@ -178,23 +178,27 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
         console.error('Error saving to DB:', error)
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [taxReturn])
 
   const updateTaxReturn = (updates: Partial<TaxReturn>) => {
     setTaxReturn(prev => ({ ...prev, ...updates }))
   }
 
-  const recalculateTaxes = async () => {
+  const recalculateTaxes = useCallback(async () => {
     setIsCalculating(true)
     try {
+      // Yield to let React flush the preceding setState from updateTaxReturn,
+      // then read the latest state via the ref-less pattern (setState callback).
       await new Promise(resolve => setTimeout(resolve, 0))
-      const calculation = calculateTaxReturn(taxReturn)
-      setTaxCalculation(calculation)
+      setTaxReturn(current => {
+        const calculation = calculateTaxReturn(current)
+        setTaxCalculation(calculation)
+        return current // no mutation, just reading latest
+      })
     } finally {
       setIsCalculating(false)
     }
-  }
+  }, [])
 
   const saveToLocalStorage = () => {
     try {
