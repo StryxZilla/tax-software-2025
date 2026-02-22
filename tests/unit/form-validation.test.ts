@@ -403,4 +403,30 @@ describe('form validation hardening', () => {
       expect(errors2.some((e) => e.field === 'capital-0-costBasis' && e.message.includes('valid number'))).toBe(true)
     }
   })
+
+  it('rejects W-2 Social Security wages exceeding the annual wage base', () => {
+    const w2 = { ...createBaseW2(), socialSecurityWages: 200000, socialSecurityTaxWithheld: 10912 }
+    const errors = validateW2(w2, 0)
+    expect(errors.some((e) => e.field === 'w2-0-socialSecurityWages' && e.message.includes('wage base'))).toBe(true)
+  })
+
+  it('accepts W-2 Social Security wages at the wage base limit', () => {
+    const w2 = { ...createBaseW2(), socialSecurityWages: 176100, socialSecurityTaxWithheld: 10918.20 }
+    const errors = validateW2(w2, 0)
+    expect(errors.some((e) => e.field === 'w2-0-socialSecurityWages')).toBe(false)
+  })
+
+  it('rejects W-2 SS tax withheld exceeding expected maximum', () => {
+    // 6.2% of 50000 = 3100; reporting 5000 is too high
+    const w2 = { ...createBaseW2(), socialSecurityTaxWithheld: 5000 }
+    const errors = validateW2(w2, 0)
+    expect(errors.some((e) => e.field === 'w2-0-socialSecurityTaxWithheld' && e.message.includes('exceeds expected'))).toBe(true)
+  })
+
+  it('accepts W-2 SS tax withheld at exactly the expected rate', () => {
+    // 6.2% of 50000 = 3100
+    const w2 = { ...createBaseW2(), socialSecurityTaxWithheld: 3100 }
+    const errors = validateW2(w2, 0)
+    expect(errors.some((e) => e.field === 'w2-0-socialSecurityTaxWithheld')).toBe(false)
+  })
 })

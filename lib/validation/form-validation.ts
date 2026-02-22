@@ -2,6 +2,7 @@
 // Provides validation functions for all tax forms
 
 import { PersonalInfo, W2Income, Dependent, Interest1099INT, EducationExpenses, TraditionalIRAContribution, RothIRAContribution, Form8606Data, ItemizedDeductions, TaxReturn } from '../../types/tax-types';
+import { SELF_EMPLOYMENT_TAX_2025 } from '../../data/tax-constants';
 
 export interface ValidationError {
   field: string;
@@ -211,6 +212,33 @@ export function validateW2(w2: W2Income, index: number): ValidationError[] {
   }
   if (isFiniteNumber(w2.medicareTaxWithheld) && w2.medicareTaxWithheld < 0) {
     errors.push({ field: `w2-${index}-medicareTaxWithheld`, message: `${prefix}: Medicare tax withheld cannot be negative` });
+  }
+
+  // Social Security wage base cap — a single W-2 cannot report SS wages
+  // above the annual limit; this catches common data-entry transpositions.
+  const ssWageLimit = SELF_EMPLOYMENT_TAX_2025.socialSecurityWageLimit;
+  if (isFiniteNumber(w2.socialSecurityWages) && w2.socialSecurityWages > ssWageLimit) {
+    errors.push({
+      field: `w2-${index}-socialSecurityWages`,
+      message: `${prefix}: Social Security wages cannot exceed the ${new Date().getFullYear()} wage base ($${ssWageLimit.toLocaleString()})`,
+    });
+  }
+
+  // SS tax withheld should not exceed employee rate (6.2%) × SS wages
+  if (
+    isFiniteNumber(w2.socialSecurityTaxWithheld) &&
+    isFiniteNumber(w2.socialSecurityWages) &&
+    w2.socialSecurityWages > 0 &&
+    w2.socialSecurityTaxWithheld > 0
+  ) {
+    const employeeSSRate = SELF_EMPLOYMENT_TAX_2025.socialSecurityRate / 2;
+    const maxSSTax = Math.round(w2.socialSecurityWages * employeeSSRate * 100) / 100;
+    if (w2.socialSecurityTaxWithheld > maxSSTax + 0.01) {
+      errors.push({
+        field: `w2-${index}-socialSecurityTaxWithheld`,
+        message: `${prefix}: Social Security tax withheld ($${w2.socialSecurityTaxWithheld.toFixed(2)}) exceeds expected maximum ($${maxSSTax.toFixed(2)})`,
+      });
+    }
   }
 
   return errors;
