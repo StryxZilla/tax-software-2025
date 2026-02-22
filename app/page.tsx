@@ -550,7 +550,7 @@ function AppShell() {
             className="flex items-center gap-2 group"
             title="Back to Welcome"
           >
-            <img src="/brand/zoey-custom.svg" alt="Zoey mascot" className="h-9 w-9 rounded-lg border border-slate-200 bg-white p-0.5" />
+            <img src="/brand/zoey-neutral.png" alt="Zoey mascot" className="h-9 w-9 rounded-lg border border-slate-200 bg-white object-cover object-top" />
             <span className="text-2xl font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors">
               Zoey's Tax Advisory
             </span>

@@ -9,24 +9,27 @@ interface ZoeyGuideCardProps {
   className?: string
 }
 
-const variantStyles: Record<ZoeyGuideVariant, { badge: string; border: string; bg: string; emoji: string }> = {
+const variantStyles: Record<ZoeyGuideVariant, { badge: string; border: string; bg: string; emoji: string; image: string }> = {
   tip: {
     badge: 'bg-sky-100 text-sky-700 border-sky-200',
     border: 'border-sky-200',
     bg: 'from-sky-50 to-white',
-    emoji: '🧠',
+    emoji: '💡',
+    image: '/brand/zoey-pointing.png',
   },
   warning: {
     badge: 'bg-amber-100 text-amber-800 border-amber-200',
     border: 'border-amber-200',
     bg: 'from-amber-50 to-white',
     emoji: '⚠️',
+    image: '/brand/zoey-neutral.png',
   },
   success: {
     badge: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     border: 'border-emerald-200',
     bg: 'from-emerald-50 to-white',
-    emoji: '✅',
+    emoji: '🎉',
+    image: '/brand/zoey-neutral.png',
   },
 }
 
@@ -48,13 +51,9 @@ export default function ZoeyGuideCard({ variant = 'tip', title, message, classNa
     >
       <div className="flex items-start gap-3">
         <img
-          src="/brand/zoey-custom.svg"
+          src={style.image}
           alt="Zoey the corgi guide"
-          className="
-            w-[3.25rem] h-[3.25rem] md:w-14 md:h-14 shrink-0 
-            rounded-xl border border-slate-200 bg-white p-1
-            transition-transform duration-200 ease-in-out group-hover:scale-110
-          "
+          className="w-[3.25rem] h-[3.25rem] md:w-14 md:h-14 shrink-0 rounded-xl border border-slate-200 bg-white object-cover object-top transition-transform duration-200 ease-in-out group-hover:scale-105"
         />
         <div className="min-w-0">
           <div className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold ${style.badge}`}>

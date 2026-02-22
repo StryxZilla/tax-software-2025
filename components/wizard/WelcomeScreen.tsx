@@ -117,12 +117,16 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           File your 2025 return with a clean, step-by-step workflow and nerdy-helpful guidance from Zoey.
         </p>
 
-        <div className="flex flex-col items-center gap-5 mb-10">
-          <img
-            src="/brand/zoey-custom.svg"
-            alt="Zoey the corgi mascot"
-            className="w-52 h-auto drop-shadow-md"
-          />
+        <div className="flex flex-col items-center gap-5 mb-10 w-full">
+          <div className="w-full max-w-3xl rounded-3xl border border-slate-200 bg-white p-2 shadow-lg">
+            <div className="aspect-[3/2] w-full overflow-hidden rounded-2xl bg-slate-50">
+              <img
+                src="/brand/zoey-hero-wide.png"
+                alt="Zoey welcoming you to start your return"
+                className="h-full w-full object-cover object-center"
+              />
+            </div>
+          </div>
           <ZoeyGuideCard
             variant="tip"
             title="Quick mission plan"

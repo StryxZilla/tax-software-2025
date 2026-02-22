@@ -146,9 +146,16 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
       {success && (
         <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300 rounded-xl p-5 shadow-sm">
           <div className="flex items-start gap-3">
-            <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+            <img
+              src="/brand/zoey-celebrate.png"
+              alt="Zoey celebrating successful download"
+              className="h-14 w-14 rounded-xl border border-green-200 bg-white object-cover object-top flex-shrink-0"
+            />
             <div>
-              <p className="font-semibold text-green-900 mb-1">Tax Forms Generated Successfully!</p>
+              <div className="flex items-center gap-2 mb-1">
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <p className="font-semibold text-green-900">Tax Forms Generated Successfully!</p>
+              </div>
               <p className="text-sm text-green-800">Your PDF has been downloaded. Please review before filing.</p>
             </div>
           </div>
@@ -158,9 +165,16 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
       {error && (
         <div className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-300 rounded-xl p-5 shadow-sm">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" />
+            <img
+              src="/brand/zoey-embarrassed.png"
+              alt="Zoey helping with a recoverable download error"
+              className="h-14 w-14 rounded-xl border border-red-200 bg-white object-cover object-top flex-shrink-0"
+            />
             <div>
-              <p className="font-semibold text-red-900 mb-1">Error Generating PDF</p>
+              <div className="flex items-center gap-2 mb-1">
+                <AlertCircle className="w-5 h-5 text-red-600" />
+                <p className="font-semibold text-red-900">Error Generating PDF</p>
+              </div>
               <p className="text-sm text-red-800">{error}</p>
             </div>
           </div>
