@@ -7,20 +7,46 @@ Write-Host "== Verifying local setup ==" -ForegroundColor Cyan
 
 $envFile = Join-Path $repoRoot '.env.local'
 if (-not (Test-Path $envFile)) {
-  Write-Error ".env.local missing. Run: npm run win:setup"
+  Write-Host "[ERROR] .env.local missing." -ForegroundColor Red
+  Write-Host "Run: npm run win:setup"
+  exit 1
 }
 
 $envRaw = Get-Content $envFile -Raw
-if ($envRaw -notmatch 'NEXTAUTH_SECRET=') { Write-Error "NEXTAUTH_SECRET missing in .env.local" }
-if ($envRaw -notmatch 'NEXTAUTH_URL=') { Write-Error "NEXTAUTH_URL missing in .env.local" }
+$missingKeys = @()
+if ($envRaw -notmatch '(?m)^NEXTAUTH_SECRET=.+$') { $missingKeys += 'NEXTAUTH_SECRET' }
+if ($envRaw -notmatch '(?m)^NEXTAUTH_URL=.+$') { $missingKeys += 'NEXTAUTH_URL' }
+if ($missingKeys.Count -gt 0) {
+  Write-Host "[ERROR] Missing required env key(s): $($missingKeys -join ', ')" -ForegroundColor Red
+  Write-Host "Run: npm run win:setup"
+  exit 1
+}
 Write-Host "[OK] Env looks good"
 
+$prismaClientDefault = Join-Path $repoRoot 'node_modules\.prisma\client\default.js'
+if (-not (Test-Path $prismaClientDefault)) {
+  Write-Host "Prisma client not found; running npx prisma generate..." -ForegroundColor Yellow
+  npx prisma generate | Out-Null
+  if ($LASTEXITCODE -ne 0) {
+    Write-Host "[ERROR] Prisma generate failed." -ForegroundColor Red
+    Write-Host "Try: npm install ; npx prisma generate"
+    exit 1
+  }
+}
+Write-Host "[OK] Prisma client present"
+
 npx prisma db push | Out-Null
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "[ERROR] Prisma DB push failed." -ForegroundColor Red
+  Write-Host "Run: npm run win:setup"
+  exit 1
+}
 Write-Host "[OK] Prisma DB reachable"
 
 $dbPath = Join-Path $repoRoot 'prisma\dev.db'
 if (-not (Test-Path $dbPath)) {
-  Write-Error "DB file not found at $dbPath"
+  Write-Host "[ERROR] DB file not found at $dbPath" -ForegroundColor Red
+  exit 1
 }
 Write-Host "[OK] DB file exists"
 
@@ -28,12 +54,15 @@ try {
   $resp = Invoke-WebRequest -Uri 'http://localhost:3000' -TimeoutSec 3
   $ok = ($resp.StatusCode -ge 200) -and ($resp.StatusCode -lt 400)
   if (-not $ok) {
-    Write-Error "Unexpected response code: $($resp.StatusCode)"
+    Write-Host "[ERROR] Unexpected response code: $($resp.StatusCode)" -ForegroundColor Red
+    exit 1
   }
   Write-Host "[OK] App route responds (http://localhost:3000)"
 }
 catch {
-  Write-Error "App not reachable at http://localhost:3000. Start it with: npm run win:run"
+  Write-Host "[ERROR] App not reachable at http://localhost:3000" -ForegroundColor Red
+  Write-Host "Start it with: npm run win:run"
+  exit 1
 }
 
 Write-Host "`n[OK] Verify complete" -ForegroundColor Green
