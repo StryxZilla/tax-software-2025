@@ -19,7 +19,9 @@
     "test:unit:critical": "vitest run tests/unit/TaxSummarySidebar.stability.test.tsx",
     "test:unit:watch": "vitest",
     "test:e2e": "playwright test",
-    "test:e2e:critical": "playwright test --grep @critical"
+    "test:e2e:critical": "playwright test --grep @critical",
+    "test:e2e:visual": "playwright test --grep @visual",
+    "test:smoke": "tsc --noEmit && vitest run && playwright test --grep @visual"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

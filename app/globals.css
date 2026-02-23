@@ -132,12 +132,14 @@ body {
 }
 
 /* Enhanced button styles */
-button {
-  @apply transition-all duration-200 ease-in-out;
-}
+@layer base {
+  button {
+    @apply transition-all duration-200 ease-in-out;
+  }
 
-button:active {
-  transform: scale(0.98);
+  button:active {
+    transform: scale(0.98);
+  }
 }
 
 /* Currency formatting */
