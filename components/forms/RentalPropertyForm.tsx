@@ -417,7 +417,7 @@ export default function RentalPropertyForm({ values, onChange, onValidationChang
                           onBlur={() => touchField(`rental-${index}-rentalIncome`)}
                           min="0"
                           step="0.01"
-                          className={`w-full pl-7 rounded-md shadow-sm ${
+                          className={`w-full pl-8 rounded-md shadow-sm ${
                             getFieldError(`rental-${index}-rentalIncome`)
                               ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
                               : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
@@ -462,7 +462,7 @@ export default function RentalPropertyForm({ values, onChange, onValidationChang
                             onChange={(e) => updateExpense(index, key as keyof RentalExpenses, Math.max(0, parseFloat(e.target.value) || 0))}
                             min="0"
                             step="0.01"
-                            className="w-full pl-7 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            className="w-full pl-8 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                             placeholder="0.00"
                           />
                         </div>

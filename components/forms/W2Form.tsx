@@ -312,7 +312,7 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                           onChange={(e) => updateW2(index, { wages: parseFloat(e.target.value) || 0 })}
                           onBlur={() => touchField(`w2-${index}-wages`)}
                           placeholder="0.00"
-                          className={`pl-7 ${getInputClassName(`w2-${index}-wages`)}`}
+                          className={`pl-8 ${getInputClassName(`w2-${index}-wages`)}`}
                         />
                       </div>
                       <ValidationError message={getFieldError(`w2-${index}-wages`)} />
@@ -336,7 +336,7 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                           onChange={(e) => updateW2(index, { federalTaxWithheld: parseFloat(e.target.value) || 0 })}
                           onBlur={() => touchField(`w2-${index}-federalTax`)}
                           placeholder="0.00"
-                          className={`pl-7 ${getInputClassName(`w2-${index}-federalTax`)}`}
+                          className={`pl-8 ${getInputClassName(`w2-${index}-federalTax`)}`}
                         />
                       </div>
                       <ValidationError message={getFieldError(`w2-${index}-federalTax`)} />
@@ -360,7 +360,7 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                           onChange={(e) => updateW2(index, { socialSecurityWages: parseFloat(e.target.value) || 0 })}
                           onBlur={() => touchField(`w2-${index}-socialSecurityWages`)}
                           placeholder="0.00"
-                          className={`pl-7 ${getInputClassName(`w2-${index}-socialSecurityWages`)}`}
+                          className={`pl-8 ${getInputClassName(`w2-${index}-socialSecurityWages`)}`}
                         />
                       </div>
                       <ValidationError message={getFieldError(`w2-${index}-socialSecurityWages`)} />
@@ -384,7 +384,7 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                           onChange={(e) => updateW2(index, { socialSecurityTaxWithheld: parseFloat(e.target.value) || 0 })}
                           onBlur={() => touchField(`w2-${index}-socialSecurityTaxWithheld`)}
                           placeholder="0.00"
-                          className={`pl-7 ${getInputClassName(`w2-${index}-socialSecurityTaxWithheld`)}`}
+                          className={`pl-8 ${getInputClassName(`w2-${index}-socialSecurityTaxWithheld`)}`}
                         />
                       </div>
                       <ValidationError message={getFieldError(`w2-${index}-socialSecurityTaxWithheld`)} />
@@ -408,7 +408,7 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                           onChange={(e) => updateW2(index, { medicareWages: parseFloat(e.target.value) || 0 })}
                           onBlur={() => touchField(`w2-${index}-medicareWages`)}
                           placeholder="0.00"
-                          className={`pl-7 ${getInputClassName(`w2-${index}-medicareWages`)}`}
+                          className={`pl-8 ${getInputClassName(`w2-${index}-medicareWages`)}`}
                         />
                       </div>
                       <ValidationError message={getFieldError(`w2-${index}-medicareWages`)} />
@@ -432,7 +432,7 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                           onChange={(e) => updateW2(index, { medicareTaxWithheld: parseFloat(e.target.value) || 0 })}
                           onBlur={() => touchField(`w2-${index}-medicareTaxWithheld`)}
                           placeholder="0.00"
-                          className={`pl-7 ${getInputClassName(`w2-${index}-medicareTaxWithheld`)}`}
+                          className={`pl-8 ${getInputClassName(`w2-${index}-medicareTaxWithheld`)}`}
                         />
                       </div>
                       <ValidationError message={getFieldError(`w2-${index}-medicareTaxWithheld`)} />

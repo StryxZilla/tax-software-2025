@@ -173,7 +173,7 @@ export default function RetirementForm({
                 onBlur={() => touchField('retirement-traditional-amount')}
                 min="0"
                 max="8000"
-                className={`pl-7 ${getInputClassName('retirement-traditional-amount')}`}
+                className={`pl-8 ${getInputClassName('retirement-traditional-amount')}`}
               />
             </div>
             <ValidationError message={getFieldError('retirement-traditional-amount')} />
@@ -214,7 +214,7 @@ export default function RetirementForm({
               onBlur={() => touchField('retirement-roth-amount')}
               min="0"
               max="8000"
-              className={`pl-7 ${getInputClassName('retirement-roth-amount')}`}
+              className={`pl-8 ${getInputClassName('retirement-roth-amount')}`}
             />
           </div>
           <ValidationError message={getFieldError('retirement-roth-amount')} />
@@ -253,7 +253,7 @@ export default function RetirementForm({
                 onChange={(e) => handleForm8606Change({ nondeductibleContributions: parseFloat(e.target.value) || 0 })}
                 onBlur={() => touchField('retirement-8606-nondeductible')}
                 min="0"
-                className={`pl-7 ${getInputClassName('retirement-8606-nondeductible')}`}
+                className={`pl-8 ${getInputClassName('retirement-8606-nondeductible')}`}
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-nondeductible')} />
@@ -273,7 +273,7 @@ export default function RetirementForm({
                 onChange={(e) => handleForm8606Change({ priorYearBasis: parseFloat(e.target.value) || 0 })}
                 onBlur={() => touchField('retirement-8606-priorBasis')}
                 min="0"
-                className={`pl-7 ${getInputClassName('retirement-8606-priorBasis')}`}
+                className={`pl-8 ${getInputClassName('retirement-8606-priorBasis')}`}
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-priorBasis')} />
@@ -293,7 +293,7 @@ export default function RetirementForm({
                 onChange={(e) => handleForm8606Change({ conversionsToRoth: parseFloat(e.target.value) || 0 })}
                 onBlur={() => touchField('retirement-8606-conversions')}
                 min="0"
-                className={`pl-7 ${getInputClassName('retirement-8606-conversions')}`}
+                className={`pl-8 ${getInputClassName('retirement-8606-conversions')}`}
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-conversions')} />
@@ -313,7 +313,7 @@ export default function RetirementForm({
                 onChange={(e) => handleForm8606Change({ distributionsFromTraditionalIRA: parseFloat(e.target.value) || 0 })}
                 onBlur={() => touchField('retirement-8606-distributions')}
                 min="0"
-                className={`pl-7 ${getInputClassName('retirement-8606-distributions')}`}
+                className={`pl-8 ${getInputClassName('retirement-8606-distributions')}`}
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-distributions')} />
@@ -333,7 +333,7 @@ export default function RetirementForm({
                 onChange={(e) => handleForm8606Change({ endOfYearTraditionalIRABalance: parseFloat(e.target.value) || 0 })}
                 onBlur={() => touchField('retirement-8606-balance')}
                 min="0"
-                className={`pl-7 ${getInputClassName('retirement-8606-balance')}`}
+                className={`pl-8 ${getInputClassName('retirement-8606-balance')}`}
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-balance')} />

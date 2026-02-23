@@ -263,7 +263,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onBlur={() => touchField('scheduleC-grossReceipts')}
                 min="0"
                 step="0.01"
-                className={`pl-7 ${getInputClassName('scheduleC-grossReceipts')}`}
+                className={`pl-8 ${getInputClassName('scheduleC-grossReceipts')}`}
               />
             </div>
             <ValidationError message={getFieldError('scheduleC-grossReceipts')} />
@@ -284,7 +284,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onBlur={() => touchField('scheduleC-returns')}
                 min="0"
                 step="0.01"
-                className={`pl-7 ${getInputClassName('scheduleC-returns')}`}
+                className={`pl-8 ${getInputClassName('scheduleC-returns')}`}
               />
             </div>
             <ValidationError message={getFieldError('scheduleC-returns')} />
@@ -305,7 +305,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onBlur={() => touchField('scheduleC-cogs')}
                 min="0"
                 step="0.01"
-                className={`pl-7 ${getInputClassName('scheduleC-cogs')}`}
+                className={`pl-8 ${getInputClassName('scheduleC-cogs')}`}
               />
             </div>
             <ValidationError message={getFieldError('scheduleC-cogs')} />
@@ -344,7 +344,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('advertising', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -363,7 +363,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('carAndTruck', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -382,7 +382,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('commissions', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -401,7 +401,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('contractLabor', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -420,7 +420,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('depletion', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -439,7 +439,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('depreciation', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -458,7 +458,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('employeeBenefitPrograms', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <p className="mt-1 text-xs text-gray-500">Health insurance, life insurance, and other employee benefit programs</p>
@@ -478,7 +478,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('pension', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <p className="mt-1 text-xs text-gray-500">Contributions to employee retirement plans (e.g., SEP-IRA, SIMPLE IRA)</p>
@@ -498,7 +498,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('insurance', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -517,7 +517,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('interest', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -536,7 +536,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('legal', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -555,7 +555,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('officeExpense', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -574,7 +574,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('rentLease', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -593,7 +593,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('repairs', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -612,7 +612,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('supplies', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -631,7 +631,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('taxes', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -650,7 +650,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('travel', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -669,7 +669,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('mealsAndEntertainment', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
             <p className="mt-1 text-xs text-amber-600">
@@ -691,7 +691,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('utilities', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -710,7 +710,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('wages', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
@@ -729,7 +729,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 onChange={(e) => updateExpense('other', parseFloat(e.target.value) || 0)}
                 min="0"
                 step="0.01"
-                className="block w-full rounded-md border-gray-300 pl-7 focus:border-blue-500 focus:ring-blue-500"
+                className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
               />
             </div>
           </div>
