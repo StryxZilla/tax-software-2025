@@ -223,20 +223,45 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
     setTaxReturn(prev => ({ ...prev, ...updates }))
   }
 
-  const recalculateTaxes = useCallback(async () => {
-    setIsCalculating(true)
-    try {
-      // Yield to let React flush the preceding setState from updateTaxReturn,
-      // then read the latest state via the ref-less pattern (setState callback).
-      await new Promise(resolve => setTimeout(resolve, 0))
-      setTaxReturn(current => {
-        const calculation = calculateTaxReturn(current)
-        setTaxCalculation(calculation)
-        return current // no mutation, just reading latest
-      })
-    } finally {
-      setIsCalculating(false)
+  // Reactively recompute taxes whenever taxReturn changes.
+  // This replaces the old manual recalculateTaxes() pattern that required
+  // every form onChange to explicitly trigger recalculation — and missed
+  // data restored from DB/localStorage, causing the summary to disappear.
+  useEffect(() => {
+    // Skip recalculation while DB data is still loading for authenticated users
+    if (isAuthenticated && !dbLoaded) return
+
+    const hasAnyIncome =
+      taxReturn.w2Income.length > 0 ||
+      taxReturn.interest.length > 0 ||
+      taxReturn.dividends.length > 0 ||
+      taxReturn.capitalGains.length > 0 ||
+      (taxReturn.selfEmployment && taxReturn.selfEmployment.grossReceipts > 0) ||
+      taxReturn.rentalProperties.length > 0
+
+    if (!hasAnyIncome && !taxReturn.personalInfo.firstName) {
+      // No meaningful data yet — keep taxCalculation null
+      setTaxCalculation(null)
+      return
     }
+
+    setIsCalculating(true)
+    // Yield a tick so React can flush any pending state before we read taxReturn
+    const id = setTimeout(() => {
+      try {
+        const calculation = calculateTaxReturn(taxReturn)
+        setTaxCalculation(calculation)
+      } finally {
+        setIsCalculating(false)
+      }
+    }, 0)
+    return () => clearTimeout(id)
+  }, [taxReturn, isAuthenticated, dbLoaded])
+
+  // Keep recalculateTaxes as a no-op for backward compat with form onChange
+  // callers. The useEffect above handles all recomputation now.
+  const recalculateTaxes = useCallback(async () => {
+    // Intentionally empty — calculation is now reactive via useEffect
   }, [])
 
   const saveToLocalStorage = () => {
