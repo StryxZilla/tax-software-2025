@@ -264,6 +264,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className={`pl-8 ${getInputClassName('scheduleC-grossReceipts')}`}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('scheduleC-grossReceipts')} />
@@ -285,6 +286,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className={`pl-8 ${getInputClassName('scheduleC-returns')}`}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('scheduleC-returns')} />
@@ -306,6 +308,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className={`pl-8 ${getInputClassName('scheduleC-cogs')}`}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('scheduleC-cogs')} />
@@ -345,6 +348,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -364,6 +368,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -383,6 +388,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -402,6 +408,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -421,6 +428,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -440,6 +448,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -459,6 +468,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
             <p className="mt-1 text-xs text-gray-500">Health insurance, life insurance, and other employee benefit programs</p>
@@ -479,6 +489,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
             <p className="mt-1 text-xs text-gray-500">Contributions to employee retirement plans (e.g., SEP-IRA, SIMPLE IRA)</p>
@@ -499,6 +510,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -518,6 +530,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -537,6 +550,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -556,6 +570,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -575,6 +590,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -594,6 +610,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -613,6 +630,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -632,6 +650,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -651,6 +670,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -670,6 +690,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
             <p className="mt-1 text-xs text-amber-600">
@@ -692,6 +713,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -711,6 +733,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>
@@ -730,6 +753,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
                 min="0"
                 step="0.01"
                 className="block w-full rounded-md border-gray-300 pl-8 focus:border-blue-500 focus:ring-blue-500"
+              placeholder="0.00"
               />
             </div>
           </div>

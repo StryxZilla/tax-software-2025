@@ -168,12 +168,14 @@ export default function RetirementForm({
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
+                  step="0.01"
                 value={traditionalIRA?.amount || 0}
                 onChange={(e) => handleTraditionalIRAChange({ amount: parseFloat(e.target.value) || 0 })}
                 onBlur={() => touchField('retirement-traditional-amount')}
                 min="0"
                 max="8000"
                 className={`pl-8 ${getInputClassName('retirement-traditional-amount')}`}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('retirement-traditional-amount')} />
@@ -209,12 +211,14 @@ export default function RetirementForm({
             <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
             <input
               type="number"
+                step="0.01"
               value={rothIRA?.amount || 0}
               onChange={(e) => handleRothIRAChange({ amount: parseFloat(e.target.value) || 0 })}
               onBlur={() => touchField('retirement-roth-amount')}
               min="0"
               max="8000"
               className={`pl-8 ${getInputClassName('retirement-roth-amount')}`}
+            placeholder="0.00"
             />
           </div>
           <ValidationError message={getFieldError('retirement-roth-amount')} />
@@ -249,11 +253,13 @@ export default function RetirementForm({
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
+                  step="0.01"
                 value={form8606?.nondeductibleContributions || 0}
                 onChange={(e) => handleForm8606Change({ nondeductibleContributions: parseFloat(e.target.value) || 0 })}
                 onBlur={() => touchField('retirement-8606-nondeductible')}
                 min="0"
                 className={`pl-8 ${getInputClassName('retirement-8606-nondeductible')}`}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-nondeductible')} />
@@ -269,11 +275,13 @@ export default function RetirementForm({
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
+                  step="0.01"
                 value={form8606?.priorYearBasis || 0}
                 onChange={(e) => handleForm8606Change({ priorYearBasis: parseFloat(e.target.value) || 0 })}
                 onBlur={() => touchField('retirement-8606-priorBasis')}
                 min="0"
                 className={`pl-8 ${getInputClassName('retirement-8606-priorBasis')}`}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-priorBasis')} />
@@ -289,11 +297,13 @@ export default function RetirementForm({
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
+                  step="0.01"
                 value={form8606?.conversionsToRoth || 0}
                 onChange={(e) => handleForm8606Change({ conversionsToRoth: parseFloat(e.target.value) || 0 })}
                 onBlur={() => touchField('retirement-8606-conversions')}
                 min="0"
                 className={`pl-8 ${getInputClassName('retirement-8606-conversions')}`}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-conversions')} />
@@ -309,11 +319,13 @@ export default function RetirementForm({
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
+                  step="0.01"
                 value={form8606?.distributionsFromTraditionalIRA || 0}
                 onChange={(e) => handleForm8606Change({ distributionsFromTraditionalIRA: parseFloat(e.target.value) || 0 })}
                 onBlur={() => touchField('retirement-8606-distributions')}
                 min="0"
                 className={`pl-8 ${getInputClassName('retirement-8606-distributions')}`}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-distributions')} />
@@ -329,11 +341,13 @@ export default function RetirementForm({
               <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
               <input
                 type="number"
+                  step="0.01"
                 value={form8606?.endOfYearTraditionalIRABalance || 0}
                 onChange={(e) => handleForm8606Change({ endOfYearTraditionalIRABalance: parseFloat(e.target.value) || 0 })}
                 onBlur={() => touchField('retirement-8606-balance')}
                 min="0"
                 className={`pl-8 ${getInputClassName('retirement-8606-balance')}`}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('retirement-8606-balance')} />

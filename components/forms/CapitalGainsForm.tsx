@@ -270,6 +270,7 @@ export default function CapitalGainsForm({ values, onChange, onValidationChange 
                         onChange={(e) => updateTransaction(index, { proceeds: parseFloat(e.target.value) || 0 })}
                         onBlur={() => touchField(`capital-${index}-proceeds`)}
                         className={`pl-8 ${getInputClassName(`capital-${index}-proceeds`)}`}
+                      placeholder="0.00"
                       />
                     </div>
                     <ValidationError message={getFieldError(`capital-${index}-proceeds`)} />
@@ -290,6 +291,7 @@ export default function CapitalGainsForm({ values, onChange, onValidationChange 
                         onChange={(e) => updateTransaction(index, { costBasis: parseFloat(e.target.value) || 0 })}
                         onBlur={() => touchField(`capital-${index}-costBasis`)}
                         className={`pl-8 ${getInputClassName(`capital-${index}-costBasis`)}`}
+                      placeholder="0.00"
                       />
                     </div>
                     <ValidationError message={getFieldError(`capital-${index}-costBasis`)} />

@@ -24,10 +24,10 @@ export function formatPieLabel({ payload, percent }: { payload?: { name?: string
 export function renderInnerPieLabel({
   cx, cy, midAngle, innerRadius, outerRadius, percent,
 }: {
-  cx: number; cy: number; midAngle: number;
-  innerRadius: number; outerRadius: number; percent: number;
+  cx?: number; cy?: number; midAngle?: number;
+  innerRadius?: number; outerRadius?: number; percent?: number;
 }) {
-  if (percent < 0.05) return null; // skip tiny slices
+  if (!percent || percent < 0.05 || cx == null || cy == null || midAngle == null || innerRadius == null || outerRadius == null) return null;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);

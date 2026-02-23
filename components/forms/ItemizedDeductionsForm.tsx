@@ -194,11 +194,13 @@ export default function ItemizedDeductionsForm({
               </div>
               <input
                 type="number"
+                  step="0.01"
                 value={deductions.medicalExpenses}
                 onChange={(e) => updateField('medicalExpenses', parseFloat(e.target.value) || 0)}
                 onBlur={() => touchField('itemized-medicalExpenses')}
                 min="0"
                 className={getInputClassName('itemized-medicalExpenses')}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('itemized-medicalExpenses')} />
@@ -252,11 +254,13 @@ export default function ItemizedDeductionsForm({
               </div>
               <input
                 type="number"
+                  step="0.01"
                 value={deductions.stateTaxesPaid}
                 onChange={(e) => updateField('stateTaxesPaid', parseFloat(e.target.value) || 0)}
                 onBlur={() => touchField('itemized-stateTaxesPaid')}
                 min="0"
                 className={getInputClassName('itemized-stateTaxesPaid')}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('itemized-stateTaxesPaid')} />
@@ -272,11 +276,13 @@ export default function ItemizedDeductionsForm({
               </div>
               <input
                 type="number"
+                  step="0.01"
                 value={deductions.localTaxesPaid}
                 onChange={(e) => updateField('localTaxesPaid', parseFloat(e.target.value) || 0)}
                 onBlur={() => touchField('itemized-localTaxesPaid')}
                 min="0"
                 className={getInputClassName('itemized-localTaxesPaid')}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('itemized-localTaxesPaid')} />
@@ -292,11 +298,13 @@ export default function ItemizedDeductionsForm({
               </div>
               <input
                 type="number"
+                  step="0.01"
                 value={deductions.realEstateTaxes}
                 onChange={(e) => updateField('realEstateTaxes', parseFloat(e.target.value) || 0)}
                 onBlur={() => touchField('itemized-realEstateTaxes')}
                 min="0"
                 className={getInputClassName('itemized-realEstateTaxes')}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('itemized-realEstateTaxes')} />
@@ -312,11 +320,13 @@ export default function ItemizedDeductionsForm({
               </div>
               <input
                 type="number"
+                  step="0.01"
                 value={deductions.personalPropertyTaxes}
                 onChange={(e) => updateField('personalPropertyTaxes', parseFloat(e.target.value) || 0)}
                 onBlur={() => touchField('itemized-personalPropertyTaxes')}
                 min="0"
                 className={getInputClassName('itemized-personalPropertyTaxes')}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('itemized-personalPropertyTaxes')} />
@@ -356,11 +366,13 @@ export default function ItemizedDeductionsForm({
               </div>
               <input
                 type="number"
+                  step="0.01"
                 value={deductions.homeMortgageInterest}
                 onChange={(e) => updateField('homeMortgageInterest', parseFloat(e.target.value) || 0)}
                 onBlur={() => touchField('itemized-homeMortgageInterest')}
                 min="0"
                 className={getInputClassName('itemized-homeMortgageInterest')}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('itemized-homeMortgageInterest')} />
@@ -376,11 +388,13 @@ export default function ItemizedDeductionsForm({
               </div>
               <input
                 type="number"
+                  step="0.01"
                 value={deductions.investmentInterest}
                 onChange={(e) => updateField('investmentInterest', parseFloat(e.target.value) || 0)}
                 onBlur={() => touchField('itemized-investmentInterest')}
                 min="0"
                 className={getInputClassName('itemized-investmentInterest')}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('itemized-investmentInterest')} />
@@ -403,11 +417,13 @@ export default function ItemizedDeductionsForm({
               </div>
               <input
                 type="number"
+                  step="0.01"
                 value={deductions.charitableCash}
                 onChange={(e) => updateField('charitableCash', parseFloat(e.target.value) || 0)}
                 onBlur={() => touchField('itemized-charitableCash')}
                 min="0"
                 className={getInputClassName('itemized-charitableCash')}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('itemized-charitableCash')} />
@@ -423,11 +439,13 @@ export default function ItemizedDeductionsForm({
               </div>
               <input
                 type="number"
+                  step="0.01"
                 value={deductions.charitableNonCash}
                 onChange={(e) => updateField('charitableNonCash', parseFloat(e.target.value) || 0)}
                 onBlur={() => touchField('itemized-charitableNonCash')}
                 min="0"
                 className={getInputClassName('itemized-charitableNonCash')}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('itemized-charitableNonCash')} />
@@ -461,11 +479,13 @@ export default function ItemizedDeductionsForm({
               </div>
               <input
                 type="number"
+                  step="0.01"
                 value={deductions.casualtyLosses}
                 onChange={(e) => updateField('casualtyLosses', parseFloat(e.target.value) || 0)}
                 onBlur={() => touchField('itemized-casualtyLosses')}
                 min="0"
                 className={getInputClassName('itemized-casualtyLosses')}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('itemized-casualtyLosses')} />
@@ -481,11 +501,13 @@ export default function ItemizedDeductionsForm({
               </div>
               <input
                 type="number"
+                  step="0.01"
                 value={deductions.otherDeductions}
                 onChange={(e) => updateField('otherDeductions', parseFloat(e.target.value) || 0)}
                 onBlur={() => touchField('itemized-otherDeductions')}
                 min="0"
                 className={getInputClassName('itemized-otherDeductions')}
+              placeholder="0.00"
               />
             </div>
             <ValidationError message={getFieldError('itemized-otherDeductions')} />
