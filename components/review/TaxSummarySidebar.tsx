@@ -8,6 +8,12 @@ import { TAX_BRACKETS_2025 } from '../../data/tax-constants';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#ef4444'];
 
+/** Format a pie-chart slice label. Exported for testing. */
+export function formatPieLabel({ payload, percent }: { payload?: { name?: string }; percent?: number }): string {
+  const label = payload?.name || 'Other';
+  return `${label}: ${((percent || 0) * 100).toFixed(0)}%`;
+}
+
 export default function TaxSummarySidebar() {
   const { taxCalculation, taxReturn, isCalculating, lastSaved } = useTaxReturn();
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -289,7 +295,7 @@ export default function TaxSummarySidebar() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                      label={formatPieLabel}
                       outerRadius={60}
                       fill="#8884d8"
                       dataKey="value"
@@ -409,7 +415,7 @@ export default function TaxSummarySidebar() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                      label={formatPieLabel}
                       outerRadius={60}
                       fill="#8884d8"
                       dataKey="value"
