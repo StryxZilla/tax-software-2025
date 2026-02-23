@@ -23,6 +23,8 @@ export interface CurrencyInputProps
   inputClassName?: string;
   /** Error state — adds red ring */
   hasError?: boolean;
+  /** Show $ prefix (default: true) */
+  showPrefix?: boolean;
   /** Called with the parsed numeric value on change */
   onValueChange?: (value: number) => void;
   /** Called on blur (in addition to internal formatting) */
@@ -36,7 +38,7 @@ export function formatCurrency(value: number | undefined | null): string {
 }
 
 const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
-  ({ inputClassName = '', hasError, className, value, onValueChange, onBlur, placeholder = '0.00', ...inputProps }, ref) => {
+  ({ inputClassName = '', hasError, showPrefix = true, className, value, onValueChange, onBlur, placeholder = '0.00', ...inputProps }, ref) => {
     const [displayValue, setDisplayValue] = useState<string>(() => formatCurrency(value));
     const [isFocused, setIsFocused] = useState(false);
 
@@ -77,7 +79,7 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
       onBlur?.(e);
     }, [displayValue, onValueChange, onBlur]);
 
-    const baseInput = `block w-full rounded-lg shadow-sm pl-8 ${
+    const baseInput = `block w-full rounded-lg shadow-sm ${showPrefix ? 'pl-8' : ''} ${
       hasError
         ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
         : 'border-slate-300 focus:border-blue-600 focus:ring-blue-600'
@@ -85,9 +87,11 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
 
     return (
       <div className={`currency-input relative ${className ?? ''}`}>
-        <span className="currency-input-prefix absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none select-none">
-          $
-        </span>
+        {showPrefix && (
+          <span className="currency-input-prefix absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none select-none">
+            $
+          </span>
+        )}
         <input
           ref={ref}
           type="number"

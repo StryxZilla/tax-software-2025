@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { existsSync } from 'fs'
+import { resolve } from 'path'
 import { detectSavedDraft, type SavedDraftInfo } from '../../components/wizard/WelcomeScreen'
 
 // Mock localStorage
@@ -79,6 +81,19 @@ describe('detectSavedDraft', () => {
     const draft = detectSavedDraft()
     expect(draft).not.toBeNull()
     expect(draft!.completedCount).toBe(0)
+  })
+})
+
+describe('WelcomeScreen Zoey brand assets', () => {
+  const publicDir = resolve(__dirname, '../../public')
+
+  it.each([
+    '/brand/zoey-hero-wide.png',
+    '/brand/zoey-celebrate.png',
+    '/brand/zoey-neutral.png',
+    '/brand/zoey-pointing.png',
+  ])('asset %s exists on disk', (assetPath) => {
+    expect(existsSync(resolve(publicDir, `.${assetPath}`))).toBe(true)
   })
 })
 

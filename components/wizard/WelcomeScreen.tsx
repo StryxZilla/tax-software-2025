@@ -121,26 +121,31 @@ export default function WelcomeScreen({ onStart, onResume, onStartOver }: Welcom
           </div>
 
           <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 leading-tight">
-            Welcome to Zoey&apos;s Tax Advisory
+            {draft ? 'Welcome back!' : 'Welcome to Zoey\u2019s Tax Advisory'}
           </h1>
           <p className="text-lg text-slate-600 mt-3 max-w-2xl">
-            A clear, step-by-step filing flow with fewer surprises and fast progress tracking.
+            {draft
+              ? 'Your progress is saved. Pick up right where you left off.'
+              : 'A clear, step-by-step filing flow with fewer surprises and fast progress tracking.'}
           </p>
 
           <div className="mt-6 grid gap-6 lg:grid-cols-[1.3fr_1fr] items-start">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-2">
               <div className="aspect-[3/2] w-full overflow-hidden rounded-xl bg-slate-100">
                 <img
-                  src="/brand/zoey-hero-wide.png"
-                  alt="Zoey welcoming you to start your return"
+                  src={draft ? '/brand/zoey-celebrate.png' : '/brand/zoey-hero-wide.png'}
+                  alt={draft ? 'Zoey welcoming you back' : 'Zoey welcoming you to start your return'}
                   className="h-full w-full object-cover object-center"
+                  data-testid="welcome-hero-img"
                 />
               </div>
             </div>
             <ZoeyGuideCard
-              variant="tip"
-              title="Quick mission plan"
-              message="11 steps, save-as-you-go, and no chaos. Math is tough with paws, but Zoey never quits — and with AI backup, every section gets done right."
+              variant={draft ? 'success' : 'tip'}
+              title={draft ? 'You\u2019re back!' : 'Quick mission plan'}
+              message={draft
+                ? `Your draft is safe and sound — ${draft.completedCount} step${draft.completedCount !== 1 ? 's' : ''} already done. Let\u2019s finish this return!`
+                : '11 steps, save-as-you-go, and no chaos. Math is tough with paws, but Zoey never quits \u2014 and with AI backup, every section gets done right.'}
               className="w-full text-left"
             />
           </div>
@@ -178,9 +183,17 @@ export default function WelcomeScreen({ onStart, onResume, onStartOver }: Welcom
           </div>
 
           {draft && (
-            <div className="mt-4 text-sm text-slate-500 bg-slate-50 rounded-lg px-4 py-3 border border-slate-200" data-testid="draft-info">
-              📝 You have a saved draft at <strong>{STEP_LABELS[draft.currentStep] ?? draft.currentStep}</strong>
-              {draft.completedCount > 0 && <> — {draft.completedCount} step{draft.completedCount !== 1 ? 's' : ''} completed</>}
+            <div className="mt-4 flex items-center gap-3 text-sm text-slate-600 bg-emerald-50 rounded-xl px-4 py-3 border border-emerald-200" data-testid="draft-info">
+              <img
+                src="/brand/zoey-neutral.png"
+                alt="Zoey"
+                className="w-8 h-8 rounded-lg border border-slate-200 bg-white object-cover object-top shrink-0"
+                data-testid="draft-zoey-icon"
+              />
+              <span>
+                Saved draft at <strong>{STEP_LABELS[draft.currentStep] ?? draft.currentStep}</strong>
+                {draft.completedCount > 0 && <> — {draft.completedCount} step{draft.completedCount !== 1 ? 's' : ''} completed</>}
+              </span>
             </div>
           )}
         </section>
