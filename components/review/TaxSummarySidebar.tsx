@@ -2,16 +2,40 @@
 
 import React, { useMemo, useState } from 'react';
 import { useTaxReturn } from '@/lib/context/TaxReturnContext';
-import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ChevronDown, ChevronUp, TrendingUp, TrendingDown, DollarSign, Percent, Loader2, Clock } from 'lucide-react';
 import { TAX_BRACKETS_2025 } from '../../data/tax-constants';
 
 const COLORS = ['#3b82f6', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#06b6d4', '#ef4444'];
 
-/** Format a pie-chart slice label. Exported for testing. */
+const RADIAN = Math.PI / 180;
+
+/** Format a pie-chart slice label text. Exported for testing. */
 export function formatPieLabel({ payload, percent }: { payload?: { name?: string }; percent?: number }): string {
   const label = payload?.name || 'Other';
   return `${label}: ${((percent || 0) * 100).toFixed(0)}%`;
+}
+
+/**
+ * Custom rendered label for pie slices.
+ * Renders percentage INSIDE the slice to avoid clipping/overlap.
+ * Full names are shown via the Legend component instead.
+ */
+export function renderInnerPieLabel({
+  cx, cy, midAngle, innerRadius, outerRadius, percent,
+}: {
+  cx: number; cy: number; midAngle: number;
+  innerRadius: number; outerRadius: number; percent: number;
+}) {
+  if (percent < 0.05) return null; // skip tiny slices
+  const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="central" fontSize={11} fontWeight={600}>
+      {`${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
 }
 
 export default function TaxSummarySidebar() {
@@ -288,15 +312,15 @@ export default function TaxSummarySidebar() {
             {incomeSources.length > 0 && (
               <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
                 <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-4">Income Sources</h3>
-                <ResponsiveContainer width="100%" height={180}>
+                <ResponsiveContainer width="100%" height={240}>
                   <PieChart>
                     <Pie
                       data={incomeSources}
                       cx="50%"
-                      cy="50%"
+                      cy="45%"
                       labelLine={false}
-                      label={formatPieLabel}
-                      outerRadius={60}
+                      label={renderInnerPieLabel}
+                      outerRadius={70}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -312,6 +336,12 @@ export default function TaxSummarySidebar() {
                         borderRadius: '8px',
                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
                       }}
+                    />
+                    <Legend
+                      verticalAlign="bottom"
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -408,15 +438,15 @@ export default function TaxSummarySidebar() {
             {incomeSources.length > 0 && (
               <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-200">
                 <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide mb-3">Income Sources</h3>
-                <ResponsiveContainer width="100%" height={180}>
+                <ResponsiveContainer width="100%" height={240}>
                   <PieChart>
                     <Pie
                       data={incomeSources}
                       cx="50%"
-                      cy="50%"
+                      cy="45%"
                       labelLine={false}
-                      label={formatPieLabel}
-                      outerRadius={60}
+                      label={renderInnerPieLabel}
+                      outerRadius={70}
                       fill="#8884d8"
                       dataKey="value"
                     >
@@ -425,6 +455,12 @@ export default function TaxSummarySidebar() {
                       ))}
                     </Pie>
                     <Tooltip formatter={(value) => `$${(value || 0).toLocaleString()}`} />
+                    <Legend
+                      verticalAlign="bottom"
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>

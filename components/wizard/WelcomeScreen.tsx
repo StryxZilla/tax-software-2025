@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronRight, RotateCcw, Play } from 'lucide-react';
 import ZoeyGuideCard from '../brand/ZoeyGuideCard';
 
 const WIZARD_STEPS = [
@@ -51,11 +51,67 @@ const DOCUMENTS_CHECKLIST = [
   },
 ];
 
-interface WelcomeScreenProps {
-  onStart: () => void;
+/** Step labels for the resume banner */
+const STEP_LABELS: Record<string, string> = {
+  'personal-info': 'Personal Information',
+  'dependents': 'Dependents',
+  'income-w2': 'W-2 Income',
+  'income-interest': 'Interest Income',
+  'income-capital-gains': 'Capital Gains',
+  'income-self-employment': 'Self-Employment',
+  'income-rental': 'Rental Property',
+  'retirement-accounts': 'Retirement Accounts',
+  'deductions': 'Itemized Deductions',
+  'credits': 'Tax Credits',
+  'review': 'Review & Download',
+};
+
+export interface SavedDraftInfo {
+  currentStep: string;
+  completedCount: number;
+  lastSaved: string | null;
+  hasData: boolean;
 }
 
-export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
+/** Check localStorage for a saved draft without needing React context */
+export function detectSavedDraft(): SavedDraftInfo | null {
+  try {
+    const savedData = localStorage.getItem('taxReturn2025');
+    const savedStep = localStorage.getItem('currentStep');
+    const savedCompleted = localStorage.getItem('completedSteps');
+
+    if (!savedData || !savedStep || savedStep === 'welcome') return null;
+
+    const data = JSON.parse(savedData);
+    // Only count as a real draft if there's meaningful data (not just defaults)
+    const hasName = data?.personalInfo?.firstName?.trim();
+    const hasIncome = data?.w2Income?.length > 0;
+    if (!hasName && !hasIncome) return null;
+
+    const completed = savedCompleted ? JSON.parse(savedCompleted) : [];
+    return {
+      currentStep: savedStep,
+      completedCount: completed.length,
+      lastSaved: null, // localStorage doesn't track timestamps directly
+      hasData: true,
+    };
+  } catch {
+    return null;
+  }
+}
+
+interface WelcomeScreenProps {
+  onStart: () => void;
+  onResume?: () => void;
+  onStartOver?: () => void;
+}
+
+export default function WelcomeScreen({ onStart, onResume, onStartOver }: WelcomeScreenProps) {
+  const [draft, setDraft] = useState<SavedDraftInfo | null>(null);
+
+  useEffect(() => {
+    setDraft(detectSavedDraft());
+  }, []);
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
@@ -89,15 +145,44 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             />
           </div>
 
-          <div className="mt-8">
-            <button
-              onClick={onStart}
-              className="inline-flex items-center gap-2.5 px-8 py-4 text-lg font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
-            >
-              Start your return
-              <ChevronRight className="w-5 h-5" />
-            </button>
+          <div className="mt-8 flex flex-col sm:flex-row gap-3">
+            {draft ? (
+              <>
+                <button
+                  onClick={onResume ?? onStart}
+                  className="inline-flex items-center gap-2.5 px-8 py-4 text-lg font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                  data-testid="resume-draft-btn"
+                >
+                  <Play className="w-5 h-5" />
+                  Resume where you left off
+                </button>
+                <button
+                  onClick={onStartOver ?? onStart}
+                  className="inline-flex items-center gap-2.5 px-6 py-4 text-lg font-semibold bg-white text-slate-700 border border-slate-300 rounded-xl hover:bg-slate-50 transition-colors"
+                  data-testid="start-over-btn"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  Start over
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={onStart}
+                className="inline-flex items-center gap-2.5 px-8 py-4 text-lg font-semibold bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors"
+                data-testid="start-return-btn"
+              >
+                Start your return
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            )}
           </div>
+
+          {draft && (
+            <div className="mt-4 text-sm text-slate-500 bg-slate-50 rounded-lg px-4 py-3 border border-slate-200" data-testid="draft-info">
+              📝 You have a saved draft at <strong>{STEP_LABELS[draft.currentStep] ?? draft.currentStep}</strong>
+              {draft.completedCount > 0 && <> — {draft.completedCount} step{draft.completedCount !== 1 ? 's' : ''} completed</>}
+            </div>
+          )}
         </section>
 
         <section className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">

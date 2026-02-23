@@ -21,6 +21,7 @@ import PdfDownloadButton from '../components/review/PdfDownloadButton'
 import { useTaxReturn, useAuthUser } from '../lib/context/TaxReturnContext'
 import { calculateAGI } from '../lib/engine/calculations/tax-calculator'
 import FormNavigation from '../components/common/FormNavigation'
+import SaveStatusIndicator from '../components/common/SaveStatusIndicator'
 import ZoeyGuideCard from '../components/brand/ZoeyGuideCard'
 import { WizardStep } from '../types/tax-types'
 
@@ -564,7 +565,7 @@ export default function Home() {
 }
 
 function AppShell() {
-  const { currentStep, setCurrentStep } = useTaxReturn()
+  const { currentStep, setCurrentStep, lastSaved, isCalculating } = useTaxReturn()
   const user = useAuthUser()
   const isWelcome = currentStep === 'welcome'
 
@@ -589,12 +590,15 @@ function AppShell() {
 
           <div className="flex items-center gap-4">
             {!isWelcome && (
-              <button
-                onClick={() => setCurrentStep('welcome')}
-                className="text-sm text-slate-500 hover:text-blue-600 transition-colors font-medium hidden sm:block"
-              >
-                ← Back to Overview
-              </button>
+              <div className="flex items-center gap-3">
+                <SaveStatusIndicator lastSaved={lastSaved} isCalculating={isCalculating} />
+                <button
+                  onClick={() => setCurrentStep('welcome')}
+                  className="text-sm text-slate-500 hover:text-blue-600 transition-colors font-medium hidden sm:block"
+                >
+                  ← Back to Overview
+                </button>
+              </div>
             )}
 
             {user && (
@@ -635,7 +639,7 @@ function AppShell() {
 }
 
 function MainContent() {
-  const { currentStep, setCurrentStep, completedSteps, skippedSteps } = useTaxReturn()
+  const { currentStep, setCurrentStep, completedSteps, skippedSteps, resetTaxReturn } = useTaxReturn()
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
@@ -644,7 +648,25 @@ function MainContent() {
   }, [currentStep])
 
   if (currentStep === 'welcome') {
-    return <WelcomeScreen onStart={() => setCurrentStep('personal-info')} />
+    return (
+      <WelcomeScreen
+        onStart={() => setCurrentStep('personal-info')}
+        onResume={() => {
+          // Resume to the saved step (already loaded into currentStep from localStorage/DB).
+          // The context loads savedStep on mount, but since we're on 'welcome' the user
+          // explicitly navigated here. Read the persisted step directly.
+          const savedStep = localStorage.getItem('currentStep')
+          if (savedStep && savedStep !== 'welcome') {
+            setCurrentStep(savedStep as WizardStep)
+          } else {
+            setCurrentStep('personal-info')
+          }
+        }}
+        onStartOver={() => {
+          resetTaxReturn()
+        }}
+      />
+    )
   }
 
   return (

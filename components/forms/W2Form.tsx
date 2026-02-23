@@ -5,6 +5,7 @@ import { W2Income } from '../../types/tax-types';
 import { Plus, Trash2, Briefcase, Building2, DollarSign, AlertCircle } from 'lucide-react';
 import { validateW2 } from '../../lib/validation/form-validation';
 import ValidationError from '../common/ValidationError';
+import CurrencyInput from '../common/CurrencyInput';
 import DocumentUpload from '../ocr/DocumentUpload';
 import { extractW2Data } from '../../lib/ocr/extractors/w2-extractor';
 
@@ -301,20 +302,15 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Wages, Tips, Other Compensation <span className="text-red-500">*</span>
                       </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                        <input
-                          ref={(element) => {
-                            fieldRefs.current[`w2-${index}-wages`] = element;
-                          }}
-                          type="number"
-                          value={w2.wages || ''}
-                          onChange={(e) => updateW2(index, { wages: parseFloat(e.target.value) || 0 })}
-                          onBlur={() => touchField(`w2-${index}-wages`)}
-                          placeholder="0.00"
-                          className={`pl-8 ${getInputClassName(`w2-${index}-wages`)}`}
-                        />
-                      </div>
+                      <CurrencyInput
+                        ref={(element) => {
+                          fieldRefs.current[`w2-${index}-wages`] = element;
+                        }}
+                        value={w2.wages}
+                        onValueChange={(v) => updateW2(index, { wages: v })}
+                        onBlur={() => touchField(`w2-${index}-wages`)}
+                        hasError={!!getFieldError(`w2-${index}-wages`)}
+                      />
                       <ValidationError message={getFieldError(`w2-${index}-wages`)} />
                       {!getFieldError(`w2-${index}-wages`) && (
                         <p className="mt-1 text-xs text-slate-500">Box 1 on your W-2 — your total taxable wages for the year</p>
@@ -325,20 +321,15 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Federal Income Tax Withheld
                       </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                        <input
-                          ref={(element) => {
-                            fieldRefs.current[`w2-${index}-federalTax`] = element;
-                          }}
-                          type="number"
-                          value={w2.federalTaxWithheld || ''}
-                          onChange={(e) => updateW2(index, { federalTaxWithheld: parseFloat(e.target.value) || 0 })}
-                          onBlur={() => touchField(`w2-${index}-federalTax`)}
-                          placeholder="0.00"
-                          className={`pl-8 ${getInputClassName(`w2-${index}-federalTax`)}`}
-                        />
-                      </div>
+                      <CurrencyInput
+                        ref={(element) => {
+                          fieldRefs.current[`w2-${index}-federalTax`] = element;
+                        }}
+                        value={w2.federalTaxWithheld}
+                        onValueChange={(v) => updateW2(index, { federalTaxWithheld: v })}
+                        onBlur={() => touchField(`w2-${index}-federalTax`)}
+                        hasError={!!getFieldError(`w2-${index}-federalTax`)}
+                      />
                       <ValidationError message={getFieldError(`w2-${index}-federalTax`)} />
                       {!getFieldError(`w2-${index}-federalTax`) && (
                         <p className="mt-1 text-xs text-slate-500">Box 2 on your W-2 — already-paid tax that counts toward your refund</p>
@@ -349,20 +340,15 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Social Security Wages
                       </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                        <input
-                          ref={(element) => {
-                            fieldRefs.current[`w2-${index}-socialSecurityWages`] = element;
-                          }}
-                          type="number"
-                          value={w2.socialSecurityWages || ''}
-                          onChange={(e) => updateW2(index, { socialSecurityWages: parseFloat(e.target.value) || 0 })}
-                          onBlur={() => touchField(`w2-${index}-socialSecurityWages`)}
-                          placeholder="0.00"
-                          className={`pl-8 ${getInputClassName(`w2-${index}-socialSecurityWages`)}`}
-                        />
-                      </div>
+                      <CurrencyInput
+                        ref={(element) => {
+                          fieldRefs.current[`w2-${index}-socialSecurityWages`] = element;
+                        }}
+                        value={w2.socialSecurityWages}
+                        onValueChange={(v) => updateW2(index, { socialSecurityWages: v })}
+                        onBlur={() => touchField(`w2-${index}-socialSecurityWages`)}
+                        hasError={!!getFieldError(`w2-${index}-socialSecurityWages`)}
+                      />
                       <ValidationError message={getFieldError(`w2-${index}-socialSecurityWages`)} />
                       {!getFieldError(`w2-${index}-socialSecurityWages`) && (
                         <p className="mt-1 text-xs text-slate-500">Box 3 on your W-2 — often same as Box 1, capped at $176,100</p>
@@ -373,20 +359,15 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Social Security Tax Withheld
                       </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                        <input
-                          ref={(element) => {
-                            fieldRefs.current[`w2-${index}-socialSecurityTaxWithheld`] = element;
-                          }}
-                          type="number"
-                          value={w2.socialSecurityTaxWithheld || ''}
-                          onChange={(e) => updateW2(index, { socialSecurityTaxWithheld: parseFloat(e.target.value) || 0 })}
-                          onBlur={() => touchField(`w2-${index}-socialSecurityTaxWithheld`)}
-                          placeholder="0.00"
-                          className={`pl-8 ${getInputClassName(`w2-${index}-socialSecurityTaxWithheld`)}`}
-                        />
-                      </div>
+                      <CurrencyInput
+                        ref={(element) => {
+                          fieldRefs.current[`w2-${index}-socialSecurityTaxWithheld`] = element;
+                        }}
+                        value={w2.socialSecurityTaxWithheld}
+                        onValueChange={(v) => updateW2(index, { socialSecurityTaxWithheld: v })}
+                        onBlur={() => touchField(`w2-${index}-socialSecurityTaxWithheld`)}
+                        hasError={!!getFieldError(`w2-${index}-socialSecurityTaxWithheld`)}
+                      />
                       <ValidationError message={getFieldError(`w2-${index}-socialSecurityTaxWithheld`)} />
                       {!getFieldError(`w2-${index}-socialSecurityTaxWithheld`) && (
                         <p className="mt-1 text-xs text-slate-500">Box 4 on your W-2 — should be ~6.2% of Box 3</p>
@@ -397,20 +378,15 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Medicare Wages and Tips
                       </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                        <input
-                          ref={(element) => {
-                            fieldRefs.current[`w2-${index}-medicareWages`] = element;
-                          }}
-                          type="number"
-                          value={w2.medicareWages || ''}
-                          onChange={(e) => updateW2(index, { medicareWages: parseFloat(e.target.value) || 0 })}
-                          onBlur={() => touchField(`w2-${index}-medicareWages`)}
-                          placeholder="0.00"
-                          className={`pl-8 ${getInputClassName(`w2-${index}-medicareWages`)}`}
-                        />
-                      </div>
+                      <CurrencyInput
+                        ref={(element) => {
+                          fieldRefs.current[`w2-${index}-medicareWages`] = element;
+                        }}
+                        value={w2.medicareWages}
+                        onValueChange={(v) => updateW2(index, { medicareWages: v })}
+                        onBlur={() => touchField(`w2-${index}-medicareWages`)}
+                        hasError={!!getFieldError(`w2-${index}-medicareWages`)}
+                      />
                       <ValidationError message={getFieldError(`w2-${index}-medicareWages`)} />
                       {!getFieldError(`w2-${index}-medicareWages`) && (
                         <p className="mt-1 text-xs text-slate-500">Box 5 on your W-2 — no cap, usually same as Box 1</p>
@@ -421,20 +397,15 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Medicare Tax Withheld
                       </label>
-                      <div className="relative">
-                        <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                        <input
-                          ref={(element) => {
-                            fieldRefs.current[`w2-${index}-medicareTaxWithheld`] = element;
-                          }}
-                          type="number"
-                          value={w2.medicareTaxWithheld || ''}
-                          onChange={(e) => updateW2(index, { medicareTaxWithheld: parseFloat(e.target.value) || 0 })}
-                          onBlur={() => touchField(`w2-${index}-medicareTaxWithheld`)}
-                          placeholder="0.00"
-                          className={`pl-8 ${getInputClassName(`w2-${index}-medicareTaxWithheld`)}`}
-                        />
-                      </div>
+                      <CurrencyInput
+                        ref={(element) => {
+                          fieldRefs.current[`w2-${index}-medicareTaxWithheld`] = element;
+                        }}
+                        value={w2.medicareTaxWithheld}
+                        onValueChange={(v) => updateW2(index, { medicareTaxWithheld: v })}
+                        onBlur={() => touchField(`w2-${index}-medicareTaxWithheld`)}
+                        hasError={!!getFieldError(`w2-${index}-medicareTaxWithheld`)}
+                      />
                       <ValidationError message={getFieldError(`w2-${index}-medicareTaxWithheld`)} />
                       {!getFieldError(`w2-${index}-medicareTaxWithheld`) && (
                         <p className="mt-1 text-xs text-slate-500">Box 6 on your W-2 — should be ~1.45% of Box 5</p>
