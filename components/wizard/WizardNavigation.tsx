@@ -21,9 +21,10 @@ const steps: Array<{ id: WizardStep; label: string; shortLabel?: string; descrip
 interface WizardNavigationProps {
   currentStep: WizardStep;
   onStepChange: (step: WizardStep) => void;
+  completedSteps?: Set<WizardStep>;
 }
 
-export default function WizardNavigation({ currentStep, onStepChange }: WizardNavigationProps) {
+export default function WizardNavigation({ currentStep, onStepChange, completedSteps = new Set() }: WizardNavigationProps) {
   const currentIndex = steps.findIndex(s => s.id === currentStep);
   const [showPanel, setShowPanel] = useState(false);
 
@@ -87,8 +88,8 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0">
               {steps.map((step, index) => {
                 const isActive = step.id === currentStep;
-                const isCompleted = index < safeIndex;
-                const isAccessible = index <= safeIndex;
+                const isCompleted = completedSteps.has(step.id);
+                const isAccessible = isActive || isCompleted || (index > 0 && completedSteps.has(steps[index - 1].id));
 
                 return (
                   <button
@@ -150,8 +151,8 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
         <nav className="hidden lg:flex items-center justify-between">
           {steps.map((step, index) => {
             const isActive = step.id === currentStep;
-            const isCompleted = index < safeIndex;
-            const isAccessible = index <= safeIndex;
+            const isCompleted = completedSteps.has(step.id);
+            const isAccessible = isActive || isCompleted || (index > 0 && completedSteps.has(steps[index - 1].id));
 
             return (
               <React.Fragment key={step.id}>
@@ -222,10 +223,10 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
                     <div
                       className={`
                         absolute inset-0 transition-all duration-500 ease-out
-                        ${index < safeIndex ? 'bg-emerald-600' : 'bg-slate-200'}
+                        ${completedSteps.has(step.id) ? 'bg-emerald-600' : 'bg-slate-200'}
                       `}
                       style={{
-                        width: index < safeIndex ? '100%' : '0%'
+                        width: completedSteps.has(step.id) ? '100%' : '0%'
                       }}
                     />
                   </div>
@@ -239,8 +240,8 @@ export default function WizardNavigation({ currentStep, onStepChange }: WizardNa
         <nav className="lg:hidden flex space-x-3 overflow-x-auto pb-2 -mx-4 px-4">
           {steps.map((step, index) => {
             const isActive = step.id === currentStep;
-            const isCompleted = index < safeIndex;
-            const isAccessible = index <= safeIndex;
+            const isCompleted = completedSteps.has(step.id);
+            const isAccessible = isActive || isCompleted || (index > 0 && completedSteps.has(steps[index - 1].id));
 
             return (
               <button

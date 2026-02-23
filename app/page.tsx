@@ -45,6 +45,7 @@ function WizardStepContent() {
     updateTaxReturn,
     currentStep,
     setCurrentStep,
+    markStepCompleted,
     taxCalculation,
     recalculateTaxes,
   } = useTaxReturn()
@@ -60,6 +61,8 @@ function WizardStepContent() {
 
   const handleNext = () => {
     if (currentIndex < STEP_ORDER.length - 1) {
+      // Mark current step as completed before advancing
+      markStepCompleted(currentStep)
       setCurrentStep(STEP_ORDER[currentIndex + 1])
     }
   }
@@ -615,7 +618,7 @@ function AppShell() {
 }
 
 function MainContent() {
-  const { currentStep, setCurrentStep } = useTaxReturn()
+  const { currentStep, setCurrentStep, completedSteps } = useTaxReturn()
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
@@ -634,6 +637,7 @@ function MainContent() {
           <WizardNavigation
             currentStep={currentStep}
             onStepChange={setCurrentStep}
+            completedSteps={completedSteps}
           />
           <div className="bg-white shadow-sm rounded-lg p-8">
             <WizardStepContent />

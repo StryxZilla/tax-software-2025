@@ -10,6 +10,8 @@ interface TaxReturnContextType {
   updateTaxReturn: (updates: Partial<TaxReturn>) => void
   currentStep: WizardStep
   setCurrentStep: (step: WizardStep) => void
+  completedSteps: Set<WizardStep>
+  markStepCompleted: (step: WizardStep) => void
   taxCalculation: TaxCalculation | null
   isCalculating: boolean
   lastSaved: Date | null
@@ -90,6 +92,7 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
   const { data: session, status } = useSession()
   const [taxReturn, setTaxReturn] = useState<TaxReturn>(initialTaxReturn)
   const [currentStep, setCurrentStep] = useState<WizardStep>('welcome')
+  const [completedSteps, setCompletedSteps] = useState<Set<WizardStep>>(new Set())
   const [taxCalculation, setTaxCalculation] = useState<TaxCalculation | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
@@ -131,7 +134,7 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
       if (saveTimeout) clearTimeout(saveTimeout)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taxReturn, currentStep])
+  }, [taxReturn, currentStep, completedSteps])
 
   const loadFromDb = async () => {
     try {
@@ -149,10 +152,14 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
           setTaxReturn(parsed)
         }
       }
-      // Restore wizard step from localStorage (not stored in DB)
+      // Restore wizard step and completed steps from localStorage (not stored in DB)
       const savedStep = localStorage.getItem('currentStep')
       if (savedStep) {
         setCurrentStep(savedStep as WizardStep)
+      }
+      const savedCompleted = localStorage.getItem('completedSteps')
+      if (savedCompleted) {
+        setCompletedSteps(new Set(JSON.parse(savedCompleted)))
       }
       setDbLoaded(true)
     } catch (error) {
@@ -180,6 +187,15 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
     }
   }, [taxReturn])
 
+  const markStepCompleted = useCallback((step: WizardStep) => {
+    setCompletedSteps(prev => {
+      if (prev.has(step)) return prev
+      const next = new Set(prev)
+      next.add(step)
+      return next
+    })
+  }, [])
+
   const updateTaxReturn = (updates: Partial<TaxReturn>) => {
     setTaxReturn(prev => ({ ...prev, ...updates }))
   }
@@ -204,6 +220,7 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem('taxReturn2025', JSON.stringify(taxReturn))
       localStorage.setItem('currentStep', currentStep)
+      localStorage.setItem('completedSteps', JSON.stringify([...completedSteps]))
       if (!isAuthenticated) {
         setLastSaved(new Date())
       }
@@ -218,11 +235,15 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
     try {
       const saved = localStorage.getItem('taxReturn2025')
       const savedStep = localStorage.getItem('currentStep')
+      const savedCompleted = localStorage.getItem('completedSteps')
       if (saved) {
         setTaxReturn(JSON.parse(saved))
       }
       if (savedStep) {
         setCurrentStep(savedStep as WizardStep)
+      }
+      if (savedCompleted) {
+        setCompletedSteps(new Set(JSON.parse(savedCompleted)))
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
@@ -257,9 +278,11 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
     }
     setTaxReturn(initialTaxReturn)
     setCurrentStep('personal-info')
+    setCompletedSteps(new Set())
     setTaxCalculation(null)
     localStorage.removeItem('taxReturn2025')
     localStorage.removeItem('currentStep')
+    localStorage.removeItem('completedSteps')
     setLastSaved(null)
 
     // Clear from DB too if authenticated
@@ -279,6 +302,8 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
         updateTaxReturn,
         currentStep,
         setCurrentStep,
+        completedSteps,
+        markStepCompleted,
         taxCalculation,
         isCalculating,
         lastSaved,
