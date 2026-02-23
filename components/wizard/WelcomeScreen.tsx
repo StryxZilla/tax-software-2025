@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronRight, RotateCcw, Play } from 'lucide-react';
 import ZoeyGuideCard from '../brand/ZoeyGuideCard';
+import ZoeyImage from '../brand/ZoeyImage';
 
 const WIZARD_STEPS = [
   { number: 1, label: 'Personal Information', description: 'Name, address, SSN, filing status' },
@@ -132,7 +133,7 @@ export default function WelcomeScreen({ onStart, onResume, onStartOver }: Welcom
           <div className="mt-6 grid gap-6 lg:grid-cols-[1.3fr_1fr] items-start">
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-2">
               <div className="aspect-[3/2] w-full overflow-hidden rounded-xl bg-slate-100">
-                <img
+                <ZoeyImage
                   src={draft ? '/brand/zoey-celebrate.png' : '/brand/zoey-hero-wide.png'}
                   alt={draft ? 'Zoey welcoming you back' : 'Zoey welcoming you to start your return'}
                   className="h-full w-full object-cover object-center"
@@ -184,7 +185,7 @@ export default function WelcomeScreen({ onStart, onResume, onStartOver }: Welcom
 
           {draft && (
             <div className="mt-4 flex items-center gap-3 text-sm text-slate-600 bg-emerald-50 rounded-xl px-4 py-3 border border-emerald-200" data-testid="draft-info">
-              <img
+              <ZoeyImage
                 src="/brand/zoey-neutral.png"
                 alt="Zoey"
                 className="w-8 h-8 rounded-lg border border-slate-200 bg-white object-cover object-top shrink-0"

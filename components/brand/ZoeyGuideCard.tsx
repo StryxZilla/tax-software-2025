@@ -1,4 +1,5 @@
 import React from 'react'
+import ZoeyImage from './ZoeyImage'
 
 type ZoeyGuideVariant = 'tip' | 'warning' | 'success'
 
@@ -50,7 +51,7 @@ export default function ZoeyGuideCard({ variant = 'tip', title, message, classNa
       aria-label="Zoey guidance"
     >
       <div className="flex items-start gap-3">
-        <img
+        <ZoeyImage
           src={style.image}
           alt="Zoey the corgi guide"
           className="w-[3.25rem] h-[3.25rem] md:w-14 md:h-14 shrink-0 rounded-xl border border-slate-200 bg-white object-cover object-top transition-transform duration-200 ease-in-out group-hover:scale-105"
