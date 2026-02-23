@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { WizardStep } from '../../types/tax-types';
-import { Check, List, X, ChevronRight } from 'lucide-react';
+import { Check, List, X, ChevronRight, Minus } from 'lucide-react';
 
 const steps: Array<{ id: WizardStep; label: string; shortLabel?: string; description: string }> = [
   { id: 'personal-info',          label: 'Personal Information',       shortLabel: 'Personal',   description: 'Name, address, SSN, filing status' },
@@ -22,15 +22,34 @@ interface WizardNavigationProps {
   currentStep: WizardStep;
   onStepChange: (step: WizardStep) => void;
   completedSteps?: Set<WizardStep>;
+  skippedSteps?: Set<WizardStep>;
 }
 
-export default function WizardNavigation({ currentStep, onStepChange, completedSteps = new Set() }: WizardNavigationProps) {
+/**
+ * A step is "passed" if it was completed OR skipped — either way the user
+ * moved past it, so the next step should be unlocked.
+ */
+function isStepPassed(stepId: WizardStep, completedSteps: Set<WizardStep>, skippedSteps: Set<WizardStep>): boolean {
+  return completedSteps.has(stepId) || skippedSteps.has(stepId);
+}
+
+export default function WizardNavigation({ currentStep, onStepChange, completedSteps = new Set(), skippedSteps = new Set() }: WizardNavigationProps) {
   const currentIndex = steps.findIndex(s => s.id === currentStep);
   const [showPanel, setShowPanel] = useState(false);
 
   // Safety: if step not found (e.g. 'welcome'), treat as -1
   const safeIndex = currentIndex === -1 ? 0 : currentIndex;
   const progressPct = Math.round(((safeIndex + 1) / steps.length) * 100);
+
+  /** Derive step states used across all three rendering modes */
+  function getStepState(step: typeof steps[number], index: number) {
+    const isActive = step.id === currentStep;
+    const isCompleted = completedSteps.has(step.id);
+    const isSkipped = skippedSteps.has(step.id) && !isCompleted;
+    const prevPassed = index > 0 && isStepPassed(steps[index - 1].id, completedSteps, skippedSteps);
+    const isAccessible = isActive || isCompleted || isSkipped || prevPassed;
+    return { isActive, isCompleted, isSkipped, isAccessible };
+  }
 
   return (
     <div className="bg-white shadow-sm border-b sticky top-0 z-40">
@@ -87,9 +106,7 @@ export default function WizardNavigation({ currentStep, onStepChange, completedS
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-0">
               {steps.map((step, index) => {
-                const isActive = step.id === currentStep;
-                const isCompleted = completedSteps.has(step.id);
-                const isAccessible = isActive || isCompleted || (index > 0 && completedSteps.has(steps[index - 1].id));
+                const { isActive, isCompleted, isSkipped, isAccessible } = getStepState(step, index);
 
                 return (
                   <button
@@ -109,6 +126,8 @@ export default function WizardNavigation({ currentStep, onStepChange, completedS
                         ? 'bg-primary-700 text-white border-2 border-primary-800 shadow-sm'
                         : isCompleted
                         ? 'hover:bg-emerald-50 cursor-pointer'
+                        : isSkipped
+                        ? 'hover:bg-slate-50 cursor-pointer opacity-60'
                         : isAccessible
                         ? 'hover:bg-slate-100 cursor-pointer'
                         : 'opacity-40 cursor-not-allowed'
@@ -122,19 +141,29 @@ export default function WizardNavigation({ currentStep, onStepChange, completedS
                         ? 'bg-white text-primary-700 ring-2 ring-primary-200'
                         : isCompleted
                         ? 'bg-emerald-600 text-white'
+                        : isSkipped
+                        ? 'bg-slate-300 text-slate-500'
                         : 'bg-slate-200 text-slate-500'
                       }
                     `}>
                       {isCompleted ? (
                         <Check className="w-4 h-4" />
+                      ) : isSkipped ? (
+                        <Minus className="w-4 h-4" />
                       ) : (
                         <span>{index + 1}</span>
                       )}
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <div className={`text-sm font-semibold truncate ${isActive ? 'text-white' : isCompleted ? 'text-emerald-800' : 'text-slate-700'}`}>
+                      <div className={`text-sm font-semibold truncate ${
+                        isActive ? 'text-white'
+                        : isCompleted ? 'text-emerald-800'
+                        : isSkipped ? 'text-slate-400'
+                        : 'text-slate-700'
+                      }`}>
                         {step.label}
+                        {isSkipped && <span className="ml-1.5 text-[10px] font-normal text-slate-400">(skipped)</span>}
                       </div>
                       <div className={`text-xs truncate ${isActive ? 'text-primary-100' : 'text-slate-400'}`}>{step.description}</div>
                     </div>
@@ -150,9 +179,7 @@ export default function WizardNavigation({ currentStep, onStepChange, completedS
         {/* Desktop stepper with connecting lines */}
         <nav className="hidden lg:flex items-center justify-between">
           {steps.map((step, index) => {
-            const isActive = step.id === currentStep;
-            const isCompleted = completedSteps.has(step.id);
-            const isAccessible = isActive || isCompleted || (index > 0 && completedSteps.has(steps[index - 1].id));
+            const { isActive, isCompleted, isSkipped, isAccessible } = getStepState(step, index);
 
             return (
               <React.Fragment key={step.id}>
@@ -174,12 +201,16 @@ export default function WizardNavigation({ currentStep, onStepChange, completedS
                           ? 'bg-primary-700 text-white border-2 border-primary-900 ring-4 ring-primary-200 scale-110 shadow-sm'
                           : isCompleted
                           ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                          : isSkipped
+                          ? 'bg-slate-200 text-slate-400 border-2 border-dashed border-slate-300 hover:bg-slate-100'
                           : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
                         }
                       `}
                     >
                       {isCompleted ? (
                         <Check className="w-5 h-5" />
+                      ) : isSkipped ? (
+                        <Minus className="w-4 h-4" />
                       ) : (
                         <span>{index + 1}</span>
                       )}
@@ -193,6 +224,8 @@ export default function WizardNavigation({ currentStep, onStepChange, completedS
                           ? 'text-primary-700 font-semibold'
                           : isCompleted
                           ? 'text-emerald-700'
+                          : isSkipped
+                          ? 'text-slate-400'
                           : 'text-slate-600'
                         }
                       `}
@@ -212,7 +245,10 @@ export default function WizardNavigation({ currentStep, onStepChange, completedS
                     before:border-4 before:border-transparent before:border-t-slate-800
                   ">
                     <div className="font-semibold">{step.label}</div>
-                    <div className="text-slate-300 text-[10px] mt-0.5">{step.description}</div>
+                    <div className="text-slate-300 text-[10px] mt-0.5">
+                      {step.description}
+                      {isSkipped && ' — Skipped'}
+                    </div>
                   </div>
                 </div>
 
@@ -223,10 +259,15 @@ export default function WizardNavigation({ currentStep, onStepChange, completedS
                     <div
                       className={`
                         absolute inset-0 transition-all duration-500 ease-out
-                        ${completedSteps.has(step.id) ? 'bg-emerald-600' : 'bg-slate-200'}
+                        ${completedSteps.has(step.id)
+                          ? 'bg-emerald-600'
+                          : isSkipped
+                          ? 'bg-slate-300'
+                          : 'bg-slate-200'
+                        }
                       `}
                       style={{
-                        width: completedSteps.has(step.id) ? '100%' : '0%'
+                        width: isStepPassed(step.id, completedSteps, skippedSteps) ? '100%' : '0%'
                       }}
                     />
                   </div>
@@ -239,9 +280,7 @@ export default function WizardNavigation({ currentStep, onStepChange, completedS
         {/* Mobile/Tablet horizontal scroll */}
         <nav className="lg:hidden flex space-x-3 overflow-x-auto pb-2 -mx-4 px-4">
           {steps.map((step, index) => {
-            const isActive = step.id === currentStep;
-            const isCompleted = completedSteps.has(step.id);
-            const isAccessible = isActive || isCompleted || (index > 0 && completedSteps.has(steps[index - 1].id));
+            const { isActive, isCompleted, isSkipped, isAccessible } = getStepState(step, index);
 
             return (
               <button
@@ -255,6 +294,8 @@ export default function WizardNavigation({ currentStep, onStepChange, completedS
                     ? 'bg-primary-700 text-white border-2 border-primary-900 shadow-sm'
                     : isCompleted
                     ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100'
+                    : isSkipped
+                    ? 'bg-slate-50 text-slate-400 border border-dashed border-slate-300 hover:bg-slate-100'
                     : isAccessible
                     ? 'bg-slate-100 text-slate-700 border border-slate-200 hover:bg-slate-200'
                     : 'bg-slate-50 text-slate-400 border border-slate-100 cursor-not-allowed'
@@ -268,12 +309,16 @@ export default function WizardNavigation({ currentStep, onStepChange, completedS
                       ? 'bg-white text-primary-700'
                       : isCompleted
                       ? 'bg-emerald-600 text-white'
+                      : isSkipped
+                      ? 'bg-slate-300 text-slate-500'
                       : 'bg-slate-300 text-slate-600'
                     }
                   `}
                 >
                   {isCompleted ? (
                     <Check className="w-4 h-4" />
+                  ) : isSkipped ? (
+                    <Minus className="w-3.5 h-3.5" />
                   ) : (
                     <span>{index + 1}</span>
                   )}

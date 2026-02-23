@@ -1,12 +1,13 @@
 'use client';
 
 import React from 'react';
-import { WizardStep } from '../../types/tax-types';
+import { WizardStep, isStepOptional } from '../../types/tax-types';
 
 interface FormNavigationProps {
   currentStep: WizardStep;
   onNext?: () => void;
   onPrevious?: () => void;
+  onSkip?: () => void;
   canProceed?: boolean;
   onBlockedNext?: () => void;
 }
@@ -25,10 +26,11 @@ const STEP_ORDER: WizardStep[] = [
   'review',
 ];
 
-export default function FormNavigation({ currentStep, onNext, onPrevious, canProceed = true, onBlockedNext }: FormNavigationProps) {
+export default function FormNavigation({ currentStep, onNext, onPrevious, onSkip, canProceed = true, onBlockedNext }: FormNavigationProps) {
   const currentIndex = STEP_ORDER.indexOf(currentStep);
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === STEP_ORDER.length - 1;
+  const optional = isStepOptional(currentStep);
 
   return (
     <div className="flex justify-between items-center pt-6 border-t mt-8">
@@ -43,26 +45,37 @@ export default function FormNavigation({ currentStep, onNext, onPrevious, canPro
         <div />
       )}
 
-      {!isLast && (
-        <button
-          onClick={() => {
-            if (canProceed) {
-              onNext?.()
-              return
-            }
+      <div className="flex items-center gap-3">
+        {optional && !isLast && onSkip && (
+          <button
+            onClick={onSkip}
+            className="px-5 py-2.5 rounded-lg font-medium text-slate-500 hover:text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors text-sm"
+          >
+            Skip for now
+          </button>
+        )}
 
-            onBlockedNext?.()
-          }}
-          aria-disabled={!canProceed}
-          className={`px-6 py-2.5 rounded-lg font-medium transition-colors ${
-            canProceed
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
-        >
-          Next →
-        </button>
-      )}
+        {!isLast && (
+          <button
+            onClick={() => {
+              if (canProceed) {
+                onNext?.()
+                return
+              }
+
+              onBlockedNext?.()
+            }}
+            aria-disabled={!canProceed}
+            className={`px-6 py-2.5 rounded-lg font-medium transition-colors ${
+              canProceed
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            Next →
+          </button>
+        )}
+      </div>
     </div>
   );
 }

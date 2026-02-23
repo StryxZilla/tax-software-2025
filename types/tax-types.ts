@@ -248,6 +248,34 @@ export interface TaxReturn {
   taxCalculation?: TaxCalculation;
 }
 
+// Step optionality metadata
+export type StepRequirement = 'required' | 'optional';
+
+export interface StepMeta {
+  id: WizardStep;
+  requirement: StepRequirement;
+}
+
+/** Steps that the user MUST complete before filing. All others are optional/skippable. */
+export const STEP_META: StepMeta[] = [
+  { id: 'personal-info',          requirement: 'required' },
+  { id: 'dependents',             requirement: 'optional' },
+  { id: 'income-w2',              requirement: 'optional' },
+  { id: 'income-interest',        requirement: 'optional' },
+  { id: 'income-capital-gains',   requirement: 'optional' },
+  { id: 'income-self-employment', requirement: 'optional' },
+  { id: 'income-rental',          requirement: 'optional' },
+  { id: 'retirement-accounts',    requirement: 'optional' },
+  { id: 'deductions',             requirement: 'optional' },
+  { id: 'credits',                requirement: 'optional' },
+  { id: 'review',                 requirement: 'required' },
+];
+
+export function isStepOptional(step: WizardStep): boolean {
+  const meta = STEP_META.find(m => m.id === step);
+  return meta?.requirement === 'optional';
+}
+
 // Wizard Steps
 export type WizardStep =
   | 'welcome'

@@ -46,6 +46,7 @@ function WizardStepContent() {
     currentStep,
     setCurrentStep,
     markStepCompleted,
+    markStepSkipped,
     taxCalculation,
     recalculateTaxes,
   } = useTaxReturn()
@@ -71,6 +72,12 @@ function WizardStepContent() {
       setCurrentStep(STEP_ORDER[currentIndex - 1])
     }
   }
+  const handleSkip = () => {
+    if (currentIndex < STEP_ORDER.length - 1) {
+      markStepSkipped(currentStep)
+      setCurrentStep(STEP_ORDER[currentIndex + 1])
+    }
+  }
 
   switch (currentStep) {
     case 'personal-info':
@@ -87,6 +94,7 @@ function WizardStepContent() {
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            onSkip={handleSkip}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -107,6 +115,7 @@ function WizardStepContent() {
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            onSkip={handleSkip}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -128,6 +137,7 @@ function WizardStepContent() {
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            onSkip={handleSkip}
             canProceed={isCurrentFormValid}
             onBlockedNext={() => setBlockedNextAttempts((count) => count + 1)}
           />
@@ -149,6 +159,7 @@ function WizardStepContent() {
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            onSkip={handleSkip}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -169,6 +180,7 @@ function WizardStepContent() {
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            onSkip={handleSkip}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -189,6 +201,7 @@ function WizardStepContent() {
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            onSkip={handleSkip}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -209,6 +222,7 @@ function WizardStepContent() {
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            onSkip={handleSkip}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -230,6 +244,7 @@ function WizardStepContent() {
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            onSkip={handleSkip}
           />
         </>
       )
@@ -251,6 +266,7 @@ function WizardStepContent() {
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            onSkip={handleSkip}
           />
         </>
       )
@@ -271,6 +287,7 @@ function WizardStepContent() {
             currentStep={currentStep}
             onNext={handleNext}
             onPrevious={handlePrevious}
+            onSkip={handleSkip}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -618,7 +635,7 @@ function AppShell() {
 }
 
 function MainContent() {
-  const { currentStep, setCurrentStep, completedSteps } = useTaxReturn()
+  const { currentStep, setCurrentStep, completedSteps, skippedSteps } = useTaxReturn()
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
@@ -638,6 +655,7 @@ function MainContent() {
             currentStep={currentStep}
             onStepChange={setCurrentStep}
             completedSteps={completedSteps}
+            skippedSteps={skippedSteps}
           />
           <div className="bg-white shadow-sm rounded-lg p-8">
             <WizardStepContent />

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { WizardStep } from '../../types/tax-types'
+import { WizardStep, isStepOptional } from '../../types/tax-types'
 
 /**
  * Pure-logic tests for wizard step accessibility rules.
@@ -20,17 +20,28 @@ const STEP_ORDER: WizardStep[] = [
   'review',
 ]
 
-/** Returns whether a step at `index` is accessible given currentStep and completedSteps. */
+/** A step is "passed" if completed OR skipped. */
+function isStepPassed(
+  stepId: WizardStep,
+  completedSteps: Set<WizardStep>,
+  skippedSteps: Set<WizardStep>,
+): boolean {
+  return completedSteps.has(stepId) || skippedSteps.has(stepId)
+}
+
+/** Returns whether a step at `index` is accessible given currentStep, completedSteps, and skippedSteps. */
 function isStepAccessible(
   index: number,
   currentStep: WizardStep,
   completedSteps: Set<WizardStep>,
+  skippedSteps: Set<WizardStep> = new Set(),
 ): boolean {
   const step = STEP_ORDER[index]
   const isActive = step === currentStep
   const isCompleted = completedSteps.has(step)
-  const prevCompleted = index > 0 && completedSteps.has(STEP_ORDER[index - 1])
-  return isActive || isCompleted || prevCompleted
+  const isSkipped = skippedSteps.has(step) && !isCompleted
+  const prevPassed = index > 0 && isStepPassed(STEP_ORDER[index - 1], completedSteps, skippedSteps)
+  return isActive || isCompleted || isSkipped || prevPassed
 }
 
 describe('Wizard step accessibility', () => {
@@ -43,7 +54,6 @@ describe('Wizard step accessibility', () => {
   })
 
   it('completed steps remain accessible after navigating back', () => {
-    // User completed steps 0-4, now on step 1
     const completed = new Set<WizardStep>([
       'personal-info',
       'dependents',
@@ -52,14 +62,11 @@ describe('Wizard step accessibility', () => {
     ])
     const currentStep: WizardStep = 'dependents'
 
-    // All completed steps should be accessible
-    expect(isStepAccessible(0, currentStep, completed)).toBe(true) // personal-info (completed)
-    expect(isStepAccessible(1, currentStep, completed)).toBe(true) // dependents (active)
-    expect(isStepAccessible(2, currentStep, completed)).toBe(true) // income-w2 (completed)
-    expect(isStepAccessible(3, currentStep, completed)).toBe(true) // income-interest (completed)
-    // Next uncompleted step after last completed should be accessible
-    expect(isStepAccessible(4, currentStep, completed)).toBe(true) // income-capital-gains (prev completed)
-    // Steps beyond that should NOT be accessible
+    expect(isStepAccessible(0, currentStep, completed)).toBe(true)
+    expect(isStepAccessible(1, currentStep, completed)).toBe(true)
+    expect(isStepAccessible(2, currentStep, completed)).toBe(true)
+    expect(isStepAccessible(3, currentStep, completed)).toBe(true)
+    expect(isStepAccessible(4, currentStep, completed)).toBe(true)
     expect(isStepAccessible(5, currentStep, completed)).toBe(false)
     expect(isStepAccessible(6, currentStep, completed)).toBe(false)
   })
@@ -68,28 +75,99 @@ describe('Wizard step accessibility', () => {
     const completed = new Set<WizardStep>(['personal-info', 'dependents'])
     const currentStep: WizardStep = 'personal-info'
 
-    // Step 3 (income-interest) was never completed and prev not completed
     expect(isStepAccessible(3, currentStep, completed)).toBe(false)
-    // Last step should not be accessible
     expect(isStepAccessible(10, currentStep, completed)).toBe(false)
   })
 
   it('editing a completed step does not lock navigation', () => {
-    // User completed all steps, went back to step 2
-    const completed = new Set<WizardStep>(STEP_ORDER.slice(0, -1)) // all except review
+    const completed = new Set<WizardStep>(STEP_ORDER.slice(0, -1))
     const currentStep: WizardStep = 'income-w2'
 
-    // All completed steps remain accessible
     for (let i = 0; i < STEP_ORDER.length - 1; i++) {
       expect(isStepAccessible(i, currentStep, completed)).toBe(true)
     }
-    // Review (last step, not completed) should be accessible because prev is completed
     expect(isStepAccessible(10, currentStep, completed)).toBe(true)
   })
 
   it('marking a step completed unlocks the next step', () => {
     const completed = new Set<WizardStep>(['personal-info'])
-    expect(isStepAccessible(1, 'dependents', completed)).toBe(true) // prev completed
-    expect(isStepAccessible(2, 'dependents', completed)).toBe(false) // prev not completed
+    expect(isStepAccessible(1, 'dependents', completed)).toBe(true)
+    expect(isStepAccessible(2, 'dependents', completed)).toBe(false)
+  })
+})
+
+describe('Skipped (optional) step accessibility', () => {
+  it('skipping a step unlocks the next step', () => {
+    const completed = new Set<WizardStep>(['personal-info'])
+    const skipped = new Set<WizardStep>(['dependents'])
+
+    // dependents is skipped → income-w2 should be accessible
+    expect(isStepAccessible(2, 'income-w2', completed, skipped)).toBe(true)
+  })
+
+  it('skipped steps remain accessible (revisitable)', () => {
+    const completed = new Set<WizardStep>(['personal-info'])
+    const skipped = new Set<WizardStep>(['dependents'])
+
+    expect(isStepAccessible(1, 'income-w2', completed, skipped)).toBe(true)
+  })
+
+  it('multiple consecutive skipped steps all unlock forward progress', () => {
+    const completed = new Set<WizardStep>(['personal-info'])
+    const skipped = new Set<WizardStep>(['dependents', 'income-w2', 'income-interest'])
+
+    // Should be able to reach income-capital-gains (index 4)
+    expect(isStepAccessible(4, 'income-capital-gains', completed, skipped)).toBe(true)
+    // But not income-self-employment (index 5) since capital-gains isn't passed
+    expect(isStepAccessible(5, 'income-capital-gains', completed, skipped)).toBe(false)
+  })
+
+  it('completing a previously skipped step is treated as completed', () => {
+    // User skipped dependents, then went back and completed it
+    const completed = new Set<WizardStep>(['personal-info', 'dependents'])
+    const skipped = new Set<WizardStep>(['dependents']) // still in skipped set
+
+    // isStepAccessible treats completed as higher priority (isSkipped = skipped && !completed)
+    expect(isStepAccessible(1, 'income-w2', completed, skipped)).toBe(true)
+    expect(isStepAccessible(2, 'income-w2', completed, skipped)).toBe(true)
+  })
+
+  it('skipping does not bypass locked future steps', () => {
+    const completed = new Set<WizardStep>(['personal-info'])
+    const skipped = new Set<WizardStep>(['dependents'])
+
+    // income-rental (index 6) should still be locked
+    expect(isStepAccessible(6, 'income-w2', completed, skipped)).toBe(false)
+  })
+})
+
+describe('Step optionality metadata', () => {
+  it('personal-info is required', () => {
+    expect(isStepOptional('personal-info')).toBe(false)
+  })
+
+  it('review is required', () => {
+    expect(isStepOptional('review')).toBe(false)
+  })
+
+  it('dependents is optional', () => {
+    expect(isStepOptional('dependents')).toBe(true)
+  })
+
+  it('all income steps are optional', () => {
+    expect(isStepOptional('income-w2')).toBe(true)
+    expect(isStepOptional('income-interest')).toBe(true)
+    expect(isStepOptional('income-capital-gains')).toBe(true)
+    expect(isStepOptional('income-self-employment')).toBe(true)
+    expect(isStepOptional('income-rental')).toBe(true)
+  })
+
+  it('deductions and credits are optional', () => {
+    expect(isStepOptional('deductions')).toBe(true)
+    expect(isStepOptional('credits')).toBe(true)
+  })
+
+  it('retirement-accounts is optional', () => {
+    expect(isStepOptional('retirement-accounts')).toBe(true)
   })
 })

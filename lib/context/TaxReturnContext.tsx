@@ -12,6 +12,8 @@ interface TaxReturnContextType {
   setCurrentStep: (step: WizardStep) => void
   completedSteps: Set<WizardStep>
   markStepCompleted: (step: WizardStep) => void
+  skippedSteps: Set<WizardStep>
+  markStepSkipped: (step: WizardStep) => void
   taxCalculation: TaxCalculation | null
   isCalculating: boolean
   lastSaved: Date | null
@@ -93,6 +95,7 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
   const [taxReturn, setTaxReturn] = useState<TaxReturn>(initialTaxReturn)
   const [currentStep, setCurrentStep] = useState<WizardStep>('welcome')
   const [completedSteps, setCompletedSteps] = useState<Set<WizardStep>>(new Set())
+  const [skippedSteps, setSkippedSteps] = useState<Set<WizardStep>>(new Set())
   const [taxCalculation, setTaxCalculation] = useState<TaxCalculation | null>(null)
   const [isCalculating, setIsCalculating] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
@@ -134,7 +137,7 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
       if (saveTimeout) clearTimeout(saveTimeout)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [taxReturn, currentStep, completedSteps])
+  }, [taxReturn, currentStep, completedSteps, skippedSteps])
 
   const loadFromDb = async () => {
     try {
@@ -160,6 +163,10 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
       const savedCompleted = localStorage.getItem('completedSteps')
       if (savedCompleted) {
         setCompletedSteps(new Set(JSON.parse(savedCompleted)))
+      }
+      const savedSkipped = localStorage.getItem('skippedSteps')
+      if (savedSkipped) {
+        setSkippedSteps(new Set(JSON.parse(savedSkipped)))
       }
       setDbLoaded(true)
     } catch (error) {
@@ -194,6 +201,22 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
       next.add(step)
       return next
     })
+    // If completing a previously skipped step, remove from skipped
+    setSkippedSteps(prev => {
+      if (!prev.has(step)) return prev
+      const next = new Set(prev)
+      next.delete(step)
+      return next
+    })
+  }, [])
+
+  const markStepSkipped = useCallback((step: WizardStep) => {
+    setSkippedSteps(prev => {
+      if (prev.has(step)) return prev
+      const next = new Set(prev)
+      next.add(step)
+      return next
+    })
   }, [])
 
   const updateTaxReturn = (updates: Partial<TaxReturn>) => {
@@ -221,6 +244,7 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('taxReturn2025', JSON.stringify(taxReturn))
       localStorage.setItem('currentStep', currentStep)
       localStorage.setItem('completedSteps', JSON.stringify([...completedSteps]))
+      localStorage.setItem('skippedSteps', JSON.stringify([...skippedSteps]))
       if (!isAuthenticated) {
         setLastSaved(new Date())
       }
@@ -236,6 +260,7 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
       const saved = localStorage.getItem('taxReturn2025')
       const savedStep = localStorage.getItem('currentStep')
       const savedCompleted = localStorage.getItem('completedSteps')
+      const savedSkipped = localStorage.getItem('skippedSteps')
       if (saved) {
         setTaxReturn(JSON.parse(saved))
       }
@@ -244,6 +269,9 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
       }
       if (savedCompleted) {
         setCompletedSteps(new Set(JSON.parse(savedCompleted)))
+      }
+      if (savedSkipped) {
+        setSkippedSteps(new Set(JSON.parse(savedSkipped)))
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
@@ -279,10 +307,12 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
     setTaxReturn(initialTaxReturn)
     setCurrentStep('personal-info')
     setCompletedSteps(new Set())
+    setSkippedSteps(new Set())
     setTaxCalculation(null)
     localStorage.removeItem('taxReturn2025')
     localStorage.removeItem('currentStep')
     localStorage.removeItem('completedSteps')
+    localStorage.removeItem('skippedSteps')
     setLastSaved(null)
 
     // Clear from DB too if authenticated
@@ -304,6 +334,8 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
         setCurrentStep,
         completedSteps,
         markStepCompleted,
+        skippedSteps,
+        markStepSkipped,
         taxCalculation,
         isCalculating,
         lastSaved,
