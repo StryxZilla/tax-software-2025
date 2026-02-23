@@ -82,7 +82,7 @@ export default function RegisterPage() {
           <ZoeyGuideCard
             variant="success"
             title="Quick setup"
-            message="Use an email you can access on desktop now. Recovery and session handoff stay smoother later — exactly how Zoey likes it before treat time."
+            message="Use an email you can access on desktop now. Recovery and session handoff stay smoother later — Zoey plans ahead so nothing falls through the cracks."
             className="mb-4"
           />
           <p className="text-xs text-slate-500 mb-6">
