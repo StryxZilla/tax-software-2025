@@ -18,6 +18,7 @@ interface TaxReturnContextType {
   isCalculating: boolean
   lastSaved: Date | null
   recalculateTaxes: () => Promise<void>
+  forceSave: () => Promise<void>
   saveToLocalStorage: () => void
   loadFromLocalStorage: () => void
   resetTaxReturn: () => void
@@ -258,6 +259,15 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(id)
   }, [taxReturn, isAuthenticated, dbLoaded])
 
+  // Explicit save triggered by user clicking "Save" button
+  const forceSave = useCallback(async () => {
+    saveToLocalStorage()
+    if (isAuthenticated) {
+      await saveToDb()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [taxReturn, currentStep, completedSteps, skippedSteps, isAuthenticated, saveToDb])
+
   // Keep recalculateTaxes as a no-op for backward compat with form onChange
   // callers. The useEffect above handles all recomputation now.
   const recalculateTaxes = useCallback(async () => {
@@ -365,6 +375,7 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
         isCalculating,
         lastSaved,
         recalculateTaxes,
+        forceSave,
         saveToLocalStorage,
         loadFromLocalStorage,
         resetTaxReturn,

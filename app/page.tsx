@@ -565,7 +565,7 @@ export default function Home() {
 }
 
 function AppShell() {
-  const { currentStep, setCurrentStep, lastSaved, isCalculating } = useTaxReturn()
+  const { currentStep, setCurrentStep, lastSaved, isCalculating, forceSave } = useTaxReturn()
   const user = useAuthUser()
   const isWelcome = currentStep === 'welcome'
 
@@ -591,7 +591,7 @@ function AppShell() {
           <div className="flex items-center gap-4">
             {!isWelcome && (
               <div className="flex items-center gap-3">
-                <SaveStatusIndicator lastSaved={lastSaved} isCalculating={isCalculating} />
+                <SaveStatusIndicator lastSaved={lastSaved} isCalculating={isCalculating} onSave={forceSave} />
                 <button
                   onClick={() => setCurrentStep('welcome')}
                   className="text-sm text-slate-500 hover:text-blue-600 transition-colors font-medium hidden sm:block"
