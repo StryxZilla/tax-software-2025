@@ -45,3 +45,39 @@ describe('SaveStatusIndicator — save button visibility', () => {
     expect(html).toContain('disabled')
   })
 })
+
+describe('SaveStatusIndicator rendered unconditionally in AppShell', () => {
+  it('page.tsx always renders SaveStatusIndicator (not gated by isWelcome)', async () => {
+    const { readFileSync } = await import('fs')
+    const { resolve } = await import('path')
+    const src = readFileSync(resolve(__dirname, '../../app/page.tsx'), 'utf-8')
+
+    // SaveStatusIndicator must NOT be inside a `!isWelcome &&` conditional
+    // Regex: ensure SaveStatusIndicator appears outside any isWelcome guard
+    expect(src).toContain('SaveStatusIndicator')
+
+    // The old broken pattern: {!isWelcome && (...<SaveStatusIndicator...)
+    // Ensure SaveStatusIndicator is NOT preceded by `!isWelcome &&` on nearby lines
+    const lines = src.split('\n')
+    const saveIdx = lines.findIndex(l => l.includes('SaveStatusIndicator'))
+    expect(saveIdx).toBeGreaterThan(-1)
+
+    // Check the 5 lines before SaveStatusIndicator for `!isWelcome &&` guard
+    const preceding = lines.slice(Math.max(0, saveIdx - 5), saveIdx).join('\n')
+    expect(preceding).not.toMatch(/!isWelcome\s*&&/)
+  })
+
+  it('page.tsx header uses ZoeyImage (not raw <img>) for mascot', async () => {
+    const { readFileSync } = await import('fs')
+    const { resolve } = await import('path')
+    const src = readFileSync(resolve(__dirname, '../../app/page.tsx'), 'utf-8')
+
+    // Should import ZoeyImage
+    expect(src).toMatch(/import\s+ZoeyImage\s+from/)
+
+    // The header mascot should use <ZoeyImage not <img for zoey-neutral
+    expect(src).toContain('<ZoeyImage src="/brand/zoey-neutral.png"')
+    // Should NOT have a raw <img> with zoey src
+    expect(src).not.toMatch(/<img[^>]*zoey-neutral/)
+  })
+})
