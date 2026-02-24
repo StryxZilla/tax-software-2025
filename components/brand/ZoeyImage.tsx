@@ -2,32 +2,66 @@
 
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 
-/** All known Zoey image paths — used for fallback chain */
 const FALLBACK_CHAIN = [
   '/brand/zoey-neutral.png',
   '/brand/zoey-corgi.svg',
 ] as const;
 
 interface ZoeyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
-  /** Primary image path (e.g. "/brand/zoey-hero-wide.png") */
   src: string;
-  /** Alt text — required for accessibility */
   alt: string;
-  /** Text to show if all images fail to load */
   fallbackText?: string;
-  /** data-testid for testing */
   'data-testid'?: string;
 }
 
-/**
- * Resilient Zoey image component with automatic fallback chain.
- *
- * If the primary src fails to load, it tries known fallback images
- * in order. If all images fail, it renders a text avatar.
- *
- * Handles basePath/CDN/asset-path mismatches gracefully, including
- * images that error before React hydration completes.
- */
+function inferBasePath(): string {
+  if (typeof window === 'undefined') return '';
+
+  const nextData = (window as Window & { __NEXT_DATA__?: { assetPrefix?: string; basePath?: string } }).__NEXT_DATA__;
+  const fromNextData = nextData?.assetPrefix || nextData?.basePath || '';
+  if (fromNextData && fromNextData.startsWith('/')) return fromNextData.replace(/\/$/, '');
+
+  const nextScript = document.querySelector('script[src*="/_next/"]') as HTMLScriptElement | null;
+  if (nextScript?.src) {
+    try {
+      const pathname = new URL(nextScript.src, window.location.origin).pathname;
+      const match = pathname.match(/^(.*)\/_next\//);
+      if (match && match[1]) return match[1].replace(/\/$/, '');
+    } catch {
+      // ignore and fall back to root-relative paths
+    }
+  }
+
+  return '';
+}
+
+function buildCandidates(primarySrc: string): string[] {
+  const basePath = inferBasePath();
+  const raw = [primarySrc, ...FALLBACK_CHAIN];
+  const deduped: string[] = [];
+  const seen = new Set<string>();
+
+  for (const src of raw) {
+    const normalized = src?.trim();
+    if (!normalized) continue;
+
+    if (!seen.has(normalized)) {
+      deduped.push(normalized);
+      seen.add(normalized);
+    }
+
+    if (basePath && normalized.startsWith('/') && !normalized.startsWith(`${basePath}/`)) {
+      const withBase = `${basePath}${normalized}`;
+      if (!seen.has(withBase)) {
+        deduped.push(withBase);
+        seen.add(withBase);
+      }
+    }
+  }
+
+  return deduped;
+}
+
 export default function ZoeyImage({
   src,
   alt,
@@ -37,13 +71,15 @@ export default function ZoeyImage({
   ...rest
 }: ZoeyImageProps) {
   const imgRef = useRef<HTMLImageElement>(null);
+  const [candidates, setCandidates] = useState<string[]>([src, ...FALLBACK_CHAIN]);
   const [currentSrc, setCurrentSrc] = useState(src);
   const [failedSrcs, setFailedSrcs] = useState<Set<string>>(new Set());
   const [allFailed, setAllFailed] = useState(false);
 
-  // Reset state when the src prop changes (e.g. parent re-render)
   useEffect(() => {
-    setCurrentSrc(src);
+    const nextCandidates = buildCandidates(src);
+    setCandidates(nextCandidates);
+    setCurrentSrc(nextCandidates[0] || src);
     setFailedSrcs(new Set());
     setAllFailed(false);
   }, [src]);
@@ -54,9 +90,7 @@ export default function ZoeyImage({
         const next = new Set(prev);
         next.add(failedSrc);
 
-        // Build the full candidate list: original src first, then the chain
-        const candidates = [src, ...FALLBACK_CHAIN];
-        const nextCandidate = candidates.find((c) => !next.has(c));
+        const nextCandidate = candidates.find((candidate) => !next.has(candidate));
 
         if (nextCandidate) {
           setCurrentSrc(nextCandidate);
@@ -67,22 +101,19 @@ export default function ZoeyImage({
         return next;
       });
     },
-    [src],
+    [candidates],
   );
 
   const handleError = useCallback(() => {
     advanceFallback(currentSrc);
   }, [advanceFallback, currentSrc]);
 
-  // Detect images that errored before React hydration (SSR race condition).
-  // An <img> with complete=true and naturalWidth=0 means the browser already
-  // tried and failed to load it before our onError handler was attached.
   useEffect(() => {
     const el = imgRef.current;
     if (el && el.complete && el.naturalWidth === 0 && !allFailed) {
       advanceFallback(currentSrc);
     }
-  }); // intentionally no deps — check on every render
+  });
 
   if (allFailed) {
     return (
