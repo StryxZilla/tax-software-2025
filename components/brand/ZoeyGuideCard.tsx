@@ -1,5 +1,7 @@
 import React from 'react'
-import ZoeyImage from './ZoeyImage'
+import Image from 'next/image'
+import zoeyPointing from '../../public/brand/zoey-pointing.png'
+import zoeyNeutral from '../../public/brand/zoey-neutral.png'
 
 type ZoeyGuideVariant = 'tip' | 'warning' | 'success'
 
@@ -16,21 +18,21 @@ const variantStyles: Record<ZoeyGuideVariant, { badge: string; border: string; b
     border: 'border-sky-200',
     bg: 'from-sky-50 to-white',
     emoji: '💡',
-    image: '/brand/zoey-neutral.png',
+    image: zoeyPointing.src,
   },
   warning: {
     badge: 'bg-amber-100 text-amber-800 border-amber-200',
     border: 'border-amber-200',
     bg: 'from-amber-50 to-white',
     emoji: '⚠️',
-    image: '/brand/zoey-neutral.png',
+    image: zoeyNeutral.src,
   },
   success: {
     badge: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     border: 'border-emerald-200',
     bg: 'from-emerald-50 to-white',
     emoji: '🎉',
-    image: '/brand/zoey-neutral.png',
+    image: zoeyNeutral.src,
   },
 }
 
@@ -51,9 +53,11 @@ export default function ZoeyGuideCard({ variant = 'tip', title, message, classNa
       aria-label="Zoey guidance"
     >
       <div className="flex items-start gap-3">
-        <ZoeyImage
+        <Image
           src={style.image}
           alt="Zoey the corgi guide"
+          width={56}
+          height={56}
           className="w-[3.25rem] h-[3.25rem] md:w-14 md:h-14 shrink-0 rounded-xl border border-slate-200 bg-white object-cover object-top transition-transform duration-200 ease-in-out group-hover:scale-105"
         />
         <div className="min-w-0">
