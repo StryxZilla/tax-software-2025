@@ -9,9 +9,14 @@ export default defineConfig({
     },
   },
   test: {
-    include: ['tests/unit/**/*.test.ts', 'tests/unit/**/*.test.tsx'],
+    include: [
+      'tests/unit/**/*.test.ts',
+      'tests/unit/**/*.test.tsx',
+      'tests/integration/**/*.test.tsx',
+    ],
     environment: 'node',
     globals: true,
+    // Integration tests use @vitest-environment happy-dom docblock per-file
     coverage: {
       reporter: ['text', 'html'],
       include: ['lib/**/*.ts'],
