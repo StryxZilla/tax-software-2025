@@ -96,7 +96,10 @@ export default function CreditsForm({
       {/* Page header */}
       <div>
         <h2 className="text-3xl font-bold text-slate-900 mb-2">Tax Credits</h2>
-        <p className="text-slate-600">Tax credits directly reduce the amount of tax you owe, dollar-for-dollar.</p>
+        <p className="text-slate-600">
+          Credits reduce your tax bill dollar-for-dollar — a $1,000 credit saves you $1,000 in taxes.
+          Currently, we support <strong>education credits</strong>. Other credits (child tax, earned income, EV) are listed below for reference.
+        </p>
       </div>
 
       {/* Credit summary */}
@@ -417,10 +420,10 @@ export default function CreditsForm({
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
           <h4 className="font-semibold text-amber-900 mb-2 flex items-center space-x-2">
             <Info className="w-5 h-5" />
-            <span>Other Common Tax Credits (Not Currently Supported)</span>
+            <span>Coming Soon — Other Credits</span>
           </h4>
           <p className="text-sm text-amber-800 mb-2">
-            This simplified version currently supports education credits only. Additional credits that may apply to your return:
+            We&apos;re working on adding these. For now, they&apos;re calculated automatically where possible (e.g., Child Tax Credit from your dependents):
           </p>
           <ul className="text-sm text-amber-800 space-y-1 list-disc list-inside">
             <li><strong>Child Tax Credit:</strong> Automatically calculated from dependents (up to $2,000 per child under 17)</li>

@@ -50,7 +50,20 @@ function WizardStepContent() {
     markStepSkipped,
     taxCalculation,
     recalculateTaxes,
+    forceSave,
+    lastSaved,
+    isCalculating,
   } = useTaxReturn()
+
+  const [isSaving, setIsSaving] = React.useState(false)
+  const handleSave = React.useCallback(async () => {
+    setIsSaving(true)
+    try {
+      await forceSave()
+    } finally {
+      setIsSaving(false)
+    }
+  }, [forceSave])
 
   const [isCurrentFormValid, setIsCurrentFormValid] = React.useState(true)
   const [blockedNextAttempts, setBlockedNextAttempts] = React.useState(0)
@@ -96,6 +109,9 @@ function WizardStepContent() {
             onNext={handleNext}
             onPrevious={handlePrevious}
             onSkip={handleSkip}
+            onSave={handleSave}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -117,6 +133,9 @@ function WizardStepContent() {
             onNext={handleNext}
             onPrevious={handlePrevious}
             onSkip={handleSkip}
+            onSave={handleSave}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -139,6 +158,9 @@ function WizardStepContent() {
             onNext={handleNext}
             onPrevious={handlePrevious}
             onSkip={handleSkip}
+            onSave={handleSave}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
             canProceed={isCurrentFormValid}
             onBlockedNext={() => setBlockedNextAttempts((count) => count + 1)}
           />
@@ -161,6 +183,9 @@ function WizardStepContent() {
             onNext={handleNext}
             onPrevious={handlePrevious}
             onSkip={handleSkip}
+            onSave={handleSave}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -182,6 +207,9 @@ function WizardStepContent() {
             onNext={handleNext}
             onPrevious={handlePrevious}
             onSkip={handleSkip}
+            onSave={handleSave}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -203,6 +231,9 @@ function WizardStepContent() {
             onNext={handleNext}
             onPrevious={handlePrevious}
             onSkip={handleSkip}
+            onSave={handleSave}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -224,6 +255,9 @@ function WizardStepContent() {
             onNext={handleNext}
             onPrevious={handlePrevious}
             onSkip={handleSkip}
+            onSave={handleSave}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
             canProceed={isCurrentFormValid}
           />
         </>
@@ -236,8 +270,16 @@ function WizardStepContent() {
             traditionalIRA={taxReturn.traditionalIRAContribution}
             rothIRA={taxReturn.rothIRAContribution}
             form8606={taxReturn.form8606}
+            employerPlan={taxReturn.employerPlan}
+            retirementStrategy={taxReturn.retirementStrategy}
             onUpdate={(updates) => {
-              updateTaxReturn(updates)
+              updateTaxReturn({
+                traditionalIRAContribution: updates.traditionalIRA,
+                rothIRAContribution: updates.rothIRA,
+                form8606: updates.form8606,
+                employerPlan: updates.employerPlan,
+                retirementStrategy: updates.retirementStrategy,
+              })
               recalculateTaxes()
             }}
           />
@@ -246,6 +288,9 @@ function WizardStepContent() {
             onNext={handleNext}
             onPrevious={handlePrevious}
             onSkip={handleSkip}
+            onSave={handleSave}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
           />
         </>
       )
@@ -268,6 +313,9 @@ function WizardStepContent() {
             onNext={handleNext}
             onPrevious={handlePrevious}
             onSkip={handleSkip}
+            onSave={handleSave}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
           />
         </>
       )
@@ -289,6 +337,9 @@ function WizardStepContent() {
             onNext={handleNext}
             onPrevious={handlePrevious}
             onSkip={handleSkip}
+            onSave={handleSave}
+            isSaving={isSaving}
+            lastSaved={lastSaved}
             canProceed={isCurrentFormValid}
           />
         </>

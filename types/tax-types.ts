@@ -154,6 +154,20 @@ export interface Form8606Data {
   distributionsFromTraditionalIRA: number;
 }
 
+/** Employer-sponsored plan contributions (401k/403b/457) */
+export interface EmployerPlanContribution {
+  planType: '401k' | '403b' | '457b' | 'tsp';
+  employeePreTax: number;
+  employeeRoth: number;
+  employerMatch: number;
+  afterTaxNonRoth: number;
+  afterTaxRolloverToRoth: number;
+  hasInPlanRothRollover: boolean;
+}
+
+/** Which retirement strategy the user is doing */
+export type RetirementStrategy = 'none' | 'basic' | 'backdoor-roth' | 'mega-backdoor-roth';
+
 export interface HSAData {
   contributions: number;
   employerContributions: number;
@@ -240,6 +254,8 @@ export interface TaxReturn {
   traditionalIRAContribution?: TraditionalIRAContribution;
   rothIRAContribution?: RothIRAContribution;
   form8606?: Form8606Data;
+  employerPlan?: EmployerPlanContribution;
+  retirementStrategy?: RetirementStrategy;
   hsaData?: HSAData;
   itemizedDeductions?: ItemizedDeductions;
   aboveTheLineDeductions: AboveTheLineDeductions;
