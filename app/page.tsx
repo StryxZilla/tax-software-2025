@@ -237,15 +237,11 @@ function WizardStepContent() {
             traditionalIRA={taxReturn.traditionalIRAContribution}
             rothIRA={taxReturn.rothIRAContribution}
             form8606={taxReturn.form8606}
-            employerPlan={taxReturn.employerPlan}
-            retirementStrategy={taxReturn.retirementStrategy}
             onUpdate={(updates) => {
               updateTaxReturn({
                 traditionalIRAContribution: updates.traditionalIRA,
                 rothIRAContribution: updates.rothIRA,
                 form8606: updates.form8606,
-                employerPlan: updates.employerPlan,
-                retirementStrategy: updates.retirementStrategy,
               })
               recalculateTaxes()
             }}
