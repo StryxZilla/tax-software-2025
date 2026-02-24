@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ZoeyGuideCard from '../../../components/brand/ZoeyGuideCard'
+import ZoeyImage from '../../../components/brand/ZoeyImage'
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -71,7 +72,12 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-extrabold text-slate-900">Zoey's Tax Advisory</h1>
+          <ZoeyImage
+            src="/brand/zoey-neutral.png"
+            alt="Zoey mascot"
+            className="h-16 w-16 mx-auto mb-3 rounded-2xl border border-slate-200 bg-white object-cover object-top shadow-sm"
+          />
+          <h1 className="text-4xl font-extrabold text-slate-900">Zoey&apos;s Tax Advisory</h1>
           <p className="text-slate-500 mt-1 font-medium">2025 filing workspace</p>
         </div>
 
