@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 
 /** All known Zoey image paths — used for fallback chain */
 const FALLBACK_CHAIN = [
@@ -25,7 +25,8 @@ interface ZoeyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
  * If the primary src fails to load, it tries known fallback images
  * in order. If all images fail, it renders a text avatar.
  *
- * Handles basePath/CDN/asset-path mismatches gracefully.
+ * Handles basePath/CDN/asset-path mismatches gracefully, including
+ * images that error before React hydration completes.
  */
 export default function ZoeyImage({
   src,
@@ -35,29 +36,53 @@ export default function ZoeyImage({
   'data-testid': testId,
   ...rest
 }: ZoeyImageProps) {
+  const imgRef = useRef<HTMLImageElement>(null);
   const [currentSrc, setCurrentSrc] = useState(src);
   const [failedSrcs, setFailedSrcs] = useState<Set<string>>(new Set());
   const [allFailed, setAllFailed] = useState(false);
 
+  // Reset state when the src prop changes (e.g. parent re-render)
+  useEffect(() => {
+    setCurrentSrc(src);
+    setFailedSrcs(new Set());
+    setAllFailed(false);
+  }, [src]);
+
+  const advanceFallback = useCallback(
+    (failedSrc: string) => {
+      setFailedSrcs((prev) => {
+        const next = new Set(prev);
+        next.add(failedSrc);
+
+        // Build the full candidate list: original src first, then the chain
+        const candidates = [src, ...FALLBACK_CHAIN];
+        const nextCandidate = candidates.find((c) => !next.has(c));
+
+        if (nextCandidate) {
+          setCurrentSrc(nextCandidate);
+        } else {
+          setAllFailed(true);
+        }
+
+        return next;
+      });
+    },
+    [src],
+  );
+
   const handleError = useCallback(() => {
-    setFailedSrcs((prev) => {
-      const next = new Set(prev);
-      next.add(currentSrc);
+    advanceFallback(currentSrc);
+  }, [advanceFallback, currentSrc]);
 
-      // Find the next fallback that hasn't failed and isn't the current src
-      const nextFallback = FALLBACK_CHAIN.find(
-        (fb) => !next.has(fb) && fb !== src,
-      );
-
-      if (nextFallback) {
-        setCurrentSrc(nextFallback);
-      } else {
-        setAllFailed(true);
-      }
-
-      return next;
-    });
-  }, [currentSrc, src]);
+  // Detect images that errored before React hydration (SSR race condition).
+  // An <img> with complete=true and naturalWidth=0 means the browser already
+  // tried and failed to load it before our onError handler was attached.
+  useEffect(() => {
+    const el = imgRef.current;
+    if (el && el.complete && el.naturalWidth === 0 && !allFailed) {
+      advanceFallback(currentSrc);
+    }
+  }); // intentionally no deps — check on every render
 
   if (allFailed) {
     return (
@@ -75,6 +100,7 @@ export default function ZoeyImage({
   return (
     <img
       {...rest}
+      ref={imgRef}
       src={currentSrc}
       alt={alt}
       className={className}
