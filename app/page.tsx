@@ -23,6 +23,7 @@ import { calculateAGI } from '../lib/engine/calculations/tax-calculator'
 import FormNavigation from '../components/common/FormNavigation'
 import SaveStatusIndicator from '../components/common/SaveStatusIndicator'
 import ZoeyGuideCard from '../components/brand/ZoeyGuideCard'
+import ZoeyImage from '../components/brand/ZoeyImage'
 import { WizardStep } from '../types/tax-types'
 
 const STEP_ORDER: WizardStep[] = [
@@ -236,8 +237,16 @@ function WizardStepContent() {
             traditionalIRA={taxReturn.traditionalIRAContribution}
             rothIRA={taxReturn.rothIRAContribution}
             form8606={taxReturn.form8606}
+            employerPlan={taxReturn.employerPlan}
+            retirementStrategy={taxReturn.retirementStrategy}
             onUpdate={(updates) => {
-              updateTaxReturn(updates)
+              updateTaxReturn({
+                traditionalIRAContribution: updates.traditionalIRA,
+                rothIRAContribution: updates.rothIRA,
+                form8606: updates.form8606,
+                employerPlan: updates.employerPlan,
+                retirementStrategy: updates.retirementStrategy,
+              })
               recalculateTaxes()
             }}
           />
@@ -579,7 +588,7 @@ function AppShell() {
             className="flex items-center gap-2 group"
             title="Back to Welcome"
           >
-            <img src="/brand/zoey-neutral.png" alt="Zoey mascot" className="h-9 w-9 rounded-lg border border-slate-200 bg-white object-cover object-top" />
+            <ZoeyImage src="/brand/zoey-neutral.png" alt="Zoey mascot" className="h-9 w-9 rounded-lg border border-slate-200 bg-white object-cover object-top" />
             <span className="text-2xl font-extrabold text-slate-900 group-hover:text-blue-600 transition-colors">
               Zoey's Tax Advisory
             </span>
@@ -589,17 +598,17 @@ function AppShell() {
           </button>
 
           <div className="flex items-center gap-4">
-            {!isWelcome && (
-              <div className="flex items-center gap-3">
-                <SaveStatusIndicator lastSaved={lastSaved} isCalculating={isCalculating} onSave={forceSave} />
+            <div className="flex items-center gap-3">
+              <SaveStatusIndicator lastSaved={lastSaved} isCalculating={isCalculating} onSave={forceSave} />
+              {!isWelcome && (
                 <button
                   onClick={() => setCurrentStep('welcome')}
                   className="text-sm text-slate-500 hover:text-blue-600 transition-colors font-medium hidden sm:block"
                 >
                   ← Back to Overview
                 </button>
-              </div>
-            )}
+              )}
+            </div>
 
             {user && (
               <div className="flex items-center gap-3">
