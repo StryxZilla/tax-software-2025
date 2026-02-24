@@ -16,7 +16,7 @@ const variantStyles: Record<ZoeyGuideVariant, { badge: string; border: string; b
     border: 'border-sky-200',
     bg: 'from-sky-50 to-white',
     emoji: '💡',
-    image: '/brand/zoey-pointing.png',
+    image: '/brand/zoey-neutral.png',
   },
   warning: {
     badge: 'bg-amber-100 text-amber-800 border-amber-200',
