@@ -259,6 +259,40 @@ export const CAPITAL_LOSS_LIMIT = 3000;
 // Meals and Entertainment Deduction Rate
 export const MEALS_DEDUCTION_RATE = 0.50; // 50% deductible
 
+// Saver's Credit (Retirement Savings Contributions Credit) for 2025
+// Form 8880 — Credit rate depends on AGI and filing status
+// Source: IRS Notice 2024-80 (inflation adjustments for 2025)
+export const SAVERS_CREDIT_2025 = {
+  maxContribution: 2000, // per person ($4000 MFJ)
+  brackets: {
+    'Single': [
+      { rate: 0.50, maxAGI: 23750 },
+      { rate: 0.20, maxAGI: 25750 },
+      { rate: 0.10, maxAGI: 39500 },
+    ],
+    'Married Filing Jointly': [
+      { rate: 0.50, maxAGI: 47500 },
+      { rate: 0.20, maxAGI: 51500 },
+      { rate: 0.10, maxAGI: 79000 },
+    ],
+    'Head of Household': [
+      { rate: 0.50, maxAGI: 35625 },
+      { rate: 0.20, maxAGI: 38625 },
+      { rate: 0.10, maxAGI: 59250 },
+    ],
+    'Married Filing Separately': [
+      { rate: 0.50, maxAGI: 23750 },
+      { rate: 0.20, maxAGI: 25750 },
+      { rate: 0.10, maxAGI: 39500 },
+    ],
+    'Qualifying Surviving Spouse': [
+      { rate: 0.50, maxAGI: 47500 },
+      { rate: 0.20, maxAGI: 51500 },
+      { rate: 0.10, maxAGI: 79000 },
+    ],
+  },
+};
+
 // QBI (Qualified Business Income) Deduction for 2025
 // 20% of QBI, subject to W-2 wage limits above income thresholds
 export const QBI_DEDUCTION_2025 = {

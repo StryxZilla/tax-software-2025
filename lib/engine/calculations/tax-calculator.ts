@@ -13,6 +13,7 @@ import {
   MEDICAL_EXPENSE_AGI_THRESHOLD,
   CAPITAL_LOSS_LIMIT,
   MEALS_DEDUCTION_RATE,
+  SAVERS_CREDIT_2025,
 } from '../../../data/tax-constants';
 
 /**
@@ -415,6 +416,51 @@ export function calculateEducationCredits(taxReturn: TaxReturn, agi: number): nu
 }
 
 /**
+ * Calculate Saver's Credit (Retirement Savings Contributions Credit)
+ * Form 8880 — based on eligible retirement contributions and AGI
+ */
+export function calculateSaversCredit(taxReturn: TaxReturn, agi: number): number {
+  const { filingStatus } = taxReturn.personalInfo;
+
+  // Must be 18+, not a student, not claimed as dependent (simplified: use age >= 18)
+  if (taxReturn.personalInfo.age < 18) return 0;
+
+  // Get eligible contributions (Traditional IRA + Roth IRA)
+  let contributions = 0;
+  if (taxReturn.traditionalIRAContribution) {
+    contributions += taxReturn.traditionalIRAContribution.amount;
+  }
+  if (taxReturn.rothIRAContribution) {
+    contributions += taxReturn.rothIRAContribution.amount;
+  }
+
+  if (contributions <= 0) return 0;
+
+  // Cap contributions per person
+  const isMarried = filingStatus === 'Married Filing Jointly';
+  const maxContribution = isMarried
+    ? SAVERS_CREDIT_2025.maxContribution * 2
+    : SAVERS_CREDIT_2025.maxContribution;
+  const eligibleContributions = Math.min(contributions, maxContribution);
+
+  // Find credit rate based on AGI
+  const brackets = SAVERS_CREDIT_2025.brackets[filingStatus];
+  if (!brackets) return 0;
+
+  let rate = 0;
+  for (const bracket of brackets) {
+    if (agi <= bracket.maxAGI) {
+      rate = bracket.rate;
+      break;
+    }
+  }
+
+  if (rate === 0) return 0;
+
+  return Math.round(eligibleContributions * rate);
+}
+
+/**
  * Main function to calculate complete tax return
  */
 import { calculationCache } from './calculation-cache';
@@ -455,7 +501,8 @@ export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
   // Calculate credits
   const childTaxCredit = calculateChildTaxCredit(taxReturn, agi);
   const educationCredits = calculateEducationCredits(taxReturn, agi);
-  const totalCredits = childTaxCredit + educationCredits;
+  const saversCredit = calculateSaversCredit(taxReturn, agi);
+  const totalCredits = childTaxCredit + educationCredits + saversCredit;
 
   // Tax after credits
   const totalTaxAfterCredits = Math.max(0, totalTaxBeforeCredits - totalCredits);
