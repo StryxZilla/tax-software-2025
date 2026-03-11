@@ -97,7 +97,7 @@ export function seedLocalStorageDraft(opts: {
   skippedSteps?: WizardStep[]
 } = {}) {
   const tr = { ...EMPTY_TAX_RETURN, ...opts.taxReturn }
-  localStorage.setItem('taxReturn2025', JSON.stringify(tr))
+  localStorage.setItem('taxReturn2026', JSON.stringify(tr))
   localStorage.setItem('currentStep', opts.currentStep ?? 'personal-info')
   localStorage.setItem('completedSteps', JSON.stringify(opts.completedSteps ?? []))
   localStorage.setItem('skippedSteps', JSON.stringify(opts.skippedSteps ?? []))

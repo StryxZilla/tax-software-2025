@@ -661,8 +661,10 @@ function MainContent() {
           // The context loads savedStep on mount, but since we're on 'welcome' the user
           // explicitly navigated here. Read the persisted step directly.
           const savedStep = localStorage.getItem('currentStep')
-          if (savedStep && savedStep !== 'welcome') {
-            setCurrentStep(savedStep as WizardStep)
+          const resumeStep = localStorage.getItem('resumeStep')
+          const stepToResume = savedStep && savedStep !== 'welcome' ? savedStep : resumeStep
+          if (stepToResume && stepToResume !== 'welcome') {
+            setCurrentStep(stepToResume as WizardStep)
           } else {
             setCurrentStep('personal-info')
           }

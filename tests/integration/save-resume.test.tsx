@@ -59,7 +59,7 @@ describe('Save/Resume — detectSavedDraft integration', () => {
   })
 
   it('handles corrupted JSON gracefully', () => {
-    localStorage.setItem('taxReturn2025', '{bad json')
+    localStorage.setItem('taxReturn2026', '{bad json')
     localStorage.setItem('currentStep', 'income-w2')
     expect(detectSavedDraft()).toBeNull()
   })
@@ -90,7 +90,7 @@ describe('Save/Resume — detectSavedDraft integration', () => {
     })
 
     // Verify raw localStorage has expected data
-    const rawReturn = JSON.parse(localStorage.getItem('taxReturn2025')!)
+    const rawReturn = JSON.parse(localStorage.getItem('taxReturn2026')!)
     expect(rawReturn.personalInfo.firstName).toBe('Jane')
     expect(rawReturn.dependents).toHaveLength(1)
     expect(rawReturn.w2Income).toHaveLength(1)
@@ -113,7 +113,7 @@ describe('Save/Resume — localStorage key contract', () => {
       skippedSteps: [],
     })
 
-    expect(localStorage.getItem('taxReturn2025')).toBeTruthy()
+    expect(localStorage.getItem('taxReturn2026')).toBeTruthy()
     expect(localStorage.getItem('currentStep')).toBe('dependents')
     expect(localStorage.getItem('completedSteps')).toBeTruthy()
     expect(localStorage.getItem('skippedSteps')).toBeTruthy()

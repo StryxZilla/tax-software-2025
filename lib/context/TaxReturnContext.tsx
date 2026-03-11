@@ -158,8 +158,11 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
       }
       // Restore wizard step and completed steps from localStorage (not stored in DB)
       const savedStep = localStorage.getItem('currentStep')
+      const resumeStep = localStorage.getItem('resumeStep')
       if (savedStep) {
         setCurrentStep(savedStep as WizardStep)
+      } else if (resumeStep) {
+        setCurrentStep(resumeStep as WizardStep)
       }
       const savedCompleted = localStorage.getItem('completedSteps')
       if (savedCompleted) {
@@ -278,6 +281,9 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem('taxReturn2026', JSON.stringify(taxReturn))
       localStorage.setItem('currentStep', currentStep)
+      if (currentStep !== 'welcome') {
+        localStorage.setItem('resumeStep', currentStep)
+      }
       localStorage.setItem('completedSteps', JSON.stringify([...completedSteps]))
       localStorage.setItem('skippedSteps', JSON.stringify([...skippedSteps]))
       if (!isAuthenticated) {
@@ -294,6 +300,7 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
     try {
       const saved = localStorage.getItem('taxReturn2026')
       const savedStep = localStorage.getItem('currentStep')
+      const resumeStep = localStorage.getItem('resumeStep')
       const savedCompleted = localStorage.getItem('completedSteps')
       const savedSkipped = localStorage.getItem('skippedSteps')
       if (saved) {
@@ -301,6 +308,8 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
       }
       if (savedStep) {
         setCurrentStep(savedStep as WizardStep)
+      } else if (resumeStep) {
+        setCurrentStep(resumeStep as WizardStep)
       }
       if (savedCompleted) {
         setCompletedSteps(new Set(JSON.parse(savedCompleted)))
@@ -348,6 +357,7 @@ export function TaxReturnProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('currentStep')
     localStorage.removeItem('completedSteps')
     localStorage.removeItem('skippedSteps')
+    localStorage.removeItem('resumeStep')
     setLastSaved(null)
 
     // Clear from DB too if authenticated

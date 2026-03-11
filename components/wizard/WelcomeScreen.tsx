@@ -79,9 +79,11 @@ export function detectSavedDraft(): SavedDraftInfo | null {
   try {
     const savedData = localStorage.getItem('taxReturn2026');
     const savedStep = localStorage.getItem('currentStep');
+    const resumeStep = localStorage.getItem('resumeStep');
     const savedCompleted = localStorage.getItem('completedSteps');
 
-    if (!savedData || !savedStep || savedStep === 'welcome') return null;
+    const effectiveStep = savedStep && savedStep !== 'welcome' ? savedStep : resumeStep;
+    if (!savedData || !effectiveStep || effectiveStep === 'welcome') return null;
 
     const data = JSON.parse(savedData);
     // Only count as a real draft if there's meaningful data (not just defaults)
@@ -91,7 +93,7 @@ export function detectSavedDraft(): SavedDraftInfo | null {
 
     const completed = savedCompleted ? JSON.parse(savedCompleted) : [];
     return {
-      currentStep: savedStep,
+      currentStep: effectiveStep,
       completedCount: completed.length,
       lastSaved: null, // localStorage doesn't track timestamps directly
       hasData: true,

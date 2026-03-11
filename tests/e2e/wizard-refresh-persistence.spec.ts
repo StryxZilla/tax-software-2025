@@ -24,7 +24,7 @@ test('wizard state persists after browser refresh @critical-smoke', async ({ pag
   await expect(page.getByText('Welcome to', { exact: false })).toBeVisible({ timeout: 10000 })
 
   // --- Enter wizard and fill Personal Information ---
-  await page.getByRole('button', { name: "Let's Get Started" }).first().click()
+  await page.getByTestId('start-return-btn').click()
   await expect(page.getByRole('heading', { name: 'Personal Information' })).toBeVisible()
 
   await page.getByPlaceholder('Enter first name').fill('QA')
@@ -55,7 +55,7 @@ test('wizard state persists after browser refresh @critical-smoke', async ({ pag
   expect(savedStep).not.toBe('personal-info')
 
   // Verify form data is in localStorage
-  const savedData = await page.evaluate(() => localStorage.getItem('taxReturn2025'))
+  const savedData = await page.evaluate(() => localStorage.getItem('taxReturn2026'))
   expect(savedData).toBeTruthy()
   const parsed = JSON.parse(savedData!)
   expect(parsed.personalInfo.firstName).toBe('QA')
@@ -77,7 +77,7 @@ test('wizard state persists after browser refresh @critical-smoke', async ({ pag
   const postReloadStep = await page.evaluate(() => localStorage.getItem('currentStep'))
   expect(postReloadStep).toBe(savedStep)
 
-  const postReloadData = await page.evaluate(() => localStorage.getItem('taxReturn2025'))
+  const postReloadData = await page.evaluate(() => localStorage.getItem('taxReturn2026'))
   expect(postReloadData).toBeTruthy()
   const postParsed = JSON.parse(postReloadData!)
   expect(postParsed.personalInfo.firstName).toBe('QA')

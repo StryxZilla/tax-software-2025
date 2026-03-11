@@ -26,19 +26,31 @@ describe('detectSavedDraft', () => {
   })
 
   it('returns null when currentStep is welcome', () => {
-    localStorageMock.setItem('taxReturn2025', JSON.stringify({ personalInfo: { firstName: 'John' }, w2Income: [] }))
+    localStorageMock.setItem('taxReturn2026', JSON.stringify({ personalInfo: { firstName: 'John' }, w2Income: [] }))
     localStorageMock.setItem('currentStep', 'welcome')
     expect(detectSavedDraft()).toBeNull()
   })
 
+  it('uses resumeStep when currentStep is welcome after returning to overview', () => {
+    localStorageMock.setItem('taxReturn2026', JSON.stringify({ personalInfo: { firstName: 'John' }, w2Income: [] }))
+    localStorageMock.setItem('currentStep', 'welcome')
+    localStorageMock.setItem('resumeStep', 'dependents')
+    localStorageMock.setItem('completedSteps', JSON.stringify(['personal-info']))
+
+    const draft = detectSavedDraft()
+    expect(draft).not.toBeNull()
+    expect(draft!.currentStep).toBe('dependents')
+    expect(draft!.completedCount).toBe(1)
+  })
+
   it('returns null when data has no meaningful content', () => {
-    localStorageMock.setItem('taxReturn2025', JSON.stringify({ personalInfo: { firstName: '' }, w2Income: [] }))
+    localStorageMock.setItem('taxReturn2026', JSON.stringify({ personalInfo: { firstName: '' }, w2Income: [] }))
     localStorageMock.setItem('currentStep', 'income-w2')
     expect(detectSavedDraft()).toBeNull()
   })
 
   it('detects draft when user has entered a name', () => {
-    localStorageMock.setItem('taxReturn2025', JSON.stringify({
+    localStorageMock.setItem('taxReturn2026', JSON.stringify({
       personalInfo: { firstName: 'Jane' },
       w2Income: [],
     }))
@@ -53,7 +65,7 @@ describe('detectSavedDraft', () => {
   })
 
   it('detects draft when user has W-2 income', () => {
-    localStorageMock.setItem('taxReturn2025', JSON.stringify({
+    localStorageMock.setItem('taxReturn2026', JSON.stringify({
       personalInfo: { firstName: '' },
       w2Income: [{ employer: 'Acme', wages: 50000 }],
     }))
@@ -66,13 +78,13 @@ describe('detectSavedDraft', () => {
   })
 
   it('handles corrupted localStorage gracefully', () => {
-    localStorageMock.setItem('taxReturn2025', '{invalid json')
+    localStorageMock.setItem('taxReturn2026', '{invalid json')
     localStorageMock.setItem('currentStep', 'income-w2')
     expect(detectSavedDraft()).toBeNull()
   })
 
   it('handles missing completedSteps gracefully', () => {
-    localStorageMock.setItem('taxReturn2025', JSON.stringify({
+    localStorageMock.setItem('taxReturn2026', JSON.stringify({
       personalInfo: { firstName: 'Test' },
       w2Income: [],
     }))
@@ -109,31 +121,31 @@ describe('autosave localStorage keys', () => {
     const completed = ['personal-info', 'dependents', 'income-w2', 'income-interest']
     const skipped = ['dependents']
 
-    localStorageMock.setItem('taxReturn2025', JSON.stringify(taxData))
+    localStorageMock.setItem('taxReturn2026', JSON.stringify(taxData))
     localStorageMock.setItem('currentStep', step)
     localStorageMock.setItem('completedSteps', JSON.stringify(completed))
     localStorageMock.setItem('skippedSteps', JSON.stringify(skipped))
 
     // Restore
-    expect(JSON.parse(localStorageMock.getItem('taxReturn2025')!)).toEqual(taxData)
+    expect(JSON.parse(localStorageMock.getItem('taxReturn2026')!)).toEqual(taxData)
     expect(localStorageMock.getItem('currentStep')).toBe(step)
     expect(JSON.parse(localStorageMock.getItem('completedSteps')!)).toEqual(completed)
     expect(JSON.parse(localStorageMock.getItem('skippedSteps')!)).toEqual(skipped)
   })
 
   it('clearing localStorage removes all tax keys', () => {
-    localStorageMock.setItem('taxReturn2025', '{}')
+    localStorageMock.setItem('taxReturn2026', '{}')
     localStorageMock.setItem('currentStep', 'review')
     localStorageMock.setItem('completedSteps', '[]')
     localStorageMock.setItem('skippedSteps', '[]')
 
     // Simulate resetTaxReturn clearing
-    localStorageMock.removeItem('taxReturn2025')
+    localStorageMock.removeItem('taxReturn2026')
     localStorageMock.removeItem('currentStep')
     localStorageMock.removeItem('completedSteps')
     localStorageMock.removeItem('skippedSteps')
 
-    expect(localStorageMock.getItem('taxReturn2025')).toBeNull()
+    expect(localStorageMock.getItem('taxReturn2026')).toBeNull()
     expect(detectSavedDraft()).toBeNull()
   })
 })
