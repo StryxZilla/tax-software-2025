@@ -29,8 +29,16 @@ test('resume draft survives Back to Overview navigation', async ({ page }) => {
   await expect(page.getByText('Welcome back!')).toBeVisible()
   await expect(page.getByTestId('resume-draft-btn')).toBeVisible()
 
-  const currentStep = await page.evaluate(() => localStorage.getItem('currentStep'))
-  const resumeStep = await page.evaluate(() => localStorage.getItem('resumeStep'))
+  const { currentStep, resumeStep } = await page.evaluate(() => {
+    const currentKey = Object.keys(localStorage).find((k) => k.startsWith('currentStep'))
+    const resumeKey = Object.keys(localStorage).find((k) => k.startsWith('resumeStep'))
+
+    return {
+      currentStep: currentKey ? localStorage.getItem(currentKey) : null,
+      resumeStep: resumeKey ? localStorage.getItem(resumeKey) : null,
+    }
+  })
+
   expect(currentStep).toBe('welcome')
   expect(resumeStep).toBe('dependents')
 

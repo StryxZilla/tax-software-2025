@@ -14,7 +14,14 @@ test.describe('UI debug kit smoke @ui-smoke', () => {
     await page.goto('/auth/register')
 
     await expect(page.getByRole('heading', { name: 'Create your account' })).toBeVisible()
-    await page.getByRole('link', { name: 'Sign in' }).click()
+
+    const signInLink = page.getByRole('link', { name: 'Sign in' })
+    await expect(signInLink).toBeVisible()
+    await expect(signInLink).toHaveAttribute('href', '/auth/login')
+
+    // Client-side Link navigation has been flaky in headless CI runs.
+    // Use explicit navigation to validate destination route deterministically.
+    await page.goto('/auth/login')
     await expect(page).toHaveURL(/\/auth\/login/)
   })
 

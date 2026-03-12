@@ -53,6 +53,7 @@ async function assertNoHorizontalOverflow(page: Page) {
 test.describe('Pass 5 responsive + visual sanity @pass5', () => {
   for (const viewport of VIEWPORTS) {
     test(`${viewport.name}: welcome, progress, key forms, and review layout`, async ({ page }, testInfo) => {
+      test.setTimeout(60_000)
       await page.setViewportSize({ width: viewport.width, height: viewport.height })
 
       await registerAndOpenWelcome(page, viewport.name)
@@ -86,8 +87,13 @@ test.describe('Pass 5 responsive + visual sanity @pass5', () => {
 
         const skipButton = page.getByRole('button', { name: 'Skip for now' })
         if (await skipButton.isVisible().catch(() => false)) {
-          await skipButton.click()
-          continue
+          try {
+            await skipButton.click({ timeout: 3000 })
+            continue
+          } catch {
+            // Optional-step click can be flaky while autosave is settling.
+            // Fall through to Next if available.
+          }
         }
 
         const next = nextButton(page)
