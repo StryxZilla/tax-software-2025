@@ -42,7 +42,12 @@ export default function TaxSummarySidebar() {
   const { taxCalculation, taxReturn, isCalculating, lastSaved } = useTaxReturn();
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebarCollapsed');
-    return saved !== null ? JSON.parse(saved) : false;
+    if (saved !== null) return JSON.parse(saved);
+
+    // Mobile default: collapsed so primary form actions remain tappable.
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) return true;
+
+    return false;
   });
 
   // Save collapsed state to localStorage
