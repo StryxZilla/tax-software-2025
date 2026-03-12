@@ -6,6 +6,13 @@ import React from 'react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+
+vi.mock('../../components/brand/ZoeyImage', () => ({
+  default: (props: { alt?: string; 'data-testid'?: string }) => (
+    <span data-testid={props['data-testid'] ?? 'zoey-image-mock'} aria-label={props.alt ?? 'Zoey image mock'} />
+  ),
+}))
+
 import WelcomeScreen from '../../components/wizard/WelcomeScreen'
 import { renderWithProviders, seedLocalStorageDraft, VALID_PERSONAL_INFO, VALID_W2 } from './helpers'
 
