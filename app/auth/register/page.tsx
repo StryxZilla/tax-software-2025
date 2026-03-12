@@ -73,7 +73,7 @@ export default function RegisterPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <ZoeyImage
-            src="/brand/zoey-pointing.png"
+            src="/brand/zoey-celebrate.png"
             fallbackChain={[]}
             alt="Zoey mascot"
             className="w-16 h-16 md:w-[4.5rem] md:h-[4.5rem] mx-auto mb-3 rounded-xl border border-slate-200 bg-white object-cover object-top shadow-sm"
