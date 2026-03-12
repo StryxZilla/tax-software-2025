@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { TaxReturnProvider } from '../lib/context/TaxReturnContext'
@@ -25,7 +25,7 @@ import SaveStatusIndicator from '../components/common/SaveStatusIndicator'
 import ZoeyGuideCard from '../components/brand/ZoeyGuideCard'
 import ZoeyImage from '../components/brand/ZoeyImage'
 import { WizardStep } from '../types/tax-types'
-import { getWizardStepFromStorage, hasGuestLocalDraft } from '../lib/storage/tax-return-storage'
+import { getWizardStepFromStorage } from '../lib/storage/tax-return-storage'
 
 const STEP_ORDER: WizardStep[] = [
   'personal-info',
@@ -490,54 +490,6 @@ function WizardStepContent() {
   }
 }
 
-// Import localStorage banner shown after login
-function ImportBanner() {
-  const { importFromLocalStorage } = useTaxReturn()
-  const [show] = useState(() => {
-    const hasLocalData = hasGuestLocalDraft()
-    const alreadyAsked = !!sessionStorage.getItem('importAsked')
-    return hasLocalData && !alreadyAsked
-  })
-  const [dismissed, setDismissed] = useState(false)
-
-  if (!show || dismissed) return null
-
-  const handleImport = async () => {
-    await importFromLocalStorage()
-    sessionStorage.setItem('importAsked', '1')
-    setDismissed(true)
-  }
-
-  const handleDismiss = () => {
-    sessionStorage.setItem('importAsked', '1')
-    setDismissed(true)
-  }
-
-  return (
-    <div className="bg-blue-50 border-b border-blue-200 px-4 py-3">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
-        <p className="text-sm text-blue-800">
-          📂 We found locally saved tax data. Would you like to import it into your account?
-        </p>
-        <div className="flex gap-2 shrink-0">
-          <button
-            onClick={handleImport}
-            className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-md hover:bg-blue-700 font-medium"
-          >
-            Import
-          </button>
-          <button
-            onClick={handleDismiss}
-            className="text-xs text-blue-600 px-3 py-1.5 rounded-md hover:bg-blue-100 font-medium"
-          >
-            Skip
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 // Main page component
 export default function Home() {
   const { data: session, status } = useSession()
@@ -577,7 +529,6 @@ function AppShell() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <ImportBanner />
       <header className={`bg-white shadow ${isWelcome ? 'border-b border-slate-100' : ''}`}>
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <button

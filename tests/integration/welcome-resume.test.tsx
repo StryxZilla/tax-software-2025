@@ -59,13 +59,12 @@ describe('WelcomeScreen — resume flow', () => {
     expect(screen.getByText(/Welcome back/i)).toBeInTheDocument()
   })
 
-  it('shows draft info banner with step name and count', () => {
+  it('shows draft info banner with completed step count', () => {
     renderWithProviders(
       <WelcomeScreen onStart={() => {}} onResume={() => {}} onStartOver={() => {}} />,
     )
     const info = screen.getByTestId('draft-info')
     expect(info).toBeInTheDocument()
-    expect(info.textContent).toMatch(/Dependents/i)
     expect(info.textContent).toMatch(/1 step completed/i)
   })
 
@@ -112,7 +111,7 @@ describe('WelcomeScreen — resume with multiple completed steps', () => {
       taxReturn: {
         personalInfo: { ...VALID_PERSONAL_INFO, firstName: '' },
         w2Income: [],
-        interest: [{ payerName: 'City Credit Union', amount: 42 }],
+        interest: [{ payer: 'City Credit Union', amount: 42 }],
       },
       currentStep: 'income-capital-gains',
       completedSteps: ['income-interest'],
@@ -124,7 +123,6 @@ describe('WelcomeScreen — resume with multiple completed steps', () => {
 
     expect(screen.getByTestId('resume-draft-btn')).toBeInTheDocument()
     const info = screen.getByTestId('draft-info')
-    expect(info.textContent).toMatch(/Capital Gains/i)
     expect(info.textContent).toMatch(/1 step completed/i)
   })
 })

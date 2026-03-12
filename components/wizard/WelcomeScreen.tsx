@@ -53,21 +53,6 @@ const DOCUMENTS_CHECKLIST = [
   },
 ];
 
-/** Step labels for the resume banner */
-const STEP_LABELS: Record<string, string> = {
-  'personal-info': 'Personal Information',
-  'dependents': 'Dependents',
-  'income-w2': 'W-2 Income',
-  'income-interest': 'Interest Income',
-  'income-capital-gains': 'Capital Gains',
-  'income-self-employment': 'Self-Employment',
-  'income-rental': 'Rental Property',
-  'retirement-accounts': 'Retirement Accounts',
-  'deductions': 'Itemized Deductions',
-  'credits': 'Tax Credits',
-  'review': 'Review & Download',
-};
-
 export interface SavedDraftInfo {
   currentStep: string;
   completedCount: number;
@@ -150,7 +135,7 @@ export default function WelcomeScreen({ onStart, onResume, onStartOver, storageU
             <div className="rounded-2xl border border-slate-200 bg-slate-50 p-2">
               <div className="aspect-[3/2] w-full overflow-hidden rounded-xl bg-slate-100">
                 <ZoeyImage
-                  src={draft ? '/brand/zoey-celebrate.png' : '/brand/zoey-hero-wide.png'}
+                  src="/brand/zoey-hero-wide.png"
                   alt={draft ? 'Zoey welcoming you back' : 'Zoey welcoming you to start your return'}
                   className="h-full w-full object-cover object-center"
                   data-testid="welcome-hero-img"
@@ -201,16 +186,11 @@ export default function WelcomeScreen({ onStart, onResume, onStartOver, storageU
           </div>
 
           {draft && (
-            <div className="mt-4 flex items-center gap-3 text-sm text-slate-600 bg-emerald-50 rounded-xl px-4 py-3 border border-emerald-200" data-testid="draft-info">
-              <ZoeyImage
-                src="/brand/zoey-neutral.png"
-                alt="Zoey"
-                className="w-8 h-8 rounded-lg border border-slate-200 bg-white object-cover object-top shrink-0"
-                data-testid="draft-zoey-icon"
-              />
+            <div className="mt-4 text-sm text-slate-600 bg-emerald-50 rounded-xl px-4 py-3 border border-emerald-200" data-testid="draft-info">
               <span>
-                Saved draft at <strong>{STEP_LABELS[draft.currentStep] ?? draft.currentStep}</strong>
-                {draft.completedCount > 0 && <> — {draft.completedCount} step{draft.completedCount !== 1 ? 's' : ''} completed</>}
+                {draft.completedCount > 0
+                  ? `${draft.completedCount} step${draft.completedCount !== 1 ? 's' : ''} completed`
+                  : 'Draft progress saved'}
               </span>
             </div>
           )}

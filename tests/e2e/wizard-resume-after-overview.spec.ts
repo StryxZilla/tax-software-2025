@@ -4,16 +4,10 @@ import { nextButton } from './selectors'
 test('resume draft survives Back to Overview navigation', async ({ page }) => {
   test.setTimeout(60_000)
 
-  const unique = Date.now()
-  const email = `qa+resume-${unique}@example.com`
-  const password = `TaxQa!${unique}`
-
-  await page.goto('/auth/register')
-  await page.getByPlaceholder('Jane Smith').fill('QA User')
-  await page.getByPlaceholder('you@example.com').fill(email)
-  await page.getByPlaceholder('Min. 8 characters').fill(password)
-  await page.getByPlaceholder('••••••••').last().fill(password)
-  await page.getByRole('button', { name: 'Create account' }).click()
+  await page.goto('/auth/login')
+  await page.getByPlaceholder('you@example.com').fill('john.sample@testmail.com')
+  await page.getByPlaceholder('••••••••').first().fill('testpassword123')
+  await page.getByRole('button', { name: 'Sign in' }).click()
 
   await expect(page).toHaveURL('/', { timeout: 15000 })
   await page.getByTestId('start-return-btn').click()

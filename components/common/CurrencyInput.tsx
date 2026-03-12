@@ -1,6 +1,6 @@
 'use client';
 
-import React, { forwardRef, useState, useCallback, useEffect } from 'react';
+import React, { forwardRef, useState, useCallback } from 'react';
 
 /**
  * Centralized currency input with $ prefix and 2-decimal formatting.
@@ -42,12 +42,7 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
     const [displayValue, setDisplayValue] = useState<string>(() => formatCurrency(value));
     const [isFocused, setIsFocused] = useState(false);
 
-    // Sync display value when controlled value changes externally (and not focused)
-    useEffect(() => {
-      if (!isFocused) {
-        setDisplayValue(formatCurrency(value));
-      }
-    }, [value, isFocused]);
+    const renderedValue = isFocused ? displayValue : formatCurrency(value);
 
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value;
@@ -97,7 +92,7 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
           type="number"
           step="0.01"
           className={`${baseInput} ${inputClassName}`}
-          value={displayValue}
+          value={renderedValue}
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}

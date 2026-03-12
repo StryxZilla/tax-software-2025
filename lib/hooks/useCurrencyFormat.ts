@@ -1,4 +1,4 @@
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 
 /**
  * Hook for currency input formatting.
@@ -16,12 +16,7 @@ export function useCurrencyFormat(
     formatForDisplay(value),
   );
   const [isFocused, setIsFocused] = useState(false);
-
-  useEffect(() => {
-    if (!isFocused) {
-      setDisplayValue(formatForDisplay(value));
-    }
-  }, [value, isFocused]);
+  const renderedValue = isFocused ? displayValue : formatForDisplay(value);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,9 +48,9 @@ export function useCurrencyFormat(
   }, [displayValue, onChange]);
 
   return {
-    displayValue,
+    displayValue: renderedValue,
     inputProps: {
-      value: displayValue,
+      value: renderedValue,
       onChange: handleChange,
       onFocus: handleFocus,
       onBlur: handleBlur,

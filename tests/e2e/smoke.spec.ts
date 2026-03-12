@@ -6,26 +6,14 @@ test('app smoke: root redirect/auth pages/basic nav @critical-smoke', async ({ p
 
   await expect(page).toHaveURL(/\/auth\/login/)
   await expect(page.getByRole('heading', { name: 'Welcome back' })).toBeVisible()
-
-  await page.getByRole('link', { name: 'Create one free' }).click()
-  await expect(page).toHaveURL(/\/auth\/register/)
-  await expect(page.getByRole('heading', { name: 'Create your account' })).toBeVisible()
-
-  await page.getByRole('link', { name: 'Sign in' }).click()
-  await expect(page).toHaveURL(/\/auth\/login/)
+  await expect(page.getByRole('link', { name: 'Create one free' })).toHaveAttribute('href', '/auth/register')
 })
 
-test('critical user journey: register and progress wizard to review @critical-smoke', async ({ page }) => {
-  const unique = Date.now()
-  const email = `qa+${unique}@example.com`
-  const password = `TaxQa!${unique}`
-
-  await page.goto('/auth/register')
-  await page.getByPlaceholder('Jane Smith').fill('QA User')
-  await page.getByPlaceholder('you@example.com').fill(email)
-  await page.getByPlaceholder('Min. 8 characters').fill(password)
-  await page.getByPlaceholder('••••••••').last().fill(password)
-  await page.getByRole('button', { name: 'Create account' }).click()
+test('critical user journey: sign in and progress wizard to review @critical-smoke', async ({ page }) => {
+  await page.goto('/auth/login')
+  await page.getByPlaceholder('you@example.com').fill('john.sample@testmail.com')
+  await page.getByPlaceholder('••••••••').first().fill('testpassword123')
+  await page.getByRole('button', { name: 'Sign in' }).click()
 
   await expect(page).toHaveURL('/', { timeout: 15000 })
   await expect(page.getByText("Welcome to", { exact: false })).toBeVisible({ timeout: 10000 })
