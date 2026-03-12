@@ -86,10 +86,21 @@ export function detectSavedDraft(): SavedDraftInfo | null {
     if (!savedData || !effectiveStep || effectiveStep === 'welcome') return null;
 
     const data = JSON.parse(savedData);
-    // Only count as a real draft if there's meaningful data (not just defaults)
-    const hasName = data?.personalInfo?.firstName?.trim();
-    const hasIncome = data?.w2Income?.length > 0;
-    if (!hasName && !hasIncome) return null;
+    // Count as real progress if any meaningful field has user input.
+    const hasName = !!data?.personalInfo?.firstName?.trim();
+    const hasDependents = Array.isArray(data?.dependents) && data.dependents.length > 0;
+    const hasIncome =
+      (Array.isArray(data?.w2Income) && data.w2Income.length > 0) ||
+      (Array.isArray(data?.interest) && data.interest.length > 0) ||
+      (Array.isArray(data?.dividends) && data.dividends.length > 0) ||
+      (Array.isArray(data?.capitalGains) && data.capitalGains.length > 0) ||
+      (Array.isArray(data?.rentalProperties) && data.rentalProperties.length > 0) ||
+      (data?.selfEmployment?.grossReceipts ?? 0) > 0;
+    const hasDeductionsOrCredits =
+      (data?.estimatedTaxPayments ?? 0) > 0 ||
+      (Array.isArray(data?.educationExpenses) && data.educationExpenses.length > 0);
+
+    if (!hasName && !hasDependents && !hasIncome && !hasDeductionsOrCredits) return null;
 
     const completed = savedCompleted ? JSON.parse(savedCompleted) : [];
     return {

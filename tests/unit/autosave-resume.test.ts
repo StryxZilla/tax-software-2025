@@ -77,6 +77,21 @@ describe('detectSavedDraft', () => {
     expect(draft!.completedCount).toBe(3)
   })
 
+  it('detects draft when user has non-W2 progress (interest income)', () => {
+    localStorageMock.setItem('taxReturn2026', JSON.stringify({
+      personalInfo: { firstName: '' },
+      w2Income: [],
+      interest: [{ payerName: 'My Bank', amount: 123 }],
+    }))
+    localStorageMock.setItem('currentStep', 'income-capital-gains')
+    localStorageMock.setItem('completedSteps', JSON.stringify(['income-interest']))
+
+    const draft = detectSavedDraft()
+    expect(draft).not.toBeNull()
+    expect(draft!.currentStep).toBe('income-capital-gains')
+    expect(draft!.completedCount).toBe(1)
+  })
+
   it('handles corrupted localStorage gracefully', () => {
     localStorageMock.setItem('taxReturn2026', '{invalid json')
     localStorageMock.setItem('currentStep', 'income-w2')
@@ -136,16 +151,19 @@ describe('autosave localStorage keys', () => {
   it('clearing localStorage removes all tax keys', () => {
     localStorageMock.setItem('taxReturn2026', '{}')
     localStorageMock.setItem('currentStep', 'review')
+    localStorageMock.setItem('resumeStep', 'review')
     localStorageMock.setItem('completedSteps', '[]')
     localStorageMock.setItem('skippedSteps', '[]')
 
     // Simulate resetTaxReturn clearing
     localStorageMock.removeItem('taxReturn2026')
     localStorageMock.removeItem('currentStep')
+    localStorageMock.removeItem('resumeStep')
     localStorageMock.removeItem('completedSteps')
     localStorageMock.removeItem('skippedSteps')
 
     expect(localStorageMock.getItem('taxReturn2026')).toBeNull()
+    expect(localStorageMock.getItem('resumeStep')).toBeNull()
     expect(detectSavedDraft()).toBeNull()
   })
 })

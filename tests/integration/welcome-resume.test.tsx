@@ -106,4 +106,25 @@ describe('WelcomeScreen — resume with multiple completed steps', () => {
     const info = screen.getByTestId('draft-info')
     expect(info.textContent).toMatch(/3 steps completed/i)
   })
+
+  it('shows resume UI for partial progress without name or W-2', () => {
+    seedLocalStorageDraft({
+      taxReturn: {
+        personalInfo: { ...VALID_PERSONAL_INFO, firstName: '' },
+        w2Income: [],
+        interest: [{ payerName: 'City Credit Union', amount: 42 }],
+      },
+      currentStep: 'income-capital-gains',
+      completedSteps: ['income-interest'],
+    })
+
+    renderWithProviders(
+      <WelcomeScreen onStart={() => {}} onResume={() => {}} onStartOver={() => {}} />,
+    )
+
+    expect(screen.getByTestId('resume-draft-btn')).toBeInTheDocument()
+    const info = screen.getByTestId('draft-info')
+    expect(info.textContent).toMatch(/Capital Gains/i)
+    expect(info.textContent).toMatch(/1 step completed/i)
+  })
 })
