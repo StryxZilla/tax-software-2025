@@ -38,6 +38,30 @@ describe('OCR extractors', () => {
     expect(result.ein).toBe('12-3456789');
     expect(result.wages).toBe(56123.45);
     expect(result.federalTaxWithheld).toBe(6789.1);
+    expect(result.socialSecurityWages).toBe(56123.45);
+    expect(result.socialSecurityTaxWithheld).toBe(3479.65);
+    expect(result.medicareWages).toBe(56123.45);
+    expect(result.medicareTaxWithheld).toBe(813.79);
+  });
+
+  it('handles noisy but high-quality W-2 OCR where punctuation/spacing is inconsistent', async () => {
+    mockedExtractText.mockResolvedValue({
+      text: `b Employer identification number EIN 12 3456789
+      1 Wages tips other compensation $56,123.45 2 Federal income tax withheld $6,789.10
+      3 Social security wages $56,123.45 4 Social security tax withheld $3,479.65
+      5 Medicare wages and tips $56,123.45 6 Medicare tax withheld $813.79`,
+      confidence: 93,
+    });
+
+    const result = await extractW2Data(sampleImage);
+
+    expect(result.ein).toBe('12-3456789');
+    expect(result.wages).toBe(56123.45);
+    expect(result.federalTaxWithheld).toBe(6789.1);
+    expect(result.socialSecurityWages).toBe(56123.45);
+    expect(result.socialSecurityTaxWithheld).toBe(3479.65);
+    expect(result.medicareWages).toBe(56123.45);
+    expect(result.medicareTaxWithheld).toBe(813.79);
   });
 
   it('returns actionable error when W-2 fields cannot be found', async () => {
