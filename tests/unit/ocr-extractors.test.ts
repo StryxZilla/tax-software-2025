@@ -64,6 +64,33 @@ describe('OCR extractors', () => {
     expect(result.medicareTaxWithheld).toBe(813.79);
   });
 
+  it('prefers same-box detached values and avoids cross-box bleed in noisy OCR ordering', async () => {
+    mockedExtractText.mockResolvedValue({
+      text: `d Control number 127578 1052
+      b Employer identification number EIN l2-3456789
+      2 Federal income tax withheld
+      1 48,480.77
+      4 Social security tax withheld
+      3 10,918.20
+      6 Medicare tax withheld
+      5 48,480.77
+      2 5,812.42
+      4 676.93
+      6 703.97`,
+      confidence: 76,
+    });
+
+    const result = await extractW2Data(sampleImage);
+
+    expect(result.ein).toBe('12-3456789');
+    expect(result.wages).toBe(48480.77);
+    expect(result.federalTaxWithheld).toBe(5812.42);
+    expect(result.socialSecurityWages).toBe(10918.2);
+    expect(result.socialSecurityTaxWithheld).toBe(676.93);
+    expect(result.medicareWages).toBe(48480.77);
+    expect(result.medicareTaxWithheld).toBe(703.97);
+  });
+
   it('returns actionable error when W-2 fields cannot be found', async () => {
     mockedExtractText.mockResolvedValue({ text: 'random unrelated text', confidence: 40 });
 

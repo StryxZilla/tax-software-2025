@@ -2,7 +2,7 @@
  * Integration tests: W2Form — add/remove W-2s, field entry, validation.
  * @vitest-environment happy-dom
  */
-import React from 'react'
+import React, { useState } from 'react'
 import { describe, it, expect, vi } from 'vitest'
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -108,5 +108,21 @@ describe('W2Form — editing employer name', () => {
     expect(onChange).toHaveBeenCalled()
     const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0]
     expect(lastCall[0].employer).toBe('X')
+  })
+
+  it('auto-formats EIN input as XX-XXXXXXX while typing', async () => {
+    const user = userEvent.setup()
+
+    function StatefulHarness() {
+      const [values, setValues] = useState<W2Income[]>([{ ...VALID_W2, ein: '' }])
+      return <W2Form values={values} onChange={setValues} onValidationChange={vi.fn()} />
+    }
+
+    render(<StatefulHarness />)
+
+    const einInput = screen.getByPlaceholderText('XX-XXXXXXX') as HTMLInputElement
+    await user.type(einInput, '123456789')
+
+    expect(einInput.value).toBe('12-3456789')
   })
 })

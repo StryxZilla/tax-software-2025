@@ -65,6 +65,12 @@ interface W2FormProps {
   blockedNextAttempts?: number;
 }
 
+const formatEIN = (value: string): string => {
+  const digits = value.replace(/\D/g, '').slice(0, 9);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+};
+
 export default function W2Form({ values, onChange, onValidationChange, blockedNextAttempts = 0 }: W2FormProps) {
   const [showAllErrors, setShowAllErrors] = React.useState(false);
   const [touchedFields, setTouchedFields] = React.useState<Set<string>>(new Set());
@@ -278,7 +284,7 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                         }}
                         type="text"
                         value={w2.ein}
-                        onChange={(e) => updateW2(index, { ein: e.target.value })}
+                        onChange={(e) => updateW2(index, { ein: formatEIN(e.target.value) })}
                         onBlur={() => touchField(`w2-${index}-ein`)}
                         placeholder="XX-XXXXXXX"
                         className={getInputClassName(`w2-${index}-ein`)}
