@@ -43,8 +43,25 @@ function normalizeExtractedText(text: string): string {
     .trim();
 }
 
+function getTesseractLangPath(): string {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}/tesseract/`;
+  }
+
+  return '/tesseract/';
+}
+
+function getTesseractOptions() {
+  // Use same-origin static assets so OCR works in locked-down/browser-sandboxed
+  // environments where CDN fetches fail.
+  return {
+    langPath: getTesseractLangPath(),
+  };
+}
+
 async function runOCR(file: Blob): Promise<OCRResult> {
   const result = await Tesseract.recognize(file, 'eng', {
+    ...getTesseractOptions(),
     logger: (m) => console.log(m),
   });
 
@@ -115,7 +132,15 @@ async function extractTextFromPdf(file: File): Promise<OCRResult> {
   const pdfBuffer = await file.arrayBuffer();
 
   const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
-  const loadingTask = pdfjs.getDocument({ data: new Uint8Array(pdfBuffer), disableWorker: true } as any);
+
+  if (!pdfjs.GlobalWorkerOptions.workerSrc) {
+    pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+      'pdfjs-dist/legacy/build/pdf.worker.mjs',
+      import.meta.url
+    ).toString();
+  }
+
+  const loadingTask = pdfjs.getDocument({ data: new Uint8Array(pdfBuffer) } as any);
   const pdf = await loadingTask.promise;
 
   const textSegments: string[] = [];
@@ -214,6 +239,7 @@ export async function extractTextFromRegion(
 
   try {
     worker = await Tesseract.createWorker('eng', undefined, {
+      ...getTesseractOptions(),
       logger: (m) => console.log(m),
     });
 

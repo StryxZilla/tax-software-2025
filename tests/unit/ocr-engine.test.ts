@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
-const { recognize, getDocument, getTextContent, render } = vi.hoisted(() => {
+const { recognize, createWorker, getDocument, getTextContent, render } = vi.hoisted(() => {
   const recognize = vi.fn();
+  const createWorker = vi.fn();
   const getTextContent = vi.fn();
   const render = vi.fn();
 
@@ -15,25 +16,27 @@ const { recognize, getDocument, getTextContent, render } = vi.hoisted(() => {
     promise: Promise.resolve({ numPages: 1, getPage }),
   }));
 
-  return { recognize, getDocument, getTextContent, render };
+  return { recognize, createWorker, getDocument, getTextContent, render };
 });
 
 vi.mock('tesseract.js', () => ({
   default: {
     recognize,
-    createWorker: vi.fn(),
+    createWorker,
   },
 }));
 
 vi.mock('pdfjs-dist/legacy/build/pdf.mjs', () => ({
   getDocument,
+  GlobalWorkerOptions: {},
 }));
 
-import { extractText } from '@/lib/ocr/ocr-engine';
+import { extractText, extractTextFromRegion } from '@/lib/ocr/ocr-engine';
 
 describe('ocr-engine', () => {
   beforeEach(() => {
     recognize.mockReset();
+    createWorker.mockReset();
     getDocument.mockClear();
     getTextContent.mockReset();
     render.mockReset();
@@ -106,5 +109,31 @@ describe('ocr-engine', () => {
 
     const result = await extractText(imageFile);
     expect(result).toEqual({ text: 'ok', confidence: 99 });
+    expect(recognize).toHaveBeenCalledWith(
+      expect.anything(),
+      'eng',
+      expect.objectContaining({
+        langPath: '/tesseract/',
+      })
+    );
+  });
+
+  it('uses explicit tessdata langPath for region OCR worker initialization', async () => {
+    const terminate = vi.fn().mockResolvedValue(undefined);
+    const workerRecognize = vi.fn().mockResolvedValue({ data: { text: 'box 1', confidence: 75 } });
+    createWorker.mockResolvedValue({ recognize: workerRecognize, terminate });
+
+    const imageFile = new File(['x'], 'w2.png', { type: 'image/png' });
+    const result = await extractTextFromRegion(imageFile, { left: 0, top: 0, width: 10, height: 10 });
+
+    expect(result).toEqual({ text: 'box 1', confidence: 75 });
+    expect(createWorker).toHaveBeenCalledWith(
+      'eng',
+      undefined,
+      expect.objectContaining({
+        langPath: '/tesseract/',
+      })
+    );
+    expect(terminate).toHaveBeenCalled();
   });
 });
