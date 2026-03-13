@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Download, FileText, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { TaxReturn } from '../../types/tax-types';
-import { generateAllForms } from '../../lib/engine/pdf/pdf-generator';
+import { generateFederalFilingPacket } from '../../lib/engine/pdf/filing-packet';
 import { validateSSN } from '../../lib/validation/form-validation';
 
 interface PdfDownloadButtonProps {
@@ -34,7 +34,7 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
       }
 
       // Generate the PDF with a timeout
-      const pdfPromise = generateAllForms(taxReturn);
+      const pdfPromise = generateFederalFilingPacket(taxReturn);
       const timeoutPromise = new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('timeout:PDF generation timed out. Please try again.')), 30000)
       );
@@ -218,6 +218,10 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
               </div>
               <div className="flex items-start gap-2">
                 <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                <span className="text-sm text-blue-900">Cover page + print/mail checklist</span>
+              </div>
+              <div className="flex items-start gap-2">
+                <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                 <span className="text-sm text-blue-900">Schedule 1 - Additional Income</span>
               </div>
               <div className="flex items-start gap-2">
@@ -228,6 +232,12 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
                 <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
                 <span className="text-sm text-blue-900">Schedule 3 - Credits & Payments</span>
               </div>
+              {(taxReturn.interest.length > 0 || taxReturn.dividends.length > 0) && (
+                <div className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                  <span className="text-sm text-blue-900">Schedule B - Interest & Dividends</span>
+                </div>
+              )}
               {taxReturn.itemizedDeductions && (
                 <div className="flex items-start gap-2">
                   <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
@@ -235,10 +245,16 @@ export default function PdfDownloadButton({ taxReturn }: PdfDownloadButtonProps)
                 </div>
               )}
               {taxReturn.selfEmployment && (
-                <div className="flex items-start gap-2">
-                  <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span className="text-sm text-blue-900">Schedule C - Business Income</span>
-                </div>
+                <>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm text-blue-900">Schedule C - Business Income</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <CheckCircle className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm text-blue-900">Schedule SE - Self-Employment Tax (if net profit &gt; $400)</span>
+                  </div>
+                </>
               )}
               {taxReturn.capitalGains.length > 0 && (
                 <div className="flex items-start gap-2">
