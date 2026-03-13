@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToString } from 'react-dom/server';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync, openSync, readSync, closeSync } from 'fs';
 import { resolve } from 'path';
 import ZoeyImage from '../../components/brand/ZoeyImage';
 
@@ -74,28 +74,23 @@ describe('ZoeyImage fallback assets exist on disk', () => {
   });
 });
 
-describe('Auth pages reference zoey-neutral.png correctly', () => {
+describe('Auth pages reference zoey-pointing.png correctly', () => {
   it.each([
     ['login', '../../app/auth/login/page.tsx'],
     ['register', '../../app/auth/register/page.tsx'],
-  ])('%s page imports ZoeyImage and uses zoey-neutral.png', (_name, modulePath) => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const fs = require('fs');
-    const path = require('path');
-    const source = fs.readFileSync(path.resolve(__dirname, modulePath), 'utf8');
+  ])('%s page imports ZoeyImage and uses zoey-pointing.png', (_name, modulePath) => {
+    const source = readFileSync(resolve(__dirname, modulePath), 'utf8');
     expect(source).toContain("import ZoeyImage from");
-    expect(source).toContain('src="/brand/zoey-neutral.png"');
+    expect(source).toContain('src="/brand/zoey-pointing.png"');
   });
 
   it('zoey-neutral.png exists and is a valid PNG', () => {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const fs = require('fs');
     const filePath = resolve(publicDir, 'brand/zoey-neutral.png');
     expect(existsSync(filePath)).toBe(true);
     const header = Buffer.alloc(8);
-    const fd = fs.openSync(filePath, 'r');
-    fs.readSync(fd, header, 0, 8, 0);
-    fs.closeSync(fd);
+    const fd = openSync(filePath, 'r');
+    readSync(fd, header, 0, 8, 0);
+    closeSync(fd);
     // PNG magic bytes: 89 50 4E 47 0D 0A 1A 0A
     expect(header[0]).toBe(0x89);
     expect(header[1]).toBe(0x50);
