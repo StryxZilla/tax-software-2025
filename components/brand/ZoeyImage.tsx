@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 
 const FALLBACK_CHAIN = [
   '/brand/zoey-neutral.png',
@@ -67,24 +67,28 @@ export default function ZoeyImage({
   src,
   alt,
   fallbackText = '🐕',
-  fallbackChain = [...FALLBACK_CHAIN],
+  fallbackChain,
   className = '',
   'data-testid': testId,
   ...rest
 }: ZoeyImageProps) {
   const imgRef = useRef<HTMLImageElement>(null);
-  const [candidates, setCandidates] = useState<string[]>([src, ...fallbackChain]);
+  const resolvedFallbackChain = useMemo(
+    () => fallbackChain ?? [...FALLBACK_CHAIN],
+    [fallbackChain],
+  );
+  const [candidates, setCandidates] = useState<string[]>([src, ...resolvedFallbackChain]);
   const [currentSrc, setCurrentSrc] = useState(src);
   const [failedSrcs, setFailedSrcs] = useState<Set<string>>(new Set());
   const [allFailed, setAllFailed] = useState(false);
 
   useEffect(() => {
-    const nextCandidates = buildCandidates(src, fallbackChain);
+    const nextCandidates = buildCandidates(src, resolvedFallbackChain);
     setCandidates(nextCandidates);
     setCurrentSrc(nextCandidates[0] || src);
     setFailedSrcs(new Set());
     setAllFailed(false);
-  }, [src, fallbackChain]);
+  }, [src, resolvedFallbackChain]);
 
   const advanceFallback = useCallback(
     (failedSrc: string) => {
