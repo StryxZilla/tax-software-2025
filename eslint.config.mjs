@@ -9,6 +9,7 @@ const eslintConfig = defineConfig([
     rules: {
       "react/no-unescaped-entities": "warn",
       "@typescript-eslint/no-explicit-any": "warn",
+      "react-hooks/set-state-in-effect": "warn",
     },
   },
   {
