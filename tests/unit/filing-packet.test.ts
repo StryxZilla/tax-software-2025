@@ -91,7 +91,8 @@ describe('federal filing packet', () => {
     expect(manifest.includedForms).toContain('Schedule C');
     expect(manifest.includedForms).toContain('Schedule SE');
     expect(manifest.includedForms).not.toContain('Schedule D');
-    expect(manifest.unsupportedOrManualForms.some((n) => n.includes('W-2'))).toBe(true);
+    expect(manifest.includedForms).toContain('Form W-2');
+    expect(manifest.unsupportedOrManualForms.some((n) => n.includes('W-2'))).toBe(false);
   });
 
   it('generates a merged filing packet PDF with cover page and included forms', async () => {

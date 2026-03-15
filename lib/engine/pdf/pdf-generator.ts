@@ -7,7 +7,7 @@
  */
 
 import { PDFDocument, PDFPage, rgb, StandardFonts } from 'pdf-lib';
-import { TaxReturn, TaxCalculation } from '../../../types/tax-types';
+import { TaxReturn, TaxCalculation, W2Income, EducationExpenses, HSAData } from '../../../types/tax-types';
 import { calculateTaxReturn } from '../calculations/tax-calculator';
 
 // ===== UTILITY FUNCTIONS =====
@@ -751,6 +751,454 @@ export async function generateScheduleE(taxReturn: TaxReturn): Promise<Uint8Arra
 
   page.drawText('Total rental real estate income or (loss)', { x: 50, y: yPos, size: 10, font: boldFont });
   page.drawText(formatCurrency(totalRentalIncome), { x: 450, y: yPos, size: 10, font: boldFont });
+
+  return pdfDoc.save();
+}
+
+// ===== FORM W-2 =====
+
+/**
+ * Generate Form W-2 (Wage and Tax Statement) for each employer
+ */
+export async function generateFormW2(w2Data: W2Income, ssn: string, year: number = 2025): Promise<Uint8Array> {
+  const pdfDoc = await PDFDocument.create();
+  const page = pdfDoc.addPage([612, 792]); // 8.5" x 11" in points
+  const { width, height } = page.getSize();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+
+  let yPos = height - 50;
+
+  // Form header
+  page.drawText(`Form W-2`, { x: 50, y: yPos, size: 16, font: boldFont });
+  page.drawText(`Wage and Tax Statement`, { x: 150, y: yPos, size: 16, font: boldFont });
+  yPos -= 25;
+  page.drawText(`Tax Year ${year}`, { x: 50, y: yPos, size: 12, font });
+  page.drawText(`Department of the Treasury - Internal Revenue Service`, { x: 50, y: yPos - 15, size: 8, font, color: rgb(0.3, 0.3, 0.3) });
+
+  yPos -= 40;
+
+  // Filer information
+  page.drawText('Control Number', { x: 50, y: yPos, size: 10, font: boldFont });
+  page.drawText(formatSSN(w2Data.ein.replace('-', '').slice(-7)), { x: 180, y: yPos, size: 10, font });
+  yPos -= 20;
+
+  // Box a - Employee's social security number
+  page.drawText('a. Employee\'s Social Security Number', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatSSN(ssn), { x: 350, y: yPos, size: 10, font });
+  yPos -= 18;
+
+  // Box b - Employer identification number
+  page.drawText('b. Employer Identification Number (EIN)', { x: 50, y: yPos, size: 9, font });
+  page.drawText(w2Data.ein, { x: 350, y: yPos, size: 10, font });
+  yPos -= 18;
+
+  // Box c - Employer's name, address, and ZIP code
+  page.drawText('c. Employer\'s name, address, and ZIP code', { x: 50, y: yPos, size: 9, font });
+  page.drawText(w2Data.employer, { x: 350, y: yPos, size: 10, font });
+  yPos -= 15;
+  page.drawText('(Address on file with employer)', { x: 350, y: yPos, size: 8, font });
+  yPos -= 18;
+
+  // Box d - Employee's name
+  page.drawText('d. Employee\'s first name and initial', { x: 50, y: yPos, size: 9, font });
+  yPos -= 15;
+  page.drawText('Last name', { x: 50, y: yPos, size: 9, font });
+  yPos -= 18;
+
+  // Box e - Employee's address
+  page.drawText('e. Employee\'s address and ZIP code', { x: 50, y: yPos, size: 9, font });
+  yPos -= 30;
+
+  // Wage and withholding boxes - Row 1
+  page.drawText('1. Wages, tips, other compensation', { x: 50, y: yPos, size: 9, font: boldFont });
+  page.drawText(formatCurrency(w2Data.wages), { x: 400, y: yPos, size: 10, font: boldFont });
+  yPos -= 18;
+
+  page.drawText('2. Federal income tax withheld', { x: 50, y: yPos, size: 9, font: boldFont });
+  page.drawText(formatCurrency(w2Data.federalTaxWithheld), { x: 400, y: yPos, size: 10, font: boldFont });
+  yPos -= 18;
+
+  // Box 3 & 4 - Social Security
+  page.drawText('3. Social Security wages', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(w2Data.socialSecurityWages), { x: 400, y: yPos, size: 10, font });
+  yPos -= 15;
+  page.drawText('4. Social Security tax withheld', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(w2Data.socialSecurityTaxWithheld), { x: 400, y: yPos, size: 10, font });
+  yPos -= 18;
+
+  // Box 5 & 6 - Medicare
+  page.drawText('5. Medicare wages and tips', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(w2Data.medicareWages), { x: 400, y: yPos, size: 10, font });
+  yPos -= 15;
+  page.drawText('6. Medicare tax withheld', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(w2Data.medicareTaxWithheld), { x: 400, y: yPos, size: 10, font });
+  yPos -= 25;
+
+  // Boxes 7-8 - Social Security Tips (not commonly used)
+  page.drawText('7. Social Security tips', { x: 50, y: yPos, size: 9, font });
+  page.drawText('$0.00', { x: 400, y: yPos, size: 10, font });
+  yPos -= 15;
+  page.drawText('8. Allocated tips', { x: 50, y: yPos, size: 9, font });
+  page.drawText('$0.00', { x: 400, y: yPos, size: 10, font });
+  yPos -= 18;
+
+  // Box 10 - Dependent care benefits
+  page.drawText('10. Dependent care benefits', { x: 50, y: yPos, size: 9, font });
+  page.drawText('$0.00', { x: 400, y: yPos, size: 10, font });
+  yPos -= 18;
+
+  // Box 11 - Nonqualified plans
+  page.drawText('11. Nonqualified plans', { x: 50, y: yPos, size: 9, font });
+  page.drawText('$0.00', { x: 400, y: yPos, size: 10, font });
+  yPos -= 25;
+
+  // Boxes 12a-d - Codes
+  page.drawText('12a. Deferred compensation & other', { x: 50, y: yPos, size: 9, font });
+  page.drawText('$0.00', { x: 400, y: yPos, size: 10, font });
+  yPos -= 15;
+  page.drawText('12b.', { x: 50, y: yPos, size: 9, font });
+  page.drawText('$0.00', { x: 400, y: yPos, size: 10, font });
+  yPos -= 15;
+  page.drawText('12c.', { x: 50, y: yPos, size: 9, font });
+  page.drawText('$0.00', { x: 400, y: yPos, size: 10, font });
+  yPos -= 15;
+  page.drawText('12d.', { x: 50, y: yPos, size: 9, font });
+  page.drawText('$0.00', { x: 400, y: yPos, size: 10, font });
+  yPos -= 25;
+
+  // Box 13 - Checkboxes
+  page.drawText('13. Statutory employee / Retirement plan / Third-party sick pay', { x: 50, y: yPos, size: 9, font });
+  page.drawText('☐  ☐  ☐', { x: 400, y: yPos, size: 12, font });
+  yPos -= 18;
+
+  // Box 14 - Other
+  page.drawText('14. Other', { x: 50, y: yPos, size: 9, font });
+  yPos -= 15;
+  page.drawText('(State tax info, etc.)', { x: 50, y: yPos, size: 8, font });
+  yPos -= 25;
+
+  // Boxes 15-20 - State tax info
+  page.drawText('15. State', { x: 50, y: yPos, size: 9, font });
+  page.drawText('State EIN', { x: 180, y: yPos, size: 9, font });
+  page.drawText('State wages', { x: 350, y: yPos, size: 9, font });
+  page.drawText('State income tax', { x: 500, y: yPos, size: 9, font });
+  yPos -= 15;
+  page.drawText('---', { x: 50, y: yPos, size: 9, font });
+  page.drawText('---', { x: 180, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(w2Data.wages), { x: 350, y: yPos, size: 9, font });
+  page.drawText('$0.00', { x: 500, y: yPos, size: 9, font });
+  yPos -= 18;
+
+  page.drawText('---', { x: 50, y: yPos, size: 9, font });
+  page.drawText('---', { x: 180, y: yPos, size: 9, font });
+  page.drawText('$0.00', { x: 350, y: yPos, size: 9, font });
+  page.drawText('$0.00', { x: 500, y: yPos, size: 9, font });
+
+  // Disclaimer
+  page.drawText('FOR INFORMATIONAL PURPOSES ONLY - VERIFY ALL DATA BEFORE FILING', {
+    x: 50,
+    y: 30,
+    size: 8,
+    font,
+    color: rgb(0.5, 0, 0),
+  });
+
+  return pdfDoc.save();
+}
+
+// ===== FORM 8863 =====
+
+/**
+ * Generate Form 8863 (Education Credits: American Opportunity and Lifetime Learning Credits)
+ */
+export async function generateForm8863(educationExpenses: EducationExpenses[], taxReturn: TaxReturn): Promise<Uint8Array | null> {
+  if (educationExpenses.length === 0) return null;
+
+  const pdfDoc = await PDFDocument.create();
+  const { page, font, boldFont } = await createFormPage(pdfDoc, 'Form 8863', 'Education Credits (American Opportunity and Lifetime Learning)');
+  const { height } = page.getSize();
+
+  let yPos = height - 120;
+
+  // Name and SSN
+  page.drawText(`Name: ${taxReturn.personalInfo.firstName} ${taxReturn.personalInfo.lastName}`, { x: 50, y: yPos, size: 10, font });
+  page.drawText(`SSN: ${formatSSN(taxReturn.personalInfo.ssn)}`, { x: 400, y: yPos, size: 10, font });
+  yPos -= 30;
+
+  // Part I - American Opportunity Credit
+  page.drawText('Part I - American Opportunity Credit', { x: 50, y: yPos, size: 12, font: boldFont });
+  yPos -= 20;
+
+  let totalAOCQualifiedExpenses = 0;
+  let studentsEligibleForAOC = 0;
+
+  educationExpenses.forEach((student, idx) => {
+    // AOC only for first 4 years of post-secondary education
+    const isAOCEligible = student.isFirstFourYears;
+    
+    if (isAOCEligible) {
+      studentsEligibleForAOC++;
+      // Max $4,000 per student (100% of first $2,000 + 25% of next $2,000)
+      const maxCreditPerStudent = Math.min(student.tuitionAndFees, 2000) + Math.min(Math.max(0, student.tuitionAndFees - 2000) * 0.25, 500);
+      totalAOCQualifiedExpenses += maxCreditPerStudent;
+
+      yPos -= 15;
+      page.drawText(`${idx + 1}. ${student.studentName} - ${student.institution}`, { x: 50, y: yPos, size: 9, font });
+      yPos -= 12;
+      page.drawText(`   Qualified expenses: ${formatCurrency(student.tuitionAndFees)}`, { x: 60, y: yPos, size: 8, font });
+      yPos -= 12;
+      page.drawText(`   Credit amount: ${formatCurrency(maxCreditPerStudent)}`, { x: 60, y: yPos, size: 8, font });
+    }
+  });
+
+  yPos -= 10;
+  page.drawText('1. Total qualified education expenses for American Opportunity Credit', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(totalAOCQualifiedExpenses), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  page.drawText('2. Number of students eligible for American Opportunity Credit', { x: 50, y: yPos, size: 9, font });
+  page.drawText(String(studentsEligibleForAOC), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  // Max credit is $2,500 per eligible student
+  const aocCredit = Math.min(totalAOCQualifiedExpenses, studentsEligibleForAOC * 2500);
+  page.drawText('3. American Opportunity Credit (100% of line 1 up to $2,500 per student)', { x: 50, y: yPos, size: 9, font: boldFont });
+  page.drawText(formatCurrency(aocCredit), { x: 450, y: yPos, size: 9, font: boldFont });
+  yPos -= 30;
+
+  // Part II - Lifetime Learning Credit
+  page.drawText('Part II - Lifetime Learning Credit', { x: 50, y: yPos, size: 12, font: boldFont });
+  yPos -= 20;
+
+  // LLC is 20% of first $10,000 of qualified expenses, max $2,000 per return
+  const totalLLExpenses = educationExpenses.reduce((sum, e) => sum + e.tuitionAndFees, 0);
+  const llcCredit = Math.min(totalLLExpenses * 0.20, 2000);
+
+  page.drawText('5. Total qualified education expenses for Lifetime Learning Credit', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(totalLLExpenses), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  page.drawText('6. Lifetime Learning Credit (20% of line 5, max $2,000)', { x: 50, y: yPos, size: 9, font: boldFont });
+  page.drawText(formatCurrency(llcCredit), { x: 450, y: yPos, size: 9, font: boldFont });
+  yPos -= 30;
+
+  // Part III - Summary
+  page.drawText('Part III - Summary', { x: 50, y: yPos, size: 12, font: boldFont });
+  yPos -= 20;
+
+  // 2025 income limits for AOC: Modified AGI up to $90,000 single/$180,000 MFJ
+  const agi = taxReturn.taxCalculation?.agi || 0;
+  let aocReduction = 0;
+  if (taxReturn.personalInfo.filingStatus === 'Single' || taxReturn.personalInfo.filingStatus === 'Head of Household') {
+    if (agi > 80000) aocReduction = Math.min(1, (agi - 80000) / 10000);
+  } else if (agi > 160000) {
+    aocReduction = Math.min(1, (agi - 160000) / 10000);
+  }
+
+  const reducedAOC = aocCredit * (1 - aocReduction);
+  const totalEducationCredit = reducedAOC + llcCredit;
+
+  page.drawText('8. Total education credits', { x: 50, y: yPos, size: 10, font: boldFont });
+  page.drawText(formatCurrency(totalEducationCredit), { x: 450, y: yPos, size: 10, font: boldFont });
+  yPos -= 15;
+
+  page.drawText('(Enter on Schedule 3, line 3)', { x: 50, y: yPos, size: 8, font, color: rgb(0.4, 0.4, 0.4) });
+
+  return pdfDoc.save();
+}
+
+// ===== FORM 8889 =====
+
+/**
+ * Generate Form 8889 (Health Savings Account)
+ */
+export async function generateForm8889(hsaData: HSAData, taxReturn: TaxReturn): Promise<Uint8Array | null> {
+  if (!hsaData) return null;
+
+  const pdfDoc = await PDFDocument.create();
+  const { page, font, boldFont } = await createFormPage(pdfDoc, 'Form 8889', 'Health Savings Accounts (HSA)');
+  const { height } = page.getSize();
+
+  let yPos = height - 120;
+
+  // Name and SSN
+  page.drawText(`Name: ${taxReturn.personalInfo.firstName} ${taxReturn.personalInfo.lastName}`, { x: 50, y: yPos, size: 10, font });
+  page.drawText(`SSN: ${formatSSN(taxReturn.personalInfo.ssn)}`, { x: 400, y: yPos, size: 10, font });
+  yPos -= 25;
+
+  // Checkboxes
+  page.drawText('✓', { x: 50, y: yPos, size: 10, font });
+  page.drawText(hsaData.isFamily ? 'Self-only coverage' : 'Family coverage', { x: 70, y: yPos, size: 10, font });
+  yPos -= 30;
+
+  // 2025 HSA contribution limits: Self-only $4,150, Family $8,300
+  const contributionLimit = hsaData.isFamily ? 8300 : 4150;
+
+  // Part I - HSA Contributions
+  page.drawText('Part I - HSA Contributions', { x: 50, y: yPos, size: 12, font: boldFont });
+  yPos -= 20;
+
+  page.drawText('1. HSA contributions you made (and those made on your behalf)', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(hsaData.contributions), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  page.drawText('2. Employer contributions to HSA', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(hsaData.employerContributions), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  const totalContributions = hsaData.contributions + hsaData.employerContributions;
+  page.drawText('3. Total HSA contributions (line 1 + line 2)', { x: 50, y: yPos, size: 9, font: boldFont });
+  page.drawText(formatCurrency(totalContributions), { x: 450, y: yPos, size: 9, font: boldFont });
+  yPos -= 15;
+
+  page.drawText(`4. HSA contribution limit (${hsaData.isFamily ? 'Family' : 'Self-only'})`, { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(contributionLimit), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  const excessContribution = Math.max(0, totalContributions - contributionLimit);
+  if (excessContribution > 0) {
+    page.drawText('5. Excess contributions (line 3 minus line 4)', { x: 50, y: yPos, size: 9, font, color: rgb(0.7, 0, 0) });
+    page.drawText(formatCurrency(excessContribution), { x: 450, y: yPos, size: 9, font, color: rgb(0.7, 0, 0) });
+  } else {
+    page.drawText('5. Excess contributions', { x: 50, y: yPos, size: 9, font });
+    page.drawText('$0.00', { x: 450, y: yPos, size: 9, font });
+  }
+  yPos -= 15;
+
+  // 2025 catch-up contribution for age 55+: additional $1,000
+  if (taxReturn.personalInfo.age >= 55) {
+    const catchUpLimit = 1000;
+    page.drawText(`6. Catch-up contribution (age 55+)`, { x: 50, y: yPos, size: 9, font });
+    page.drawText(formatCurrency(catchUpLimit), { x: 450, y: yPos, size: 9, font });
+    yPos -= 15;
+  }
+
+  // Deduction calculation
+  const deduction = Math.min(totalContributions, contributionLimit);
+  page.drawText('11. HSA deduction (enter on Schedule 1, line 13)', { x: 50, y: yPos, size: 10, font: boldFont });
+  page.drawText(formatCurrency(deduction), { x: 450, y: yPos, size: 10, font: boldFont });
+  yPos -= 30;
+
+  // Part II - HSA Distributions
+  page.drawText('Part II - HSA Distributions', { x: 50, y: yPos, size: 12, font: boldFont });
+  yPos -= 20;
+
+  page.drawText('14. Distributions from HSA', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(hsaData.distributions), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  // Simplified assumption: distributions are for qualified medical expenses
+  page.drawText('15. Qualified medical expenses', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(hsaData.distributions), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  const taxableDistribution = Math.max(0, hsaData.distributions - hsaData.distributions);
+  page.drawText('16. Taxable HSA distributions', { x: 50, y: yPos, size: 9, font: boldFont });
+  page.drawText(formatCurrency(taxableDistribution), { x: 450, y: yPos, size: 9, font: boldFont });
+  yPos -= 15;
+
+  if (taxableDistribution > 0) {
+    page.drawText('17. Additional tax (line 16 × 10%)', { x: 50, y: yPos, size: 9, font, color: rgb(0.7, 0, 0) });
+    page.drawText(formatCurrency(taxableDistribution * 0.10), { x: 450, y: yPos, size: 9, font, color: rgb(0.7, 0, 0) });
+  }
+
+  return pdfDoc.save();
+}
+
+// ===== FORM 8880 =====
+
+/**
+ * Generate Form 8880 (Saver's Credit for Retirement Savings)
+ */
+export async function generateForm8880(taxReturn: TaxReturn): Promise<Uint8Array | null> {
+  const tradIRA = taxReturn.traditionalIRAContribution;
+  const rothIRA = taxReturn.rothIRAContribution;
+
+  // Must have IRA contributions to claim the credit
+  if ((!tradIRA || tradIRA.amount === 0) && (!rothIRA || rothIRA.amount === 0)) return null;
+
+  const pdfDoc = await PDFDocument.create();
+  const { page, font, boldFont } = await createFormPage(pdfDoc, 'Form 8880', 'Credit for Qualified Retirement Savings Contributions');
+  const { height } = page.getSize();
+
+  let yPos = height - 120;
+
+  // Name and SSN
+  page.drawText(`Name: ${taxReturn.personalInfo.firstName} ${taxReturn.personalInfo.lastName}`, { x: 50, y: yPos, size: 10, font });
+  page.drawText(`SSN: ${formatSSN(taxReturn.personalInfo.ssn)}`, { x: 400, y: yPos, size: 10, font });
+  yPos -= 25;
+
+  // Filing status for credit calculation
+  const isMFJ = taxReturn.personalInfo.filingStatus === 'Married Filing Jointly';
+  page.drawText(`Filing Status: ${taxReturn.personalInfo.filingStatus}`, { x: 50, y: yPos, size: 10, font });
+  yPos -= 25;
+
+  // Determine credit rate based on AGI
+  const agi = taxReturn.taxCalculation?.agi || 0;
+
+  // 2025 Saver's Credit income limits
+  let creditRate = 0;
+  let maxCredit = 0;
+  let maxContribution = 0;
+
+  if (isMFJ) {
+    if (agi <= 43600) { creditRate = 0.50; maxContribution = 2000; maxCredit = 1000; }
+    else if (agi <= 47500) { creditRate = 0.20; maxContribution = 2000; maxCredit = 400; }
+    else if (agi <= 76500) { creditRate = 0.10; maxContribution = 2000; maxCredit = 200; }
+  } else {
+    if (agi <= 21800) { creditRate = 0.50; maxContribution = 2000; maxCredit = 1000; }
+    else if (agi <= 23750) { creditRate = 0.20; maxContribution = 2000; maxCredit = 400; }
+    else if (agi <= 38250) { creditRate = 0.10; maxContribution = 2000; maxCredit = 200; }
+  }
+
+  // Part I - Contribution
+  page.drawText('Part I - Contributions', { x: 50, y: yPos, size: 12, font: boldFont });
+  yPos -= 20;
+
+  const tradAmount = tradIRA?.amount || 0;
+  const rothAmount = rothIRA?.amount || 0;
+  const totalContributions = tradAmount + rothAmount;
+
+  page.drawText('1. Traditional IRA contributions', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(tradAmount), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  page.drawText('2. Roth IRA contributions', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(rothAmount), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  page.drawText('3. Total qualified contributions', { x: 50, y: yPos, size: 9, font: boldFont });
+  page.drawText(formatCurrency(totalContributions), { x: 450, y: yPos, size: 9, font: boldFont });
+  yPos -= 25;
+
+  // Part II - Credit Calculation
+  page.drawText('Part II - Saver\'s Credit', { x: 50, y: yPos, size: 12, font: boldFont });
+  yPos -= 20;
+
+  page.drawText('4. Adjusted Gross Income', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(agi), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  page.drawText(`5. Credit rate (based on AGI)`, { x: 50, y: yPos, size: 9, font });
+  page.drawText(`${(creditRate * 100).toFixed(0)}%`, { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  page.drawText('6. Maximum contribution for credit', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(maxContribution), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  const contributionForCredit = Math.min(totalContributions, maxContribution);
+  page.drawText('7. Amount of contribution for credit', { x: 50, y: yPos, size: 9, font });
+  page.drawText(formatCurrency(contributionForCredit), { x: 450, y: yPos, size: 9, font });
+  yPos -= 15;
+
+  const credit = contributionForCredit * creditRate;
+  page.drawText('8. Saver\'s Credit', { x: 50, y: yPos, size: 10, font: boldFont });
+  page.drawText(formatCurrency(credit), { x: 450, y: yPos, size: 10, font: boldFont });
+  yPos -= 15;
+
+  page.drawText('(Enter on Schedule 3, line 4)', { x: 50, y: yPos, size: 8, font, color: rgb(0.4, 0.4, 0.4) });
 
   return pdfDoc.save();
 }

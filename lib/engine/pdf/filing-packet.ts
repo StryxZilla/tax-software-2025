@@ -8,6 +8,10 @@ import {
 import {
   generateForm1040,
   generateForm8606,
+  generateFormW2,
+  generateForm8863,
+  generateForm8889,
+  generateForm8880,
   generateSchedule1,
   generateSchedule2,
   generateSchedule3,
@@ -55,13 +59,12 @@ export function buildFilingPacketManifest(taxReturn: TaxReturn): FilingPacketMan
   if (taxReturn.rentalProperties.length > 0) includedForms.push('Schedule E');
   if (hasScheduleSEData(taxReturn)) includedForms.push('Schedule SE');
   if (taxReturn.form8606) includedForms.push('Form 8606');
+  if (taxReturn.w2Income.length > 0) includedForms.push('Form W-2');
+  if (taxReturn.educationExpenses.length > 0) includedForms.push('Form 8863');
+  if (taxReturn.hsaData) includedForms.push('Form 8889');
+  if (taxReturn.traditionalIRAContribution || taxReturn.rothIRAContribution) includedForms.push('Form 8880');
 
   const unsupportedOrManualForms: string[] = [];
-
-  if (taxReturn.w2Income.length > 0) unsupportedOrManualForms.push('Attach W-2 copies to the printed return before mailing.');
-  if (taxReturn.educationExpenses.length > 0) unsupportedOrManualForms.push('Form 8863 detail worksheet is not generated in this packet (education credit is included in summary tax calc).');
-  if (taxReturn.hsaData) unsupportedOrManualForms.push('Form 8889 (HSA) is not generated yet.');
-  if (taxReturn.traditionalIRAContribution || taxReturn.rothIRAContribution) unsupportedOrManualForms.push('Form 8880 (Saver\'s Credit) detail form is not generated yet.');
 
   unsupportedOrManualForms.push('State tax return forms are not included.');
 
