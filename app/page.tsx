@@ -26,6 +26,7 @@ import ZoeyGuideCard from '../components/brand/ZoeyGuideCard'
 import ZoeyImage from '../components/brand/ZoeyImage'
 import { WizardStep } from '../types/tax-types'
 import { getWizardStepFromStorage } from '../lib/storage/tax-return-storage'
+import { calculateTaxPlanningInsights } from '../lib/engine/calculations/tax-planning'
 
 const STEP_ORDER: WizardStep[] = [
   'personal-info',
@@ -472,6 +473,122 @@ function WizardStepContent() {
                   </div>
                 </dl>
               </div>
+
+              {/* Tax Planning Insights */}
+              {(() => {
+                const insights = calculateTaxPlanningInsights(taxReturn, {
+                  agi: taxCalculation.agi,
+                  totalIncome: taxCalculation.totalIncome,
+                  totalTax: taxCalculation.totalTax,
+                  taxableIncome: taxCalculation.taxableIncome,
+                });
+                
+                if (!insights) return null;
+                
+                const { retirement, taxRates } = insights;
+                
+                return (
+                  <div className="space-y-6">
+                    <div className="card-premium p-8 bg-gradient-to-br from-violet-50 to-purple-50 border-violet-200">
+                      <h3 className="text-2xl font-bold text-slate-900 mb-6 pb-3 border-b-2 border-violet-100">
+                        📈 Tax Planning Insights
+                      </h3>
+                      
+                      {/* 401k Optimization Card */}
+                      <div className="bg-white rounded-xl p-6 border border-violet-100 shadow-sm mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-lg font-semibold text-slate-800">💼 401(k) Optimization</h4>
+                          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                            retirement['401kOptimization'].percentUsed >= 100 
+                              ? 'bg-green-100 text-green-700' 
+                              : retirement['401kOptimization'].percentUsed >= 75
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-amber-100 text-amber-700'
+                          }`}>
+                            {retirement['401kOptimization'].percentUsed}% used
+                          </span>
+                        </div>
+                        <dl className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                          <div>
+                            <dt className="text-xs text-slate-500 uppercase tracking-wide">Current</dt>
+                            <dd className="text-xl font-bold text-slate-800">
+                              ${retirement['401kOptimization'].currentContributions.toLocaleString()}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-slate-500 uppercase tracking-wide">Annual Limit</dt>
+                            <dd className="text-xl font-bold text-slate-800">
+                              ${retirement['401kOptimization'].annualLimit.toLocaleString()}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-slate-500 uppercase tracking-wide">Left on Table</dt>
+                            <dd className="text-xl font-bold text-amber-600">
+                              ${retirement['401kOptimization'].leftOnTable.toLocaleString()}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-xs text-slate-500 uppercase tracking-wide">% Used</dt>
+                            <dd className="text-xl font-bold text-violet-600">
+                              {retirement['401kOptimization'].percentUsed}%
+                            </dd>
+                          </div>
+                        </dl>
+                        <p className="text-sm text-slate-600 bg-violet-50 rounded-lg p-3">
+                          {retirement['401kOptimization'].recommendation}
+                        </p>
+                      </div>
+
+                      {/* Backdoor Roth Card */}
+                      <div className="bg-white rounded-xl p-6 border border-violet-100 shadow-sm mb-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="text-lg font-semibold text-slate-800">🔄 Backdoor Roth IRA</h4>
+                          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                            retirement.backdoorRoth.eligible 
+                              ? 'bg-green-100 text-green-700' 
+                              : 'bg-red-100 text-red-700'
+                          }`}>
+                            {retirement.backdoorRoth.eligible ? 'Eligible' : 'Not Eligible'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-slate-600 mb-3">
+                          {retirement.backdoorRoth.reason}
+                        </p>
+                        <p className="text-sm text-slate-700 bg-violet-50 rounded-lg p-3 font-medium">
+                          💡 {retirement.backdoorRoth.recommendation}
+                        </p>
+                      </div>
+
+                      {/* Effective vs Marginal Rate Card */}
+                      <div className="bg-white rounded-xl p-6 border border-violet-100 shadow-sm">
+                        <h4 className="text-lg font-semibold text-slate-800 mb-4">📊 Effective vs Marginal Rate</h4>
+                        <div className="grid grid-cols-2 gap-6 mb-4">
+                          <div className="text-center p-4 bg-green-50 rounded-xl border border-green-200">
+                            <dt className="text-sm font-semibold text-green-700 uppercase tracking-wide mb-2">Effective Rate</dt>
+                            <dd className="text-4xl font-bold text-green-600">{taxRates.effectiveRatePercent}%</dd>
+                            <p className="text-xs text-green-600 mt-1">Actual % of income paid</p>
+                          </div>
+                          <div className="text-center p-4 bg-amber-50 rounded-xl border border-amber-200">
+                            <dt className="text-sm font-semibold text-amber-700 uppercase tracking-wide mb-2">Marginal Rate</dt>
+                            <dd className="text-4xl font-bold text-amber-600">{taxRates.marginalRatePercent}%</dd>
+                            <p className="text-xs text-amber-600 mt-1">Rate on next dollar</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-slate-600 bg-violet-50 rounded-lg p-3">
+                          {taxRates.breakdown}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Disclaimer */}
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <p className="text-sm text-amber-800">
+                        <strong>⚠️ Disclaimer:</strong> This is for educational purposes only — consult a qualified tax professional for personalized tax advice.
+                      </p>
+                    </div>
+                  </div>
+                );
+              })()}
             </>
           ) : (
             <div className="card-premium p-12 text-center">

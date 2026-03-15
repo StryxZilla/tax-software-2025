@@ -252,6 +252,8 @@ export interface TaxReturn {
   educationExpenses: EducationExpenses[];
   estimatedTaxPayments: number;
   taxCalculation?: TaxCalculation;
+  // 401(k) contributions - extracted from W-2 Box 12 codes EE and H
+  k401Contributions?: number;
 }
 
 // Step optionality metadata
