@@ -13,8 +13,10 @@ import InterestIncomeForm from '../components/forms/InterestIncomeForm'
 import CapitalGainsForm from '../components/forms/CapitalGainsForm'
 import ScheduleCForm from '../components/forms/ScheduleCForm'
 import Form1099NECList from '../components/forms/Form1099NECList'
+import Form1099KList from '../components/forms/Form1099KList'
 import RentalPropertyForm from '../components/forms/RentalPropertyForm'
 import RetirementForm from '../components/forms/RetirementForm'
+import AboveTheLineDeductionsForm from '../components/forms/AboveTheLineDeductionsForm'
 import ItemizedDeductionsForm from '../components/forms/ItemizedDeductionsForm'
 import CreditsForm from '../components/forms/CreditsForm'
 import TaxSummarySidebar from '../components/review/TaxSummarySidebar'
@@ -232,6 +234,26 @@ function WizardStepContent() {
         </>
       )
 
+    case 'income-1099-k':
+      return (
+        <>
+          <Form1099KList
+            values={taxReturn.form1099K}
+            onChange={(form1099K) => {
+              updateTaxReturn({ form1099K })
+              recalculateTaxes()
+            }}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            onSkip={handleSkip}
+            canProceed={true}
+          />
+        </>
+      )
+
     case 'income-rental':
       return (
         <>
@@ -266,6 +288,25 @@ function WizardStepContent() {
                 rothIRAContribution: updates.rothIRA,
                 form8606: updates.form8606,
               })
+              recalculateTaxes()
+            }}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            onSkip={handleSkip}
+          />
+        </>
+      )
+
+    case 'above-the-line':
+      return (
+        <>
+          <AboveTheLineDeductionsForm
+            value={taxReturn.aboveTheLineDeductions}
+            onChange={(aboveTheLineDeductions) => {
+              updateTaxReturn({ aboveTheLineDeductions })
               recalculateTaxes()
             }}
           />

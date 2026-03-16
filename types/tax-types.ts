@@ -98,6 +98,15 @@ export interface Form1099NEC {
   federalTaxWithheld: number;
 }
 
+export interface Form1099K {
+  id: string;
+  payer: string;
+  ein: string;
+  grossAmount: number;
+  transactionCount: number;
+  merchantCategoryCode: string;
+}
+
 export interface ScheduleCExpenses {
   advertising: number;
   carAndTruck: number;
@@ -191,10 +200,20 @@ export interface ItemizedDeductions {
   otherDeductions: number;
 }
 
+export interface AboveTheLineDeductionsData {
+  educatorExpenses: number;
+  studentLoanInterest: number;
+  hsaContributions: number;
+  hsaEmployerContributions: number;
+  movingExpenses: number;
+  selfEmploymentHealthInsurance: number;
+  sepIRA: number;
+  alimonyPaid: number;
+}
+
 export interface AboveTheLineDeductions {
   educatorExpenses: number;
   studentLoanInterest: number;
-  hsaDeduction: number;
   movingExpenses: number;
   selfEmploymentTaxDeduction: number;
   selfEmployedHealthInsurance: number;
@@ -293,13 +312,14 @@ export interface TaxReturn {
   capitalGains: CapitalGainTransaction[];
   selfEmployment?: SelfEmploymentIncome;
   form1099NEC: Form1099NEC[];
+  form1099K: Form1099K[];
   rentalProperties: RentalProperty[];
   traditionalIRAContribution?: TraditionalIRAContribution;
   rothIRAContribution?: RothIRAContribution;
   form8606?: Form8606Data;
   hsaData?: HSAData;
   itemizedDeductions?: ItemizedDeductions;
-  aboveTheLineDeductions: AboveTheLineDeductions;
+  aboveTheLineDeductions: AboveTheLineDeductionsData;
   educationExpenses: EducationExpenses[];
   dependentCareExpenses?: DependentCareExpenses[];
   electricVehicleCredit?: ElectricVehicleCredit;
@@ -327,8 +347,10 @@ export const STEP_META: StepMeta[] = [
   { id: 'income-capital-gains',   requirement: 'optional' },
   { id: 'income-self-employment', requirement: 'optional' },
   { id: 'income-1099-nec',       requirement: 'optional' },
+  { id: 'income-1099-k',       requirement: 'optional' },
   { id: 'income-rental',          requirement: 'optional' },
   { id: 'retirement-accounts',    requirement: 'optional' },
+  { id: 'above-the-line',        requirement: 'optional' },
   { id: 'deductions',             requirement: 'optional' },
   { id: 'credits',                requirement: 'optional' },
   { id: 'review',                 requirement: 'required' },
@@ -350,8 +372,10 @@ export type WizardStep =
   | 'income-capital-gains'
   | 'income-self-employment'
   | 'income-1099-nec'
+  | 'income-1099-k'
   | 'income-rental'
   | 'retirement-accounts'
+  | 'above-the-line'
   | 'deductions'
   | 'credits'
   | 'review'

@@ -80,6 +80,13 @@ export function calculateTotalIncome(taxReturn: TaxReturn): number {
     total += total1099NEC;
   }
 
+  // 1099-K income (payment apps like Venmo, PayPal)
+  // Note: This is gross - expenses reduce taxable income
+  if (taxReturn.form1099K && taxReturn.form1099K.length > 0) {
+    const total1099K = taxReturn.form1099K.reduce((sum, k) => sum + (k.grossAmount || 0), 0);
+    total += total1099K;
+  }
+
   // Rental income
   taxReturn.rentalProperties.forEach(rental => {
     const netRentalIncome = calculateRentalIncome(rental);
@@ -125,6 +132,21 @@ export function calculateAdjustments(taxReturn: TaxReturn): number {
   if (taxReturn.traditionalIRAContribution?.isDeductible) {
     adjustments += taxReturn.traditionalIRAContribution.amount;
   }
+
+  // HSA deduction (from above-the-line form)
+  adjustments += taxReturn.aboveTheLineDeductions.hsaContributions;
+  
+  // Employer HSA contributions (already taxed, not deductible by employee)
+  // (taxReturn.aboveTheLineDeductions.hsaEmployerContributions is not deducted)
+
+  // Self-employed health insurance
+  adjustments += taxReturn.aboveTheLineDeductions.selfEmploymentHealthInsurance;
+
+  // SEP IRA / SIMPLE IRA
+  adjustments += taxReturn.aboveTheLineDeductions.sepIRA;
+
+  // Alimony paid (pre-2019 divorce agreements only)
+  adjustments += taxReturn.aboveTheLineDeductions.alimonyPaid;
 
   // Student loan interest
   adjustments += taxReturn.aboveTheLineDeductions.studentLoanInterest;
@@ -836,23 +858,29 @@ export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
 
   // Calculate self-employment tax
   let selfEmploymentTax = 0;
+  
+  // Calculate total SE income sources
+  let seProfit = 0;
   if (taxReturn.selfEmployment) {
-    const seProfit = calculateScheduleCProfit(taxReturn.selfEmployment);
-    // Add 1099-NEC income to SE profit
-    let total1099NEC = 0;
-    if (taxReturn.form1099NEC && taxReturn.form1099NEC.length > 0) {
-      total1099NEC = taxReturn.form1099NEC.reduce((sum, nec) => sum + (nec.nonEmployeeCompensation || 0), 0);
-    }
-    const combinedProfit = seProfit + total1099NEC;
-    if (combinedProfit > 400) {
-      selfEmploymentTax = calculateSelfEmploymentTax(combinedProfit);
-    }
-  } else if (taxReturn.form1099NEC && taxReturn.form1099NEC.length > 0) {
-    // No Schedule C but have 1099-NEC - still subject to SE tax
-    const total1099NEC = taxReturn.form1099NEC.reduce((sum, nec) => sum + (nec.nonEmployeeCompensation || 0), 0);
-    if (total1099NEC > 400) {
-      selfEmploymentTax = calculateSelfEmploymentTax(total1099NEC);
-    }
+    seProfit = calculateScheduleCProfit(taxReturn.selfEmployment);
+  }
+  
+  let total1099NEC = 0;
+  if (taxReturn.form1099NEC && taxReturn.form1099NEC.length > 0) {
+    total1099NEC = taxReturn.form1099NEC.reduce((sum, nec) => sum + (nec.nonEmployeeCompensation || 0), 0);
+  }
+  
+  // 1099-K is gross payments - we can't calculate SE tax accurately without knowing expenses
+  // For now, we'll include it as income but warn that expenses should be tracked elsewhere
+  let total1099K = 0;
+  if (taxReturn.form1099K && taxReturn.form1099K.length > 0) {
+    total1099K = taxReturn.form1099K.reduce((sum, k) => sum + (k.grossAmount || 0), 0);
+    // TODO: In a fuller implementation, we'd add a field for 1099-K expenses
+  }
+  
+  const combinedProfit = seProfit + total1099NEC + total1099K;
+  if (combinedProfit > 400) {
+    selfEmploymentTax = calculateSelfEmploymentTax(combinedProfit);
   }
 
   // Additional Medicare Tax

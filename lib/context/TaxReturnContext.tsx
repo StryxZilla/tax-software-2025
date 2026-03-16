@@ -47,6 +47,7 @@ const initialTaxReturn: TaxReturn = {
   dividends: [],
   capitalGains: [],
   form1099NEC: [],
+  form1099K: [],
   rentalProperties: [],
   selfEmployment: {
     businessName: '',
@@ -82,10 +83,10 @@ const initialTaxReturn: TaxReturn = {
   aboveTheLineDeductions: {
     educatorExpenses: 0,
     studentLoanInterest: 0,
-    hsaDeduction: 0,
+    hsaContributions: 0,
+    hsaEmployerContributions: 0,
     movingExpenses: 0,
-    selfEmploymentTaxDeduction: 0,
-    selfEmployedHealthInsurance: 0,
+    selfEmploymentHealthInsurance: 0,
     sepIRA: 0,
     alimonyPaid: 0,
   },
