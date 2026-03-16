@@ -89,6 +89,15 @@ export interface SelfEmploymentIncome {
   expenses: ScheduleCExpenses;
 }
 
+export interface Form1099NEC {
+  id: string;
+  payer: string;
+  recipient: string;
+  tin: string;
+  nonEmployeeCompensation: number;
+  federalTaxWithheld: number;
+}
+
 export interface ScheduleCExpenses {
   advertising: number;
   carAndTruck: number;
@@ -283,6 +292,7 @@ export interface TaxReturn {
   dividends: Dividend1099DIV[];
   capitalGains: CapitalGainTransaction[];
   selfEmployment?: SelfEmploymentIncome;
+  form1099NEC: Form1099NEC[];
   rentalProperties: RentalProperty[];
   traditionalIRAContribution?: TraditionalIRAContribution;
   rothIRAContribution?: RothIRAContribution;
@@ -316,6 +326,7 @@ export const STEP_META: StepMeta[] = [
   { id: 'income-interest',        requirement: 'optional' },
   { id: 'income-capital-gains',   requirement: 'optional' },
   { id: 'income-self-employment', requirement: 'optional' },
+  { id: 'income-1099-nec',       requirement: 'optional' },
   { id: 'income-rental',          requirement: 'optional' },
   { id: 'retirement-accounts',    requirement: 'optional' },
   { id: 'deductions',             requirement: 'optional' },
@@ -338,6 +349,7 @@ export type WizardStep =
   | 'income-dividends'
   | 'income-capital-gains'
   | 'income-self-employment'
+  | 'income-1099-nec'
   | 'income-rental'
   | 'retirement-accounts'
   | 'deductions'

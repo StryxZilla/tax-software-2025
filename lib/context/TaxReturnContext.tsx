@@ -46,6 +46,7 @@ const initialTaxReturn: TaxReturn = {
   interest: [],
   dividends: [],
   capitalGains: [],
+  form1099NEC: [],
   rentalProperties: [],
   selfEmployment: {
     businessName: '',

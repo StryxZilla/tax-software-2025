@@ -74,6 +74,12 @@ export function calculateTotalIncome(taxReturn: TaxReturn): number {
     total += Math.max(0, netProfit);
   }
 
+  // 1099-NEC income (non-employee compensation - goes to Schedule C)
+  if (taxReturn.form1099NEC && taxReturn.form1099NEC.length > 0) {
+    const total1099NEC = taxReturn.form1099NEC.reduce((sum, nec) => sum + (nec.nonEmployeeCompensation || 0), 0);
+    total += total1099NEC;
+  }
+
   // Rental income
   taxReturn.rentalProperties.forEach(rental => {
     const netRentalIncome = calculateRentalIncome(rental);
@@ -92,8 +98,20 @@ export function calculateAdjustments(taxReturn: TaxReturn): number {
   // Self-employment tax deduction (50% of SE tax)
   if (taxReturn.selfEmployment) {
     const seProfit = calculateScheduleCProfit(taxReturn.selfEmployment);
-    if (seProfit > 400) {
-      const seTax = calculateSelfEmploymentTax(seProfit);
+    let total1099NEC = 0;
+    if (taxReturn.form1099NEC && taxReturn.form1099NEC.length > 0) {
+      total1099NEC = taxReturn.form1099NEC.reduce((sum, nec) => sum + (nec.nonEmployeeCompensation || 0), 0);
+    }
+    const combinedProfit = seProfit + total1099NEC;
+    if (combinedProfit > 400) {
+      const seTax = calculateSelfEmploymentTax(combinedProfit);
+      adjustments += seTax * 0.5;
+    }
+  } else if (taxReturn.form1099NEC && taxReturn.form1099NEC.length > 0) {
+    // No Schedule C but have 1099-NEC
+    const total1099NEC = taxReturn.form1099NEC.reduce((sum, nec) => sum + (nec.nonEmployeeCompensation || 0), 0);
+    if (total1099NEC > 400) {
+      const seTax = calculateSelfEmploymentTax(total1099NEC);
       adjustments += seTax * 0.5;
     }
   }
@@ -820,8 +838,20 @@ export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
   let selfEmploymentTax = 0;
   if (taxReturn.selfEmployment) {
     const seProfit = calculateScheduleCProfit(taxReturn.selfEmployment);
-    if (seProfit > 400) {
-      selfEmploymentTax = calculateSelfEmploymentTax(seProfit);
+    // Add 1099-NEC income to SE profit
+    let total1099NEC = 0;
+    if (taxReturn.form1099NEC && taxReturn.form1099NEC.length > 0) {
+      total1099NEC = taxReturn.form1099NEC.reduce((sum, nec) => sum + (nec.nonEmployeeCompensation || 0), 0);
+    }
+    const combinedProfit = seProfit + total1099NEC;
+    if (combinedProfit > 400) {
+      selfEmploymentTax = calculateSelfEmploymentTax(combinedProfit);
+    }
+  } else if (taxReturn.form1099NEC && taxReturn.form1099NEC.length > 0) {
+    // No Schedule C but have 1099-NEC - still subject to SE tax
+    const total1099NEC = taxReturn.form1099NEC.reduce((sum, nec) => sum + (nec.nonEmployeeCompensation || 0), 0);
+    if (total1099NEC > 400) {
+      selfEmploymentTax = calculateSelfEmploymentTax(total1099NEC);
     }
   }
 
@@ -832,7 +862,13 @@ export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
   const totalTax = totalTaxAfterCredits + selfEmploymentTax + additionalMedicareTax;
 
   // Federal tax withheld
-  const federalTaxWithheld = taxReturn.w2Income.reduce((sum, w2) => sum + w2.federalTaxWithheld, 0);
+  let federalTaxWithheld = taxReturn.w2Income.reduce((sum, w2) => sum + w2.federalTaxWithheld, 0);
+  
+  // Add 1099-NEC federal tax withheld
+  if (taxReturn.form1099NEC && taxReturn.form1099NEC.length > 0) {
+    const necWithheld = taxReturn.form1099NEC.reduce((sum, nec) => sum + (nec.federalTaxWithheld || 0), 0);
+    federalTaxWithheld += necWithheld;
+  }
 
   // Estimated tax payments
   const estimatedTaxPayments = taxReturn.estimatedTaxPayments || 0;

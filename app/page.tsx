@@ -12,6 +12,7 @@ import W2Form from '../components/forms/W2Form'
 import InterestIncomeForm from '../components/forms/InterestIncomeForm'
 import CapitalGainsForm from '../components/forms/CapitalGainsForm'
 import ScheduleCForm from '../components/forms/ScheduleCForm'
+import Form1099NECList from '../components/forms/Form1099NECList'
 import RentalPropertyForm from '../components/forms/RentalPropertyForm'
 import RetirementForm from '../components/forms/RetirementForm'
 import ItemizedDeductionsForm from '../components/forms/ItemizedDeductionsForm'
@@ -207,6 +208,26 @@ function WizardStepContent() {
             onPrevious={handlePrevious}
             onSkip={handleSkip}
             canProceed={isCurrentFormValid}
+          />
+        </>
+      )
+
+    case 'income-1099-nec':
+      return (
+        <>
+          <Form1099NECList
+            values={taxReturn.form1099NEC}
+            onChange={(form1099NEC) => {
+              updateTaxReturn({ form1099NEC })
+              recalculateTaxes()
+            }}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            onSkip={handleSkip}
+            canProceed={true}
           />
         </>
       )
