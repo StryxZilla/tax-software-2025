@@ -107,6 +107,23 @@ export interface Form1099NEC {
   federalTaxWithheld: number;
 }
 
+export interface Form1099R {
+  id: string;
+  payer: string;
+  grossDistribution: number;      // Box 1
+  taxableAmount: number;          // Box 2a
+  federalTaxWithheld: number;    // Box 4
+  employeeContributions: number;   // Box 5
+  distributionCode: string;        // Box 7
+}
+
+export interface SocialSecurityBenefits {
+  id: string;
+  benefitsReceived: number;       // Box 1
+  taxableBenefits: number;        // Box 2 (calculated)
+  federalTaxWithheld: number;    // Box 4
+}
+
 export interface Form1099K {
   id: string;
   payer: string;
@@ -324,6 +341,8 @@ export interface TaxReturn {
   selfEmployment?: SelfEmploymentIncome;
   form1099NEC: Form1099NEC[];
   form1099K: Form1099K[];
+  form1099R: Form1099R[];
+  socialSecurity: SocialSecurityBenefits[];
   rentalProperties: RentalProperty[];
   traditionalIRAContribution?: TraditionalIRAContribution;
   rothIRAContribution?: RothIRAContribution;
