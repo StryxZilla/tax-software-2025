@@ -133,6 +133,46 @@ export interface Form1099K {
   merchantCategoryCode: string;
 }
 
+export interface Form1099MISC {
+  id: string;
+  payer: string;
+  recipient: string;
+  amount: number;                    // Box 1: Miscellaneous income
+  federalTaxWithheld: number;       // Box 4: Federal tax withheld
+}
+
+export interface Form1099OID {
+  id: string;
+  payer: string;
+  amount: number;                    // Box 1: Original issue discount
+  taxableAmount: number;             // Box 2: Taxable amount
+  federalTaxWithheld: number;        // Box 4: Federal tax withheld
+}
+
+export interface Form1099B {
+  id: string;
+  payer: string;
+  proceeds: number;                 // Box 1a: Proceeds
+  costBasis: number;                 // Box 2: Cost basis
+  gainLoss: number;                  // Box 3: Gain or (loss)
+}
+
+export interface Form1099S {
+  id: string;
+  payer: string;
+  propertyAddress: string;
+  amount: number;                    // Gross amount
+  realEstateTaxWithheld: number;     // Box 5: Real estate tax withheld
+}
+
+export interface Form1099C {
+  id: string;
+  payer: string;
+  amount: number;                    // Box 2: Amount of debt canceled
+  debtType: string;                   // Type of debt canceled
+  dateCanceled: string;               // Box 3: Date debt was canceled
+}
+
 export interface ScheduleCExpenses {
   advertising: number;
   carAndTruck: number;
@@ -335,6 +375,7 @@ export interface TaxCalculation {
   totalTaxAfterCredits: number;
   selfEmploymentTax: number;
   additionalMedicareTax: number;
+  niitTax: number;
   totalTax: number;
   federalTaxWithheld: number;
   estimatedTaxPayments: number;
@@ -352,6 +393,11 @@ export interface TaxReturn {
   selfEmployment?: SelfEmploymentIncome;
   form1099NEC: Form1099NEC[];
   form1099K: Form1099K[];
+  form1099MISC: Form1099MISC[];
+  form1099OID: Form1099OID[];
+  form1099B: Form1099B[];
+  form1099S: Form1099S[];
+  form1099C: Form1099C[];
   form1099R: Form1099R[];
   socialSecurity: SocialSecurityBenefits[];
   rentalProperties: RentalProperty[];
