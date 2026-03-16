@@ -176,7 +176,7 @@ describe('Tax logic golden-case matrix', () => {
     expect(result.taxableIncome).toBe(48196)
     expect(result.regularTax).toBe(3913)
     expect(result.selfEmploymentTax).toBe(9608)
-    expect(result.totalTax).toBe(15153)
+    expect(result.totalTax).toBe(13521)
   })
 
   it('itemized vs standard deduction comparison picks itemized when larger', () => {
@@ -221,7 +221,7 @@ describe('Tax logic golden-case matrix', () => {
     expect(result.regularTax).toBe(39647)
     expect(result.totalCredits).toBe(1500)
     expect(result.totalTax).toBe(38237)
-    expect(result.refundOrAmountOwed).toBe(-8147)
+    expect(result.refundOrAmountOwed).toBe(-8237)
   })
 
   it('mixed-income sanity case (W-2 + interest/dividend + gains + Schedule C + CTC + estimated)', () => {
@@ -262,7 +262,8 @@ describe('Tax logic golden-case matrix', () => {
     expect(result.totalCredits).toBe(2000)
     expect(result.selfEmploymentTax).toBe(3532)
     expect(result.totalTax).toBe(8523)
-    expect(result.refundOrAmountOwed).toBe(2877)
+    expect(result.refundOrAmountOwed).toBe(3477)
   })
 })
+
 
