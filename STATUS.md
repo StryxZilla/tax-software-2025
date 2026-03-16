@@ -46,15 +46,20 @@
 - [ ] Form 6251 - AMT (calculated, needs display form)
 
 ### Missing Features
-- [ ] **PDF generation** - No pdf-lib implementation yet
+- [ ] **PDF generation** - ✅ IMPLEMENTED (2026-03-16) - Full filing packet with 1040, schedules, forms
 - [ ] **Data import** - No W-2/1099 CSV import
-- [ ] **Form validation** - Basic validation only
+- [ ] **Form validation** - ✅ IMPLEMENTED (2026-03-16) - Full validation with SSN/EIN format, numeric limits, cross-field checks
 - [ ] **Error handling** - Minimal error messages
 - [ ] **Help tooltips** - No explanatory text yet
-- [ ] **Tax credits UI** - Child tax credit, EITC, education credits (calculated but no UI)
-- [ ] **QBI deduction** - Calculation stub only (complex, needs research)
-- [ ] **Additional Medicare tax** - Not implemented
+- [ ] **Tax credits UI** - ✅ IMPLEMENTED (2026-03-16) - CreditsForm.tsx with full credit collection
+- [ ] **QBI deduction** - ✅ IMPLEMENTED (2026-03-16) - 20% pass-through deduction with wage limitations
+- [ ] **Additional Medicare tax** - ✅ IMPLEMENTED (2026-03-16) - 0.9% on wages above threshold
 - [ ] **State taxes** - Not in scope for MVP (federal only)
+
+### Authentication
+- [ ] ✅ IMPLEMENTED - NextAuth with credentials provider
+- [ ] Login page at /auth/login with registration
+- [ ] Route protection redirects unauthenticated users
 
 ### Testing
 - [ ] **Unit tests** - None written yet
@@ -71,23 +76,26 @@
 ## 🐛 Known Issues
 
 1. **Line endings** - Git warns about LF→CRLF conversion (Windows)
-2. **Type definitions** - Fixed two typos (`qbi Deduction`, `sep IRA`)
-3. **Component scoping** - Fixed `currentStep` scope issue in page.tsx
+2. **Type definitions** - Some test files have outdated mock data (Interest1099INT missing fields)
+3. **Component scoping** - Fixed `currentStep` scope issue in page.tsx (resolved)
+4. **Test type errors** - Pre-existing in test files, not blocking production
 
 ## 🎯 Next Priority Tasks
 
 ### High Priority (Core Functionality)
-1. **Schedule C UI** - Self-employment form (calculations work, needs UI)
-2. **Schedule D/8949 UI** - Capital gains form (calculations work, needs UI)
-3. **PDF Generation** - Core feature, needed to file taxes
-4. **Input validation** - Prevent bad data (negative wages, invalid SSNs, etc.)
+1. ~~**Schedule C UI**~~ - ✅ DONE (was already implemented)
+2. ~~**Schedule D/8949 UI**~~ - ✅ DONE (already existed)
+3. ~~**PDF Generation**~~ - ✅ DONE (2026-03-16)
+4. ~~**Input validation**~~ - ✅ DONE (2026-03-16)
+5. **Data import** - CSV/JSON import from financial institutions
+6. **Help tooltips** - Explain complex terms (AGI, MAGI, etc.)
 
 ### Medium Priority (Polish)
-5. **Schedule E UI** - Rental property form
-6. **Schedule A UI** - Itemized deductions
-7. **Tax credits UI** - Display and collect credit eligibility
-8. **Help tooltips** - Explain complex terms (AGI, MAGI, etc.)
-9. **Error handling** - User-friendly error messages
+7. ~~**Schedule E UI**~~ - ✅ DONE (RentalPropertyForm.tsx)
+8. ~~**Schedule A UI**~~ - ✅ DONE (ItemizedDeductionsForm.tsx)
+9. ~~**Tax credits UI**~~ - ✅ DONE (CreditsForm.tsx)
+10. **Error handling** - User-friendly error messages
+11. **Audit trail** - Track all changes to return
 
 ### Low Priority (Nice to Have)
 10. **Data import** - CSV/JSON import from financial institutions
