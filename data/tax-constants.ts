@@ -53,12 +53,13 @@ export const TAX_BRACKETS_2025: Record<FilingStatus, Array<{ rate: number; min: 
 };
 
 // Standard Deductions for 2025
+// Source: IRS Revenue Procedure 2024-40
 export const STANDARD_DEDUCTION_2025: Record<FilingStatus, number> = {
-  'Single': 15000,
-  'Married Filing Jointly': 30000,
-  'Married Filing Separately': 15000,
-  'Head of Household': 22500,
-  'Qualifying Surviving Spouse': 30000,
+  'Single': 15750,
+  'Married Filing Jointly': 31500,
+  'Married Filing Separately': 15750,
+  'Head of Household': 23600,
+  'Qualifying Surviving Spouse': 31500,
 };
 
 // Additional standard deduction for age 65+ or blind (per qualifying condition)
@@ -248,7 +249,10 @@ export const IRA_LIMITS_2025 = {
 };
 
 // SALT (State and Local Tax) Cap
-export const SALT_CAP_2025 = 10000;
+// SALT (State and Local Tax) Cap for 2025
+// Note: The "One Big Beautiful Bill" temporarily increased the SALT cap to $40,000 for 2025-2028
+// This is a temporary reversal of the $10,000 cap from TCJA
+export const SALT_CAP_2025 = 40000;
 
 // Medical Expense AGI Threshold
 export const MEDICAL_EXPENSE_AGI_THRESHOLD = 0.075; // 7.5%
