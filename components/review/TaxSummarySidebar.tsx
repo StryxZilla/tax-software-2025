@@ -678,6 +678,167 @@ export default function TaxSummarySidebar() {
               </div>
             )}
 
+            {/* Tax Planning Insights - NEW */}
+            {taxPlanningInsights && (
+              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-5 shadow-sm border border-emerald-200">
+                <button 
+                  onClick={() => setIsInsightsExpanded(!isInsightsExpanded)}
+                  className="w-full flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Briefcase className="w-5 h-5 text-emerald-600" />
+                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Tax Planning Insights</h3>
+                  </div>
+                  {isInsightsExpanded ? (
+                    <ChevronUp className="w-5 h-5 text-slate-400" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-slate-400" />
+                  )}
+                </button>
+                
+                {isInsightsExpanded && (
+                  <div className="mt-4 space-y-4">
+                    {/* 401k Optimization */}
+                    {taxPlanningInsights.retirement401k && (
+                      <div className="bg-white rounded-lg p-3 border border-emerald-100">
+                        <div className="flex items-start space-x-2">
+                          <PiggyBank className="w-4 h-4 text-emerald-600 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-semibold text-slate-700">401(k) Optimization</p>
+                            <p className="text-xs text-slate-600 mt-1">{taxPlanningInsights.retirement401k.message}</p>
+                            {taxPlanningInsights.retirement401k.potentialSavings && (
+                              <p className="text-xs font-bold text-green-600 mt-1">
+                                Potential savings: ${taxPlanningInsights.retirement401k.potentialSavings.toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Roth Analysis */}
+                    {taxPlanningInsights.rothVsTraditional && (
+                      <div className="bg-white rounded-lg p-3 border border-emerald-100">
+                        <div className="flex items-start space-x-2">
+                          <Calculator className="w-4 h-4 text-emerald-600 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-semibold text-slate-700">Roth vs Traditional</p>
+                            <p className="text-xs text-slate-600 mt-1">{taxPlanningInsights.rothVsTraditional.message}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tax Rate Analysis */}
+                    {taxPlanningInsights.taxRateAnalysis && (
+                      <div className="bg-white rounded-lg p-3 border border-emerald-100">
+                        <div className="flex items-start space-x-2">
+                          <TrendingUp className="w-4 h-4 text-emerald-600 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-semibold text-slate-700">Tax Rate Analysis</p>
+                            <p className="text-xs text-slate-600 mt-1">{taxPlanningInsights.taxRateAnalysis.message}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Deductions Expandable - NEW */}
+            {deductionsData && (
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <button 
+                  onClick={() => setIsDeductionsExpanded(!isDeductionsExpanded)}
+                  className="w-full flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Calculator className="w-5 h-5 text-amber-600" />
+                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Deductions</h3>
+                  </div>
+                  {isDeductionsExpanded ? (
+                    <ChevronUp className="w-5 h-5 text-slate-400" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-slate-400" />
+                  )}
+                </button>
+                
+                {!isDeductionsExpanded && (
+                  <div className="mt-2 text-sm text-slate-600">
+                    <span className="font-semibold">{deductionsData.isStandard ? 'Standard' : 'Itemized'}: </span>
+                    ${deductionsData.totalDeduction.toLocaleString()}
+                  </div>
+                )}
+
+                {isDeductionsExpanded && (
+                  <div className="mt-4 space-y-3">
+                    <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                      <span className="text-sm text-slate-600">Standard Deduction</span>
+                      <span className="text-sm font-semibold text-slate-700">${deductionsData.standardDeduction.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                      <span className="text-sm text-slate-600">Itemized Deductions</span>
+                      <span className="text-sm font-semibold text-slate-700">${deductionsData.itemizedDeductions.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-slate-100">
+                      <span className="text-sm text-slate-600">Above-the-Line</span>
+                      <span className="text-sm font-semibold text-slate-700">${deductionsData.aboveTheLine.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 bg-amber-50 rounded-lg px-2 -mx-2">
+                      <span className="text-sm font-semibold text-amber-800">Total Deduction</span>
+                      <span className="text-sm font-bold text-amber-700">${deductionsData.totalDeduction.toLocaleString()}</span>
+                    </div>
+                    <div className="text-xs text-slate-500 mt-2">
+                      Using {deductionsData.isStandard ? 'standard' : 'itemized'} deduction (${deductionsData.totalDeduction.toLocaleString()})
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Credits Expandable - NEW */}
+            {creditsData && creditsData.credits.length > 0 && (
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <button 
+                  onClick={() => setIsTaxBreakdownExpanded(!isTaxBreakdownExpanded)}
+                  className="w-full flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Tax Credits</h3>
+                  </div>
+                  {isTaxBreakdownExpanded ? (
+                    <ChevronUp className="w-5 h-5 text-slate-400" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-slate-400" />
+                  )}
+                </button>
+                
+                {!isTaxBreakdownExpanded && (
+                  <div className="mt-2 text-sm text-slate-600">
+                    <span className="font-semibold">Total Credits: </span>
+                    <span className="text-green-600 font-bold">${creditsData.totalCredits.toLocaleString()}</span>
+                  </div>
+                )}
+
+                {isTaxBreakdownExpanded && (
+                  <div className="mt-4 space-y-3">
+                    {creditsData.credits.map((credit, idx) => (
+                      <div key={idx} className="flex justify-between items-center py-2 border-b border-slate-100">
+                        <span className="text-sm text-slate-600">{credit.name}</span>
+                        <span className="text-sm font-semibold text-green-600">${credit.amount.toLocaleString()}</span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between items-center py-2 bg-green-50 rounded-lg px-2 -mx-2">
+                      <span className="text-sm font-semibold text-green-800">Total Credits</span>
+                      <span className="text-sm font-bold text-green-700">${creditsData.totalCredits.toLocaleString()}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* What-If Scenarios Section */}
             {taxCalculation && (
               <div className="bg-gradient-to-r from-violet-50 to-indigo-50 rounded-xl p-5 shadow-sm border border-violet-200">
