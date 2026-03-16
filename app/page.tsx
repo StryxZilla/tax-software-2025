@@ -544,11 +544,13 @@ function WizardStepContent() {
                         <div className="flex items-center justify-between mb-4">
                           <h4 className="text-lg font-semibold text-slate-800">🔄 Backdoor Roth IRA</h4>
                           <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                            retirement.backdoorRoth.eligible 
-                              ? 'bg-green-100 text-green-700' 
-                              : 'bg-red-100 text-red-700'
+                            retirement.backdoorRoth.didBackdoor
+                              ? 'bg-violet-100 text-violet-700'
+                              : retirement.backdoorRoth.eligible 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-red-100 text-red-700'
                           }`}>
-                            {retirement.backdoorRoth.eligible ? 'Eligible' : 'Not Eligible'}
+                            {retirement.backdoorRoth.didBackdoor ? 'Completed' : retirement.backdoorRoth.eligible ? 'Eligible' : 'Not Eligible'}
                           </span>
                         </div>
                         <p className="text-sm text-slate-600 mb-3">

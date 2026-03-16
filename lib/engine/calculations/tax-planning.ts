@@ -1,7 +1,7 @@
 // Tax Planning Analysis Module
 // Provides retirement optimization and tax rate analysis insights
 
-import { TaxReturn, FilingStatus } from '../../../types/tax-types';
+import { TaxReturn, FilingStatus, Form8606Data } from '../../../types/tax-types';
 import { TAX_BRACKETS_2025 } from '../../../data/tax-constants';
 
 // 401(k) Box 12 codes that represent employee elective deferrals
@@ -22,6 +22,7 @@ export interface RetirementAnalysis {
     eligible: boolean;
     reason: string;
     recommendation: string;
+    didBackdoor: boolean;
   };
 }
 
@@ -83,10 +84,15 @@ function isMarried(filingStatus: FilingStatus): boolean {
  * Phase-out starts at $150k (single) / $236k (married)
  * Complete phase-out at $165k (single) / $246k (married)
  */
-export function calculateBackdoorRothEligibility(agi: number, filingStatus: FilingStatus): {
+export function calculateBackdoorRothEligibility(
+  agi: number, 
+  filingStatus: FilingStatus,
+  form8606?: Form8606Data
+): {
   eligible: boolean;
   reason: string;
   recommendation: string;
+  didBackdoor: boolean;
 } {
   const singlePhaseoutStart = 150000;
   const singlePhaseoutEnd = 165000;
@@ -97,12 +103,29 @@ export function calculateBackdoorRothEligibility(agi: number, filingStatus: Fili
   const phaseoutStart = isSingle ? singlePhaseoutStart : marriedPhaseoutStart;
   const phaseoutEnd = isSingle ? singlePhaseoutEnd : marriedPhaseoutEnd;
 
+  // Check if user actually did a backdoor Roth (nondeductible contribution + conversion)
+  const didBackdoor = !!(form8606 && (
+    (form8606.nondeductibleContributions > 0 && form8606.conversionsToRoth > 0) ||
+    form8606.conversionsToRoth > 0
+  ));
+
+  // If they did a backdoor, acknowledge it
+  if (didBackdoor) {
+    return {
+      eligible: false,
+      reason: `You completed a backdoor Roth conversion of $${form8606!.conversionsToRoth.toLocaleString()} this year.`,
+      recommendation: "Your conversion has been processed. Remember: the taxable portion is calculated using the pro-rata rule based on your total IRA balances.",
+      didBackdoor: true
+    };
+  }
+
   // Already eligible (below phase-out)
   if (agi < phaseoutStart) {
     return {
       eligible: true,
       reason: `Your AGI ($${agi.toLocaleString()}) is below the Roth IRA income limit ($${phaseoutStart.toLocaleString()}).`,
-      recommendation: "You can make a direct Roth IRA contribution up to $7,000 ($8,000 if age 50+)."
+      recommendation: "You can make a direct Roth IRA contribution up to $7,000 ($8,000 if age 50+).",
+      didBackdoor: false
     };
   }
 
@@ -116,7 +139,8 @@ export function calculateBackdoorRothEligibility(agi: number, filingStatus: Fili
       reason: `Your AGI ($${agi.toLocaleString()}) is in the partial phase-out range (${
         isSingle ? '$150,000-$165,000' : '$236,000-$246,000'
       }). Your maximum contribution is approximately $${reducedLimit.toLocaleString()}.`,
-      recommendation: `Consider the backdoor Roth IRA strategy to contribute the full $7,000. You'll need to make a non-deductible Traditional IRA contribution and convert to Roth.`
+      recommendation: `Consider the backdoor Roth IRA strategy to contribute the full $7,000. You'll need to make a non-deductible Traditional IRA contribution and convert to Roth.`,
+      didBackdoor: false
     };
   }
 
@@ -126,7 +150,8 @@ export function calculateBackdoorRothEligibility(agi: number, filingStatus: Fili
     reason: `Your AGI ($${agi.toLocaleString()}) exceeds the Roth IRA income limit (${
       isSingle ? '$165,000 (single)' : '$246,000 (married)'
     }).`,
-    recommendation: "Use the backdoor Roth IRA strategy: contribute to a non-deductible Traditional IRA and convert to Roth. Be aware of the pro-rata rule if you have other pre-tax IRA balances. Consider rolling existing Traditional IRA funds into a 401(k) to optimize this strategy."
+    recommendation: "Use the backdoor Roth IRA strategy: contribute to a non-deductible Traditional IRA and convert to Roth. Be aware of the pro-rata rule if you have other pre-tax IRA balances. Consider rolling existing Traditional IRA funds into a 401(k) to optimize this strategy.",
+    didBackdoor: false
   };
 }
 
@@ -158,7 +183,7 @@ export function calculateRetirementAnalysis(taxReturn: TaxReturn, agi: number): 
   }
 
   // Backdoor Roth analysis
-  const backdoorRoth = calculateBackdoorRothEligibility(agi, filingStatus);
+  const backdoorRoth = calculateBackdoorRothEligibility(agi, filingStatus, taxReturn.form8606);
 
   return {
     '401kOptimization': {
@@ -307,7 +332,7 @@ function calculateRetirementAnalysisInternal(taxReturn: TaxReturn, agi: number):
   }
 
   // Backdoor Roth analysis
-  const backdoorRoth = calculateBackdoorRothEligibility(agi, filingStatus);
+  const backdoorRoth = calculateBackdoorRothEligibility(agi, filingStatus, taxReturn.form8606);
 
   return {
     '401kOptimization': {
