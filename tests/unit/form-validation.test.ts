@@ -41,6 +41,7 @@ function createBaseW2(): W2Income {
     socialSecurityTaxWithheld: 3100,
     medicareWages: 50000,
     medicareTaxWithheld: 725,
+    box12: [],
   }
 }
 

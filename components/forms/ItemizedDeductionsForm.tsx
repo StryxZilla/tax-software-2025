@@ -109,7 +109,7 @@ export default function ItemizedDeductionsForm({
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
       <div>
-        <h2 className="text-2xl font-bold">Schedule A - Itemized Deductions</h2>
+        <h2 className="text-2xl font-bold">Itemized Deductions</h2>
         <p className="mt-2 text-sm text-gray-600">
           Enter your deductible expenses. We'll compare to the standard deduction and recommend the better option.
         </p>

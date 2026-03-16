@@ -32,6 +32,7 @@ export const VALID_W2 = {
   socialSecurityTaxWithheld: 4650,
   medicareWages: 75000,
   medicareTaxWithheld: 1087.5,
+  box12: [],
 }
 
 export const VALID_DEPENDENT = {

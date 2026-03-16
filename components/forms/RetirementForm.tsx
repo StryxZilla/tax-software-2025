@@ -177,9 +177,13 @@ export default function RetirementForm({
               <input
                 type="number"
                   step="0.01"
-                value={traditionalIRA?.amount || 0}
+                value={traditionalIRA?.amount ?? ''}
                 onChange={(e) => handleTraditionalIRAChange({ amount: parseFloat(e.target.value) || 0 })}
-                onBlur={() => touchField('retirement-traditional-amount')}
+                onBlur={(e) => {
+                  const val = parseFloat(e.target.value);
+                  handleTraditionalIRAChange({ amount: isNaN(val) ? 0 : val });
+                  touchField('retirement-traditional-amount');
+                }}
                 min="0"
                 max="8000"
                 className={`pl-8 ${getInputClassName('retirement-traditional-amount')}`}
@@ -220,9 +224,13 @@ export default function RetirementForm({
             <input
               type="number"
                 step="0.01"
-              value={rothIRA?.amount || 0}
+              value={rothIRA?.amount ?? ''}
               onChange={(e) => handleRothIRAChange({ amount: parseFloat(e.target.value) || 0 })}
-              onBlur={() => touchField('retirement-roth-amount')}
+              onBlur={(e) => {
+                const val = parseFloat(e.target.value);
+                handleRothIRAChange({ amount: isNaN(val) ? 0 : val });
+                touchField('retirement-roth-amount');
+              }}
               min="0"
               max="8000"
               className={`pl-8 ${getInputClassName('retirement-roth-amount')}`}
@@ -287,9 +295,13 @@ export default function RetirementForm({
               <input
                 type="number"
                   step="0.01"
-                value={form8606?.priorYearBasis || 0}
+                value={form8606?.priorYearBasis ?? ''}
                 onChange={(e) => handleForm8606Change({ priorYearBasis: parseFloat(e.target.value) || 0 })}
-                onBlur={() => touchField('retirement-8606-priorBasis')}
+                onBlur={(e) => {
+                  const val = parseFloat(e.target.value);
+                  handleForm8606Change({ priorYearBasis: isNaN(val) ? 0 : val });
+                  touchField('retirement-8606-priorBasis');
+                }}
                 min="0"
                 className={`pl-8 ${getInputClassName('retirement-8606-priorBasis')}`}
               placeholder="0.00"
@@ -309,9 +321,13 @@ export default function RetirementForm({
               <input
                 type="number"
                   step="0.01"
-                value={form8606?.conversionsToRoth || 0}
+                value={form8606?.conversionsToRoth ?? ''}
                 onChange={(e) => handleForm8606Change({ conversionsToRoth: parseFloat(e.target.value) || 0 })}
-                onBlur={() => touchField('retirement-8606-conversions')}
+                onBlur={(e) => {
+                  const val = parseFloat(e.target.value);
+                  handleForm8606Change({ conversionsToRoth: isNaN(val) ? 0 : val });
+                  touchField('retirement-8606-conversions');
+                }}
                 min="0"
                 className={`pl-8 ${getInputClassName('retirement-8606-conversions')}`}
               placeholder="0.00"
@@ -331,9 +347,13 @@ export default function RetirementForm({
               <input
                 type="number"
                   step="0.01"
-                value={form8606?.distributionsFromTraditionalIRA || 0}
+                value={form8606?.distributionsFromTraditionalIRA ?? ''}
                 onChange={(e) => handleForm8606Change({ distributionsFromTraditionalIRA: parseFloat(e.target.value) || 0 })}
-                onBlur={() => touchField('retirement-8606-distributions')}
+                onBlur={(e) => {
+                  const val = parseFloat(e.target.value);
+                  handleForm8606Change({ distributionsFromTraditionalIRA: isNaN(val) ? 0 : val });
+                  touchField('retirement-8606-distributions');
+                }}
                 min="0"
                 className={`pl-8 ${getInputClassName('retirement-8606-distributions')}`}
               placeholder="0.00"
@@ -353,9 +373,13 @@ export default function RetirementForm({
               <input
                 type="number"
                   step="0.01"
-                value={form8606?.endOfYearTraditionalIRABalance || 0}
+                value={form8606?.endOfYearTraditionalIRABalance ?? ''}
                 onChange={(e) => handleForm8606Change({ endOfYearTraditionalIRABalance: parseFloat(e.target.value) || 0 })}
-                onBlur={() => touchField('retirement-8606-balance')}
+                onBlur={(e) => {
+                  const val = parseFloat(e.target.value);
+                  handleForm8606Change({ endOfYearTraditionalIRABalance: isNaN(val) ? 0 : val });
+                  touchField('retirement-8606-balance');
+                }}
                 min="0"
                 className={`pl-8 ${getInputClassName('retirement-8606-balance')}`}
               placeholder="0.00"

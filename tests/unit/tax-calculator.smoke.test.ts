@@ -38,6 +38,7 @@ function createSmokeReturn(): TaxReturn {
         socialSecurityTaxWithheld: 6200,
         medicareWages: 100000,
         medicareTaxWithheld: 1450,
+        box12: [],
       },
     ],
     interest: [{ payer: 'Bank', amount: 500 }],

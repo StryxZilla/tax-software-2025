@@ -56,7 +56,7 @@ export interface W2Income {
   socialSecurityTaxWithheld: number;
   medicareWages: number;
   medicareTaxWithheld: number;
-  box12: W2IncomeBox12[];  // Other compensation (codes DD, G, L, R, W, etc.)
+  box12?: W2IncomeBox12[];  // Other compensation (codes DD, G, L, R, W, etc.)
 }
 
 export interface Interest1099INT {
@@ -291,7 +291,7 @@ export interface TaxReturn {
   itemizedDeductions?: ItemizedDeductions;
   aboveTheLineDeductions: AboveTheLineDeductions;
   educationExpenses: EducationExpenses[];
-  dependentCareExpenses: DependentCareExpenses[];
+  dependentCareExpenses?: DependentCareExpenses[];
   electricVehicleCredit?: ElectricVehicleCredit;
   residentialEnergyCredit?: ResidentialEnergyCredit;
   estimatedTaxPayments: number;

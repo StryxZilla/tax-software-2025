@@ -449,7 +449,7 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                             <select
                               value={entry.code}
                               onChange={(e) => {
-                                const updated = [...w2.box12];
+                                const updated = [...(w2.box12 || [])];
                                 updated[box12Idx] = { ...entry, code: e.target.value };
                                 updateW2(index, { box12: updated });
                               }}
@@ -488,7 +488,7 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                             <CurrencyInput
                               value={entry.amount}
                               onValueChange={(v) => {
-                                const updated = [...w2.box12];
+                                const updated = [...(w2.box12 || [])];
                                 updated[box12Idx] = { ...entry, amount: v };
                                 updateW2(index, { box12: updated });
                               }}
@@ -497,7 +497,7 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                           <button
                             type="button"
                             onClick={() => {
-                              const updated = w2.box12.filter((_, i) => i !== box12Idx);
+                              const updated = (w2.box12 || []).filter((_, i) => i !== box12Idx);
                               updateW2(index, { box12: updated });
                             }}
                             className="mt-6 text-red-500 hover:text-red-700"

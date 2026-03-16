@@ -131,7 +131,7 @@ export default function ScheduleCForm({ value, onChange, onValidationChange }: S
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold">Schedule C - Self-Employment Income</h2>
+      <h2 className="text-2xl font-bold">Self-Employment Income & Expenses</h2>
 
       {/* Validation summary */}
       {showAllErrors && !isValid && (

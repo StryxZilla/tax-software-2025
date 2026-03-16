@@ -37,6 +37,7 @@ const taxReturnWithW2: TaxReturn = {
       socialSecurityTaxWithheld: 4650,
       medicareWages: 75000,
       medicareTaxWithheld: 1087.5,
+      box12: [],
     },
   ],
   interest: [],

@@ -155,7 +155,7 @@ export default function RentalPropertyForm({ values, onChange, onValidationChang
     <div className="space-y-8 max-w-5xl mx-auto">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold">Schedule E - Rental Real Estate Income</h2>
+          <h2 className="text-2xl font-bold">Rental Income & Expenses</h2>
           <p className="text-sm text-gray-600 mt-1">Report income and expenses from rental properties</p>
         </div>
         <button
@@ -497,7 +497,7 @@ export default function RentalPropertyForm({ values, onChange, onValidationChang
           {/* Summary Section */}
           {values.length > 1 && (
             <div className="border-2 border-blue-500 rounded-lg p-6 bg-blue-50">
-              <h3 className="text-xl font-bold mb-4">Schedule E Summary (All Properties)</h3>
+              <h3 className="text-xl font-bold mb-4">Rental Summary (All Properties)</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <p className="text-gray-700 font-medium mb-2">Total Rental Income</p>

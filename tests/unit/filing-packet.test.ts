@@ -28,6 +28,7 @@ function createBaseReturn(): TaxReturn {
         socialSecurityTaxWithheld: 5580,
         medicareWages: 90000,
         medicareTaxWithheld: 1305,
+        box12: [],
       },
     ],
     interest: [],
@@ -103,6 +104,6 @@ describe('federal filing packet', () => {
     const doc = await PDFDocument.load(bytes);
 
     // Cover + 1040 + S1 + S2 + S3 + Schedule B
-    expect(doc.getPages().length).toBe(6);
+    expect(doc.getPageIndices().length).toBe(6);
   });
 });
