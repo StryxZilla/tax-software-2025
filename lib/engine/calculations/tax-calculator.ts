@@ -360,6 +360,103 @@ export function calculateRentalIncome(rental: any): number {
 }
 
 /**
+ * Calculate MAGI (Modified Adjusted Gross Income)
+ * MAGI = AGI + certain deductions that were excluded
+ * For simplicity, we treat AGI as MAGI (most common for NIIT calculations)
+ */
+export function calculateMAGI(taxReturn: TaxReturn): number {
+  const agi = calculateAGI(taxReturn);
+  // MAGI adjustments could include:
+  // - Student loan interest deduction
+  // - Tuition and fees deduction
+  // - IRA deduction
+  // For most cases, AGI ≈ MAGI
+  return agi;
+}
+
+/**
+ * Calculate Net Investment Income
+ * Includes: interest + dividends + capital gains + rental income + business income
+ */
+export function calculateNetInvestmentIncome(taxReturn: TaxReturn): number {
+  let netInvestmentIncome = 0;
+
+  // Interest income
+  taxReturn.interest.forEach(int => {
+    netInvestmentIncome += int.amount;
+  });
+
+  // Dividend income (ordinary dividends)
+  taxReturn.dividends.forEach(div => {
+    netInvestmentIncome += div.ordinaryDividends;
+  });
+
+  // Capital gains (short-term and long-term)
+  const { shortTermGains, longTermGains } = calculateCapitalGains(taxReturn.capitalGains);
+  netInvestmentIncome += shortTermGains + longTermGains;
+
+  // Rental income
+  taxReturn.rentalProperties.forEach(rental => {
+    const netRentalIncome = calculateRentalIncome(rental);
+    netInvestmentIncome += Math.max(0, netRentalIncome); // Only positive rental income counts
+  });
+
+  // Business income (from self-employment)
+  if (taxReturn.selfEmployment) {
+    const netProfit = calculateScheduleCProfit(taxReturn.selfEmployment);
+    // For NIIT, only positive net profit from passive activities counts
+    // Simplification: include all positive business income
+    netInvestmentIncome += Math.max(0, netProfit);
+  }
+
+  return Math.round(netInvestmentIncome);
+}
+
+/**
+ * Calculate NIIT (Net Investment Income Tax)
+ * NIIT is 3.8% on the lesser of:
+ * - Net investment income
+ * - The excess of MAGI over threshold
+ * 
+ * Thresholds:
+ * - Single: $200,000
+ * - Married Filing Jointly: $250,000
+ * - Married Filing Separately: $125,000
+ * - Head of Household: $200,000
+ * - Qualifying Surviving Spouse: $250,000
+ */
+export function calculateNIIT(taxReturn: TaxReturn, magi: number): number {
+  const filingStatus = taxReturn.personalInfo.filingStatus;
+
+  // Determine threshold based on filing status
+  const niitThresholds: Record<FilingStatus, number> = {
+    'Single': 200000,
+    'Married Filing Jointly': 250000,
+    'Married Filing Separately': 125000,
+    'Head of Household': 200000,
+    'Qualifying Surviving Spouse': 250000,
+  };
+
+  const threshold = niitThresholds[filingStatus] || 200000;
+
+  // Calculate excess MAGI over threshold
+  const excessMagi = Math.max(0, magi - threshold);
+
+  // Get net investment income
+  const netInvestmentIncome = calculateNetInvestmentIncome(taxReturn);
+
+  // NIIT is 3.8% of the lesser of net investment income or excess MAGI
+  const niitTaxableAmount = Math.min(netInvestmentIncome, excessMagi);
+
+  // If no taxable amount, NIIT is 0
+  if (niitTaxableAmount <= 0) {
+    return 0;
+  }
+
+  return Math.round(niitTaxableAmount * 0.038);
+}
+
+/**
  * Calculate Child Tax Credit
  */
 export function calculateChildTaxCredit(taxReturn: TaxReturn, agi: number): number {
@@ -534,8 +631,12 @@ export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
   // Additional Medicare Tax
   const additionalMedicareTax = 0; // TODO: Implement
 
+  // NIIT (Net Investment Income Tax)
+  const magi = calculateMAGI(taxReturn);
+  const niitTax = calculateNIIT(taxReturn, magi);
+
   // Total tax
-  const totalTax = totalTaxAfterCredits + selfEmploymentTax + additionalMedicareTax;
+  const totalTax = totalTaxAfterCredits + selfEmploymentTax + additionalMedicareTax + niitTax;
 
   // Federal tax withheld
   const federalTaxWithheld = 
@@ -562,6 +663,7 @@ export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
     totalTaxAfterCredits,
     selfEmploymentTax,
     additionalMedicareTax,
+    niitTax,
     totalTax,
     federalTaxWithheld,
     estimatedTaxPayments,
