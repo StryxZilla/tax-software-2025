@@ -25,7 +25,8 @@ function baseTaxReturn(overrides: Partial<TaxReturn> = {}): TaxReturn {
     aboveTheLineDeductions: {
       educatorExpenses: 0,
       studentLoanInterest: 0,
-      hsaDeduction: 0,
+      hsaContributions: 0,
+      hsaEmployerContributions: 0,
       movingExpenses: 0,
       selfEmploymentTaxDeduction: 0,
       selfEmployedHealthInsurance: 0,

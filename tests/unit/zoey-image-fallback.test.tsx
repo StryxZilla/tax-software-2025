@@ -78,10 +78,10 @@ describe('Auth pages reference zoey-pointing.png correctly', () => {
   it.each([
     ['login', '../../app/auth/login/page.tsx'],
     ['register', '../../app/auth/register/page.tsx'],
-  ])('%s page imports ZoeyImage and uses zoey-pointing.png', (_name, modulePath) => {
+  ])('%s page uses ZoeyGuideCard with tip variant', (_name, modulePath) => {
     const source = readFileSync(resolve(__dirname, modulePath), 'utf8');
-    expect(source).toContain("import ZoeyImage from");
-    expect(source).toContain('src="/brand/zoey-pointing.png"');
+    expect(source).toContain("import ZoeyGuideCard from");
+    expect(source).toContain('variant="tip"');
   });
 
   it('zoey-neutral.png exists and is a valid PNG', () => {

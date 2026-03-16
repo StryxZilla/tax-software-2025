@@ -41,7 +41,7 @@ function baseTaxReturn(overrides: Partial<TaxReturn> = {}): TaxReturn {
     capitalGains: [],
     rentalProperties: [],
     aboveTheLineDeductions: {
-      educatorExpenses: 0, studentLoanInterest: 0, hsaDeduction: 0,
+      educatorExpenses: 0, studentLoanInterest: 0, hsaContributions: 0, hsaEmployerContributions: 0,
       movingExpenses: 0, selfEmploymentTaxDeduction: 0,
       selfEmployedHealthInsurance: 0, sepIRA: 0, alimonyPaid: 0,
     },

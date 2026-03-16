@@ -347,7 +347,7 @@ export default function TaxSummarySidebar() {
   const eitcEligible = useMemo(() => {
     if (!taxCalculation) return false;
     const agi = taxCalculation.agi;
-    const hasDependents = taxReturn.dependents.length > 0;
+    const hasDependents = (taxReturn.dependents?.length ?? 0) > 0;
     // Simplified EITC range check - actual EITC calculation is complex
     // Based on 2025 EITC thresholds: $17,730 - $64,430 for 1-3+ children
     const maxAgi = hasDependents ? 64430 : 22000;

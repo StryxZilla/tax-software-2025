@@ -88,7 +88,7 @@ export default function RegisterPage() {
           <p className="text-slate-500 text-sm mb-4">Free to use — your data stays private.</p>
 
           <ZoeyGuideCard
-            variant="success"
+            variant="tip"
             title="Quick setup"
             message="Use an email you can access on desktop now. Recovery and session handoff stay smoother later — Zoey plans ahead so nothing falls through the cracks."
             className="mb-4"

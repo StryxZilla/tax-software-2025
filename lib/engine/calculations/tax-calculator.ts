@@ -145,26 +145,26 @@ export function calculateAdjustments(taxReturn: TaxReturn): number {
     adjustments += taxReturn.traditionalIRAContribution.amount;
   }
 
-  // HSA deduction (from above-the-line form)
-  adjustments += taxReturn.aboveTheLineDeductions.hsaContributions;
+  // HSA deduction (from above-the-line form) - with null safety
+  adjustments += taxReturn.aboveTheLineDeductions?.hsaContributions ?? 0;
   
   // Employer HSA contributions (already taxed, not deductible by employee)
   // (taxReturn.aboveTheLineDeductions.hsaEmployerContributions is not deducted)
 
   // Self-employed health insurance
-  adjustments += taxReturn.aboveTheLineDeductions.selfEmploymentHealthInsurance;
+  adjustments += taxReturn.aboveTheLineDeductions?.selfEmployedHealthInsurance ?? taxReturn.aboveTheLineDeductions?.selfEmploymentHealthInsurance ?? 0;
 
   // SEP IRA / SIMPLE IRA
-  adjustments += taxReturn.aboveTheLineDeductions.sepIRA;
+  adjustments += taxReturn.aboveTheLineDeductions?.sepIRA ?? 0;
 
   // Alimony paid (pre-2019 divorce agreements only)
-  adjustments += taxReturn.aboveTheLineDeductions.alimonyPaid;
+  adjustments += taxReturn.aboveTheLineDeductions?.alimonyPaid ?? 0;
 
   // Student loan interest
-  adjustments += taxReturn.aboveTheLineDeductions.studentLoanInterest;
+  adjustments += taxReturn.aboveTheLineDeductions?.studentLoanInterest ?? 0;
 
   // Educator expenses
-  adjustments += taxReturn.aboveTheLineDeductions.educatorExpenses;
+  adjustments += taxReturn.aboveTheLineDeductions?.educatorExpenses ?? 0;
 
   return Math.round(adjustments);
 }
@@ -594,9 +594,9 @@ export function calculateSaversCredit(taxReturn: TaxReturn, agi: number): number
   if (taxReturn.personalInfo.age < 18) return 0;
 
   // Get eligible contributions (Traditional IRA + Roth IRA + 401(k))
-  // Note: Only count deductible contributions for Traditional IRA (eligible for saver's credit)
+  // Note: Both deductible and non-deductible Traditional IRA contributions count for Saver's Credit
   let contributions = 0;
-  if (taxReturn.traditionalIRAContribution?.isDeductible) {
+  if (taxReturn.traditionalIRAContribution) {
     contributions += taxReturn.traditionalIRAContribution.amount;
   }
   if (taxReturn.rothIRAContribution) {
