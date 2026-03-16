@@ -15,6 +15,7 @@ import CapitalGainsForm from '../components/forms/CapitalGainsForm'
 import ScheduleCForm from '../components/forms/ScheduleCForm'
 import Form1099NECList from '../components/forms/Form1099NECList'
 import Form1099KList from '../components/forms/Form1099KList'
+import RetirementDistributionForm from '../components/forms/RetirementDistributionForm'
 import RentalPropertyForm from '../components/forms/RentalPropertyForm'
 import RetirementForm from '../components/forms/RetirementForm'
 import AboveTheLineDeductionsForm from '../components/forms/AboveTheLineDeductionsForm'
@@ -42,6 +43,7 @@ const STEP_ORDER: WizardStep[] = [
   'income-self-employment',
   'income-1099-nec',
   'income-1099-k',
+  'income-1099-r',
   'income-rental',
   'retirement-accounts',
   'above-the-line',
@@ -266,6 +268,26 @@ function WizardStepContent() {
             values={taxReturn.form1099K}
             onChange={(form1099K) => {
               updateTaxReturn({ form1099K })
+              recalculateTaxes()
+            }}
+          />
+          <FormNavigation
+            currentStep={currentStep}
+            onNext={handleNext}
+            onPrevious={handlePrevious}
+            onSkip={handleSkip}
+            canProceed={true}
+          />
+        </>
+      )
+
+    case 'income-1099-r':
+      return (
+        <>
+          <RetirementDistributionForm
+            values={taxReturn.form1099R}
+            onChange={(form1099R) => {
+              updateTaxReturn({ form1099R })
               recalculateTaxes()
             }}
           />

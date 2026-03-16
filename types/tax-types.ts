@@ -378,7 +378,8 @@ export const STEP_META: StepMeta[] = [
   { id: 'income-capital-gains',   requirement: 'optional' },
   { id: 'income-self-employment', requirement: 'optional' },
   { id: 'income-1099-nec',       requirement: 'optional' },
-  { id: 'income-1099-k',       requirement: 'optional' },
+  { id: 'income-1099-k',         requirement: 'optional' },
+  { id: 'income-1099-r',         requirement: 'optional' },
   { id: 'income-rental',          requirement: 'optional' },
   { id: 'retirement-accounts',    requirement: 'optional' },
   { id: 'above-the-line',        requirement: 'optional' },
@@ -404,6 +405,7 @@ export type WizardStep =
   | 'income-self-employment'
   | 'income-1099-nec'
   | 'income-1099-k'
+  | 'income-1099-r'
   | 'income-rental'
   | 'retirement-accounts'
   | 'above-the-line'
