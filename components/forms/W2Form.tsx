@@ -535,6 +535,9 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                       + Add Box 14 Entry
                     </button>
                   </div>
+                  <p className="text-xs text-slate-500 mb-3">
+                    Note: Box 14 items are informational and usually already included in Box 1 wages (e.g., RSUs). No tax calculation needed.
+                  </p>
 
                   {(w2.box14 && w2.box14.length > 0) ? (
                     <div className="space-y-3">
