@@ -651,8 +651,10 @@ export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
 
   // Federal tax withheld
   const federalTaxWithheld = 
-    taxReturn.w2Income.reduce((sum, w2) => sum + w2.federalTaxWithheld, 0) +
-    (taxReturn.socialSecurity?.reduce((sum, ss) => sum + ss.federalTaxWithheld, 0) || 0);
+    taxReturn.w2Income.reduce((sum, w2) => sum + (w2.federalTaxWithheld || 0), 0) +
+    (taxReturn.socialSecurity?.reduce((sum, ss) => sum + (ss.federalTaxWithheld || 0), 0) || 0) +
+    (taxReturn.form1099R?.reduce((sum, r) => sum + (r.federalTaxWithheld || 0), 0) || 0) +
+    (taxReturn.form1099NEC?.reduce((sum, nec) => sum + (nec.federalTaxWithheld || 0), 0) || 0);
 
   // Estimated tax payments
   const estimatedTaxPayments = taxReturn.estimatedTaxPayments || 0;
