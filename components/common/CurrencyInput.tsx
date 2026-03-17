@@ -37,17 +37,24 @@ export function formatCurrency(value: number | undefined | null): string {
   return value.toFixed(2);
 }
 
+/** Format a number with commas for display (e.g., 1234.56 -> 1,234.56) */
+export function formatCurrencyWithCommas(value: number | undefined | null): string {
+  if (value === undefined || value === null || value === 0) return '';
+  return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
   ({ inputClassName = '', hasError, showPrefix = true, className, value, onValueChange, onBlur, placeholder = '0.00', ...inputProps }, ref) => {
     const [displayValue, setDisplayValue] = useState<string>(() => formatCurrency(value));
     const [isFocused, setIsFocused] = useState(false);
 
-    const renderedValue = isFocused ? displayValue : formatCurrency(value);
+    // Show with commas when not focused, raw when focused
+    const renderedValue = isFocused ? displayValue : formatCurrencyWithCommas(value);
 
     const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
       const raw = e.target.value;
       setDisplayValue(raw);
-      const parsed = parseFloat(raw);
+      const parsed = parseFloat(raw.replace(/,/g, ''));
       onValueChange?.(isNaN(parsed) ? 0 : parsed);
     }, [onValueChange]);
 
@@ -63,12 +70,15 @@ const CurrencyInput = forwardRef<HTMLInputElement, CurrencyInputProps>(
     const handleBlur = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(false);
       // Format to 2 decimals on blur
-      const parsed = parseFloat(displayValue);
-      if (!isNaN(parsed)) {
+      const parsed = parseFloat(displayValue.replace(/,/g, ''));
+      if (!isNaN(parsed) && parsed !== 0) {
         setDisplayValue(parsed.toFixed(2));
         onValueChange?.(parsed);
+      } else if (parsed === 0) {
+        setDisplayValue(''); // Show empty for 0, not 0.00
+        onValueChange?.(0);
       } else {
-        setDisplayValue('0.00');
+        setDisplayValue('');
         onValueChange?.(0);
       }
       onBlur?.(e);
