@@ -28,9 +28,11 @@ export function calculateTotalIncome(taxReturn: TaxReturn): number {
     total += w2.wages;
   });
 
-  // Interest income
+  // Interest income (taxable)
   taxReturn.interest.forEach(int => {
     total += int.amount;
+    // Tax-exempt interest (Box 4) - included in total income for SS benefits calculation
+    total += int.taxExemptInterest || 0;
   });
 
   // Dividend income

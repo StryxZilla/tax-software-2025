@@ -456,9 +456,9 @@ export default function InterestIncomeForm({ values, onChange, onValidationChang
           <span>Tax-Exempt Interest</span>
         </h4>
         <p className="text-sm text-slate-700">
-          If you have <strong>tax-exempt interest</strong> (such as from municipal bonds), it would be reported in Box 8 of Form 1099-INT. 
-          Tax-exempt interest is generally not taxable for federal purposes, but may still need to be reported on your return and could 
-          affect other tax calculations. This simplified form focuses on taxable interest (Box 1 only).
+          If you have <strong>tax-exempt interest</strong> (such as from municipal bonds), enter it in Box 4 above. 
+          Tax-exempt interest is generally not taxable for federal purposes, but must still be reported on your return 
+          and is used to determine if your Social Security benefits are taxable.
         </p>
       </div>
     </div>
