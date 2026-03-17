@@ -47,6 +47,12 @@ export interface W2IncomeBox12 {
   amount: number;
 }
 
+export interface W2IncomeBox14 {
+  code: string;  // e.g., "STATESTAX", "LOCALTAX", "SDI", "UI", etc.
+  description: string;
+  amount: number;
+}
+
 export interface W2Income {
   employer: string;
   ein: string;
@@ -57,6 +63,7 @@ export interface W2Income {
   medicareWages: number;
   medicareTaxWithheld: number;
   box12?: W2IncomeBox12[];  // Other compensation (codes DD, G, L, R, W, etc.)
+  box14?: W2IncomeBox14[];  // State/local taxes, SDI, etc.
 }
 
 export interface Interest1099INT {

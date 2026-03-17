@@ -142,6 +142,7 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
       medicareWages: 0,
       medicareTaxWithheld: 0,
       box12: [],
+      box14: [],
     }]);
   };
 
@@ -509,6 +510,91 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                     </div>
                   ) : (
                     <p className="text-sm text-slate-500">No Box 12 entries. Leave blank if not applicable.</p>
+                  )}
+                </div>
+
+                {/* Box 14 - Other State/Local Information */}
+                <div className="mt-6 pt-6 border-t border-slate-200">
+                  <div className="flex justify-between items-center mb-3">
+                    <label className="block text-sm font-semibold text-slate-700">
+                      Box 14 - Other (State tax, local tax, etc.)
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const current = w2.box14 || [];
+                        updateW2(index, { box14: [...current, { code: '', description: '', amount: 0 }] });
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      + Add Box 14 Entry
+                    </button>
+                  </div>
+
+                  {(w2.box14 && w2.box14.length > 0) ? (
+                    <div className="space-y-3">
+                      {w2.box14.map((entry, box14Idx) => (
+                        <div key={box14Idx} className="flex gap-3 items-start">
+                          <div className="w-32">
+                            <label className="block text-xs font-medium text-slate-700 mb-1">Type</label>
+                            <select
+                              value={entry.code}
+                              onChange={(e) => {
+                                const updated = [...(w2.box14 || [])];
+                                updated[box14Idx] = { ...entry, code: e.target.value };
+                                updateW2(index, { box14: updated });
+                              }}
+                              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            >
+                              <option value="">Select type</option>
+                              <option value="STATESTAX">State Tax Withheld</option>
+                              <option value="LOCALTAX">Local Tax Withheld</option>
+                              <option value="SDI">State Disability Insurance</option>
+                              <option value="UI">Unemployment Insurance</option>
+                              <option value="VTL">Voluntary Disability</option>
+                              <option value="OTHER">Other</option>
+                            </select>
+                          </div>
+                          <div className="w-48">
+                            <label className="block text-xs font-medium text-slate-700 mb-1">Description</label>
+                            <input
+                              type="text"
+                              value={entry.description}
+                              onChange={(e) => {
+                                const updated = [...(w2.box14 || [])];
+                                updated[box14Idx] = { ...entry, description: e.target.value };
+                                updateW2(index, { box14: updated });
+                              }}
+                              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                              placeholder="e.g., CA, NYC"
+                            />
+                          </div>
+                          <div className="flex-1">
+                            <label className="block text-xs font-medium text-slate-700 mb-1">Amount</label>
+                            <CurrencyInput
+                              value={entry.amount}
+                              onValueChange={(v) => {
+                                const updated = [...(w2.box14 || [])];
+                                updated[box14Idx] = { ...entry, amount: v };
+                                updateW2(index, { box14: updated });
+                              }}
+                            />
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const updated = (w2.box14 || []).filter((_, i) => i !== box14Idx);
+                              updateW2(index, { box14: updated });
+                            }}
+                            className="mt-6 text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-slate-500">No Box 14 entries. Leave blank if not applicable.</p>
                   )}
                 </div>
               </div>
