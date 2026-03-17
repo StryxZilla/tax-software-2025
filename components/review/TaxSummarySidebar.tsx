@@ -309,6 +309,43 @@ export default function TaxSummarySidebar() {
     return sources;
   }, [taxReturn]);
 
+  // Withholding analysis - shows which income sources have withholding
+  const withholdingAnalysis = useMemo(() => {
+    if (!taxReturn) return null;
+
+    // Calculate withholding from W-2
+    const w2Withholding = taxReturn.w2Income.reduce((sum, w2) => sum + (w2.federalTaxWithheld || 0), 0);
+    const w2Wages = taxReturn.w2Income.reduce((sum, w2) => sum + (w2.wages || 0), 0);
+
+    // Calculate income WITHOUT withholding (other sources)
+    const totalInterest = taxReturn.interest.reduce((sum, int) => sum + (int.amount || 0), 0);
+    const totalDividends = taxReturn.dividends.reduce((sum, div) => sum + (div.ordinaryDividends || 0), 0);
+    const totalCapitalGains = taxReturn.capitalGains.reduce((sum, cg) => sum + ((cg.proceeds || 0) - (cg.costBasis || 0)), 0);
+    const selfEmployment = taxReturn.selfEmployment ? 
+      ((taxReturn.selfEmployment.grossReceipts || 0) - (taxReturn.selfEmployment.returns || 0) - (taxReturn.selfEmployment.costOfGoodsSold || 0)) : 0;
+    const total1099NEC = taxReturn.form1099NEC.reduce((sum, nec) => sum + (nec.nonEmployeeCompensation || 0), 0);
+    const total1099R = taxReturn.form1099R.reduce((sum, r) => sum + (r.grossDistribution || 0), 0);
+    const socialSecurity = taxReturn.socialSecurity.reduce((sum, ss) => sum + (ss.benefitsReceived || 0), 0);
+    const rentalIncome = taxReturn.rentalProperties.reduce((sum, prop) => 
+      sum + ((prop.rentalIncome || 0) - (prop.expenses || 0)), 0);
+
+    const incomeWithWithholding = w2Wages;
+    const incomeWithoutWithholding = totalInterest + totalDividends + totalCapitalGains + 
+      Math.max(0, selfEmployment) + total1099NEC + total1099R + socialSecurity + Math.max(0, rentalIncome);
+
+    // 1099-NEC, self-employment, etc don't have automatic withholding
+    const hasUnderwithholding = incomeWithoutWithholding > 0 && w2Withholding < (taxCalculation?.totalTax || 0) * 0.9;
+
+    return {
+      w2Withholding,
+      w2Wages,
+      incomeWithWithholding,
+      incomeWithoutWithholding,
+      hasUnderwithholding,
+      totalWithholding: w2Withholding + (taxReturn.form1099R?.reduce((sum, r) => sum + (r.federalTaxWithheld || 0), 0) || 0),
+    };
+  }, [taxReturn, taxCalculation]);
+
   const isRefund = (taxCalculation?.refundOrAmountOwed ?? 0) > 0;
 
   // Calculate completion percentage based on filled sections
@@ -667,6 +704,67 @@ export default function TaxSummarySidebar() {
                 </div>
               </div>
             </div>
+
+            {/* Withholding Analysis - NEW */}
+            {withholdingAnalysis && taxCalculation && (
+              <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-200">
+                <div className="flex items-center space-x-2 mb-4">
+                  <DollarSign className="w-5 h-5 text-purple-600" />
+                  <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Withholding Analysis</h3>
+                </div>
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-slate-600">Total Tax Liability</span>
+                    <span className="text-lg font-bold text-slate-800">${taxCalculation.totalTax.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-medium text-slate-600">Total Withheld</span>
+                    <span className="text-lg font-bold text-green-600">${withholdingAnalysis.totalWithholding.toLocaleString()}</span>
+                  </div>
+                  <div className="border-t pt-2 flex justify-between items-center">
+                    <span className="text-sm font-medium text-slate-600">
+                      {isRefund ? 'Extra Withheld' : 'Remaining to Pay'}
+                    </span>
+                    <span className={`text-lg font-bold ${isRefund ? 'text-green-600' : 'text-red-600'}`}>
+                      ${Math.abs(taxCalculation.refundOrAmountOwed).toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Income breakdown */}
+                <div className="mt-4 pt-4 border-t">
+                  <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Income Sources</p>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-600">W-2 Income (with withholding)</span>
+                      <span className="font-medium">${withholdingAnalysis.incomeWithWithholding.toLocaleString()}</span>
+                    </div>
+                    {withholdingAnalysis.incomeWithoutWithholding > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">Other Income (no withholding)</span>
+                        <span className="font-medium text-amber-600">
+                          ${withholdingAnalysis.incomeWithoutWithholding.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Warning if underwithholding */}
+                {withholdingAnalysis.hasUnderwithholding && !isRefund && (
+                  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <div className="flex items-start space-x-2">
+                      <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5" />
+                      <div className="text-xs text-amber-800">
+                        <p className="font-semibold">Potential Underwithholding</p>
+                        <p className="mt-1">You have income without automatic withholding (1099, self-employment, etc.). Consider making quarterly estimated tax payments to avoid penalties.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Tax Bracket Breakdown */}
             {bracketBreakdown.length > 0 && (
