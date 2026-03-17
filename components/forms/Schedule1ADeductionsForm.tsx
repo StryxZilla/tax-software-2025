@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Schedule1ADeductions, FilingStatus } from '../../types/tax-types';
 import { SCHEDULE_1_A_2025 } from '../../data/tax-constants';
 import { AlertCircle, Info, Car, Clock, DollarSign, UserCheck } from 'lucide-react';
+import CurrencyInput from '../common/CurrencyInput';
 
 interface Schedule1ADeductionsFormProps {
   schedule1A?: Schedule1ADeductions;
@@ -222,19 +223,12 @@ export default function Schedule1ADeductionsForm({
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Total Tips Received (reported to employer)
             </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-              <input
-                type="number"
-                step="0.01"
-                value={data.tipIncome || ''}
-                onChange={(e) => updateField('tipIncome', parseFloat(e.target.value) || 0)}
-                onBlur={() => touchField('tipIncome')}
-                min="0"
-                className={`pl-8 ${getInputClassName('tipIncome')}`}
-                placeholder="0.00"
-              />
-            </div>
+            <CurrencyInput
+              value={data.tipIncome}
+              onValueChange={(val) => updateField('tipIncome', val)}
+              onBlur={() => touchField('tipIncome')}
+              placeholder="0.00"
+            />
             <p className="mt-1 text-xs text-slate-500">From your W-2, Box 7 (if tips reported)</p>
           </div>
 
@@ -242,19 +236,12 @@ export default function Schedule1ADeductionsForm({
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Deductible Tip-Related Expenses
             </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-              <input
-                type="number"
-                step="0.01"
-                value={data.tipExpenses || ''}
-                onChange={(e) => updateField('tipExpenses', parseFloat(e.target.value) || 0)}
-                onBlur={() => touchField('tipExpenses')}
-                min="0"
-                className={`pl-8 ${getInputClassName('tipExpenses')}`}
-                placeholder="0.00"
-              />
-            </div>
+            <CurrencyInput
+              value={data.tipExpenses}
+              onValueChange={(val) => updateField('tipExpenses', val)}
+              onBlur={() => touchField('tipExpenses')}
+              placeholder="0.00"
+            />
             <ValidationError message={getFieldError('tipExpenses')} />
             <p className="mt-1 text-xs text-slate-500">Cannot exceed tips received (e.g., credit card processing fees)</p>
           </div>
@@ -336,19 +323,12 @@ export default function Schedule1ADeductionsForm({
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Total Overtime Pay Received
             </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-              <input
-                type="number"
-                step="0.01"
-                value={data.overtimePay || ''}
-                onChange={(e) => updateField('overtimePay', parseFloat(e.target.value) || 0)}
-                onBlur={() => touchField('overtimePay')}
-                min="0"
-                className={`pl-8 ${getInputClassName('overtimePay')}`}
-                placeholder="0.00"
-              />
-            </div>
+            <CurrencyInput
+              value={data.overtimePay}
+              onValueChange={(val) => updateField('overtimePay', val)}
+              onBlur={() => touchField('overtimePay')}
+              placeholder="0.00"
+            />
             <ValidationError message={getFieldError('overtimePay')} />
             <p className="mt-1 text-xs text-slate-500">Total overtime compensation (not regular wages)</p>
           </div>
@@ -397,19 +377,12 @@ export default function Schedule1ADeductionsForm({
             <label className="block text-sm font-semibold text-slate-700 mb-2">
               Interest Paid on Car Loan
             </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-              <input
-                type="number"
-                step="0.01"
-                value={data.carLoanInterest || ''}
-                onChange={(e) => updateField('carLoanInterest', parseFloat(e.target.value) || 0)}
-                onBlur={() => touchField('carLoanInterest')}
-                min="0"
-                className={`pl-8 ${getInputClassName('carLoanInterest')}`}
-                placeholder="0.00"
-              />
-            </div>
+            <CurrencyInput
+              value={data.carLoanInterest}
+              onValueChange={(val) => updateField('carLoanInterest', val)}
+              onBlur={() => touchField('carLoanInterest')}
+              placeholder="0.00"
+            />
             <p className="mt-1 text-xs text-slate-500">From your auto loan interest statement (Form 1098)</p>
           </div>
 

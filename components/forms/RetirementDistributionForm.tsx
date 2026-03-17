@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { Form1099R } from '../../types/tax-types';
+import CurrencyInput from '../common/CurrencyInput';
 
 interface Props {
   values?: Form1099R[];
@@ -41,14 +42,6 @@ const DISTRIBUTION_CODES = [
   { value: 'Y', label: 'Y – Qualified charitable distribution (QCD)' },
 ];
 
-function formatCurrency(value: number): string {
-  return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function parseCurrency(value: string): number {
-  return parseFloat(value.replace(/,/g, '')) || 0;
-}
-
 export default function RetirementDistributionForm({ values = [], onChange }: Props) {
   const addForm = () => {
     onChange([...values, { id: crypto.randomUUID(), payer: '', grossDistribution: 0, taxableAmount: 0, federalTaxWithheld: 0, employeeContributions: 0, distributionCode: '' }]);
@@ -85,19 +78,35 @@ export default function RetirementDistributionForm({ values = [], onChange }: Pr
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 1: Gross Distribution</label>
-              <input type="text" placeholder="0.00" value={typeof form.grossDistribution === 'number' ? formatCurrency(form.grossDistribution) : ''} onChange={e => updateForm(idx, 'grossDistribution', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
+              <CurrencyInput
+                value={form.grossDistribution}
+                onValueChange={(val) => updateForm(idx, 'grossDistribution', val)}
+                placeholder="0.00"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 2a: Taxable Amount</label>
-              <input type="text" placeholder="0.00" value={typeof form.taxableAmount === 'number' ? formatCurrency(form.taxableAmount) : ''} onChange={e => updateForm(idx, 'taxableAmount', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
+              <CurrencyInput
+                value={form.taxableAmount}
+                onValueChange={(val) => updateForm(idx, 'taxableAmount', val)}
+                placeholder="0.00"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 4: Federal Tax Withheld</label>
-              <input type="text" placeholder="0.00" value={typeof form.federalTaxWithheld === 'number' ? formatCurrency(form.federalTaxWithheld) : ''} onChange={e => updateForm(idx, 'federalTaxWithheld', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
+              <CurrencyInput
+                value={form.federalTaxWithheld}
+                onValueChange={(val) => updateForm(idx, 'federalTaxWithheld', val)}
+                placeholder="0.00"
+              />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 5: Employee Contributions</label>
-              <input type="text" placeholder="0.00" value={typeof form.employeeContributions === 'number' ? formatCurrency(form.employeeContributions) : ''} onChange={e => updateForm(idx, 'employeeContributions', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
+              <CurrencyInput
+                value={form.employeeContributions}
+                onValueChange={(val) => updateForm(idx, 'employeeContributions', val)}
+                placeholder="0.00"
+              />
             </div>
           </div>
           <button onClick={() => removeForm(idx)} className="text-red-600">Remove</button>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Dividend1099DIV } from '../../types/tax-types';
 import { Plus, Trash2, Landmark, DollarSign, TrendingUp, AlertCircle, Receipt } from 'lucide-react';
+import CurrencyInput from '../common/CurrencyInput';
 
 interface DividendIncomeFormProps {
   values: Dividend1099DIV[];
@@ -120,17 +121,11 @@ export default function DividendIncomeForm({ values, onChange }: DividendIncomeF
               <label className="block text-sm font-semibold text-slate-700 mb-1">
                 Total Ordinary Dividends <span className="text-xs font-normal text-slate-400">(Box 1a)</span>
               </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={dividend.ordinaryDividends || ''}
-                  onChange={(e) => updateDividend(index, 'ordinaryDividends', parseFloat(e.target.value) || 0)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
-              </div>
+              <CurrencyInput
+                value={dividend.ordinaryDividends}
+                onValueChange={(val) => updateDividend(index, 'ordinaryDividends', val)}
+                placeholder="0.00"
+              />
             </div>
 
             {/* Box 1b - Qualified Dividends */}
@@ -138,17 +133,11 @@ export default function DividendIncomeForm({ values, onChange }: DividendIncomeF
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 Qualified Dividends <span className="text-xs font-normal text-slate-400">(Box 1b)</span>
               </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={dividend.qualifiedDividends || ''}
-                  onChange={(e) => updateDividend(index, 'qualifiedDividends', parseFloat(e.target.value) || 0)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
-              </div>
+              <CurrencyInput
+                value={dividend.qualifiedDividends}
+                onValueChange={(val) => updateDividend(index, 'qualifiedDividends', val)}
+                placeholder="0.00"
+              />
               <p className="mt-1 text-xs text-slate-500">
                 Usually less than or equal to ordinary — taxed at lower rates
               </p>
@@ -159,17 +148,11 @@ export default function DividendIncomeForm({ values, onChange }: DividendIncomeF
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 Capital Gain Distributions <span className="text-xs font-normal text-slate-400">(Box 2)</span>
               </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={dividend.capitalGainDistributions || ''}
-                  onChange={(e) => updateDividend(index, 'capitalGainDistributions', parseFloat(e.target.value) || 0)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
-              </div>
+              <CurrencyInput
+                value={dividend.capitalGainDistributions}
+                onValueChange={(val) => updateDividend(index, 'capitalGainDistributions', val)}
+                placeholder="0.00"
+              />
               <p className="mt-1 text-xs text-slate-500">
                 From mutual funds/ETFs — goes to Schedule D
               </p>
@@ -180,17 +163,11 @@ export default function DividendIncomeForm({ values, onChange }: DividendIncomeF
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 Exempt-Interest Dividends <span className="text-xs font-normal text-slate-400">(Box 3)</span>
               </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={dividend.exemptInterestDividends || ''}
-                  onChange={(e) => updateDividend(index, 'exemptInterestDividends', parseFloat(e.target.value) || 0)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
-              </div>
+              <CurrencyInput
+                value={dividend.exemptInterestDividends}
+                onValueChange={(val) => updateDividend(index, 'exemptInterestDividends', val)}
+                placeholder="0.00"
+              />
               <p className="mt-1 text-xs text-slate-500">
                 From municipal bonds — tax-exempt but affects AMT
               </p>
@@ -201,17 +178,11 @@ export default function DividendIncomeForm({ values, onChange }: DividendIncomeF
               <label className="block text-sm font-medium text-slate-700 mb-1">
                 Foreign Tax Paid <span className="text-xs font-normal text-slate-400">(Box 6)</span>
               </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={dividend.foreignTaxPaid || ''}
-                  onChange={(e) => updateDividend(index, 'foreignTaxPaid', parseFloat(e.target.value) || 0)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder="0.00"
-                />
-              </div>
+              <CurrencyInput
+                value={dividend.foreignTaxPaid}
+                onValueChange={(val) => updateDividend(index, 'foreignTaxPaid', val)}
+                placeholder="0.00"
+              />
               <p className="mt-1 text-xs text-slate-500">
                 Can deduct or claim as credit (Form 1116)
               </p>

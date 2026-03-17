@@ -5,6 +5,7 @@ import { CapitalGainTransaction } from '../../types/tax-types';
 import { validateCapitalGain } from '../../lib/validation/form-validation';
 import { AlertCircle } from 'lucide-react';
 import ValidationError from '../common/ValidationError';
+import CurrencyInput from '../common/CurrencyInput';
 
 interface CapitalGainsFormProps {
   values: CapitalGainTransaction[];
@@ -259,20 +260,12 @@ export default function CapitalGainsForm({ values, onChange, onValidationChange 
                     <label className="block text-sm font-medium text-gray-700">
                       Sale Proceeds <span className="text-red-500">*</span>
                     </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 pt-1">
-                        <span className="text-gray-500 sm:text-sm">$</span>
-                      </div>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={txn.proceeds || ''}
-                        onChange={(e) => updateTransaction(index, { proceeds: parseFloat(e.target.value) || 0 })}
-                        onBlur={() => touchField(`capital-${index}-proceeds`)}
-                        className={`pl-8 ${getInputClassName(`capital-${index}-proceeds`)}`}
+                    <CurrencyInput
+                      value={txn.proceeds}
+                      onValueChange={(val) => updateTransaction(index, { proceeds: val })}
+                      onBlur={() => touchField(`capital-${index}-proceeds`)}
                       placeholder="0.00"
-                      />
-                    </div>
+                    />
                     <ValidationError message={getFieldError(`capital-${index}-proceeds`)} />
                   </div>
 
@@ -280,20 +273,12 @@ export default function CapitalGainsForm({ values, onChange, onValidationChange 
                     <label className="block text-sm font-medium text-gray-700">
                       Cost Basis
                     </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 pt-1">
-                        <span className="text-gray-500 sm:text-sm">$</span>
-                      </div>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={txn.costBasis || ''}
-                        onChange={(e) => updateTransaction(index, { costBasis: parseFloat(e.target.value) || 0 })}
-                        onBlur={() => touchField(`capital-${index}-costBasis`)}
-                        className={`pl-8 ${getInputClassName(`capital-${index}-costBasis`)}`}
+                    <CurrencyInput
+                      value={txn.costBasis}
+                      onValueChange={(val) => updateTransaction(index, { costBasis: val })}
+                      onBlur={() => touchField(`capital-${index}-costBasis`)}
                       placeholder="0.00"
-                      />
-                    </div>
+                    />
                     <ValidationError message={getFieldError(`capital-${index}-costBasis`)} />
                   </div>
 

@@ -7,6 +7,7 @@ import { validateInterest } from '../../lib/validation/form-validation';
 import ValidationError from '../common/ValidationError';
 import DocumentUpload from '../ocr/DocumentUpload';
 import { extract1099INTData } from '../../lib/ocr/extractors/1099-int-extractor';
+import CurrencyInput from '../common/CurrencyInput';
 
 function build1099IntExtractionReport(data: Partial<Interest1099INT>) {
   const expectedFields: Array<{ key: keyof Interest1099INT; label: string }> = [
@@ -268,21 +269,13 @@ export default function InterestIncomeForm({ values, onChange, onValidationChang
                     <label className="block text-sm font-semibold text-slate-700 mb-3">
                       Interest Income (Box 1) <span className="text-red-500">*</span>
                     </label>
-                    <div className="relative">
-                      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                        <span className="text-slate-600 font-bold text-xl">$</span>
-                      </div>
-                      <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        value={interest.amount || ''}
-                        onChange={(e) => updateInterest(index, { amount: parseFloat(e.target.value) || 0 })}
-                        onBlur={() => touchField(`interest-${index}-amount`)}
-                        className={`pl-10 text-2xl font-bold py-4 ${getInputClassName(`interest-${index}-amount`)}`}
-                        placeholder="0.00"
-                      />
-                    </div>
+                    <CurrencyInput
+                      value={interest.amount}
+                      onValueChange={(val) => updateInterest(index, { amount: val })}
+                      onBlur={() => touchField(`interest-${index}-amount`)}
+                      placeholder="0.00"
+                      inputClassName="text-2xl font-bold py-4"
+                    />
                     <ValidationError message={getFieldError(`interest-${index}-amount`)} />
                     {!getFieldError(`interest-${index}-amount`) && (
                       <p className="mt-3 text-xs text-slate-600">This is the total interest income shown in Box 1 of your 1099-INT</p>
@@ -303,20 +296,11 @@ export default function InterestIncomeForm({ values, onChange, onValidationChang
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Early Withdrawal Penalty (Box 2)
                       </label>
-                      <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                          <span className="text-slate-600 font-bold text-xl">$</span>
-                        </div>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={interest.earlyWithdrawalPenalty || ''}
-                          onChange={(e) => updateInterest(index, { earlyWithdrawalPenalty: parseFloat(e.target.value) || 0 })}
-                          placeholder="0.00"
-                          className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        />
-                      </div>
+                      <CurrencyInput
+                        value={interest.earlyWithdrawalPenalty}
+                        onValueChange={(val) => updateInterest(index, { earlyWithdrawalPenalty: val })}
+                        placeholder="0.00"
+                      />
                       <p className="mt-1 text-xs text-slate-500">Penalty for early withdrawal of funds</p>
                     </div>
 
@@ -325,20 +309,11 @@ export default function InterestIncomeForm({ values, onChange, onValidationChang
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         US Savings Bonds / Treasury Interest (Box 3)
                       </label>
-                      <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                          <span className="text-slate-600 font-bold text-xl">$</span>
-                        </div>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={interest.usSavingsBondInterest || ''}
-                          onChange={(e) => updateInterest(index, { usSavingsBondInterest: parseFloat(e.target.value) || 0 })}
-                          placeholder="0.00"
-                          className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        />
-                      </div>
+                      <CurrencyInput
+                        value={interest.usSavingsBondInterest}
+                        onValueChange={(val) => updateInterest(index, { usSavingsBondInterest: val })}
+                        placeholder="0.00"
+                      />
                       <p className="mt-1 text-xs text-slate-500">Interest from US Savings Bonds/Treasury obligations</p>
                     </div>
 
@@ -347,20 +322,11 @@ export default function InterestIncomeForm({ values, onChange, onValidationChang
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Tax-Exempt Interest (Box 4)
                       </label>
-                      <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                          <span className="text-slate-600 font-bold text-xl">$</span>
-                        </div>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={interest.taxExemptInterest || ''}
-                          onChange={(e) => updateInterest(index, { taxExemptInterest: parseFloat(e.target.value) || 0 })}
-                          placeholder="0.00"
-                          className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        />
-                      </div>
+                      <CurrencyInput
+                        value={interest.taxExemptInterest}
+                        onValueChange={(val) => updateInterest(index, { taxExemptInterest: val })}
+                        placeholder="0.00"
+                      />
                       <p className="mt-1 text-xs text-slate-500">Tax-exempt municipal bond interest</p>
                     </div>
 
@@ -369,20 +335,11 @@ export default function InterestIncomeForm({ values, onChange, onValidationChang
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Investment Expenses (Box 5)
                       </label>
-                      <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                          <span className="text-slate-600 font-bold text-xl">$</span>
-                        </div>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={interest.investmentExpenses || ''}
-                          onChange={(e) => updateInterest(index, { investmentExpenses: parseFloat(e.target.value) || 0 })}
-                          placeholder="0.00"
-                          className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        />
-                      </div>
+                      <CurrencyInput
+                        value={interest.investmentExpenses}
+                        onValueChange={(val) => updateInterest(index, { investmentExpenses: val })}
+                        placeholder="0.00"
+                      />
                       <p className="mt-1 text-xs text-slate-500">Deductible investment expenses</p>
                     </div>
 
@@ -391,20 +348,11 @@ export default function InterestIncomeForm({ values, onChange, onValidationChang
                       <label className="block text-sm font-semibold text-slate-700 mb-2">
                         Foreign Tax Paid (Box 6)
                       </label>
-                      <div className="relative">
-                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                          <span className="text-slate-600 font-bold text-xl">$</span>
-                        </div>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          value={interest.foreignTaxPaid || ''}
-                          onChange={(e) => updateInterest(index, { foreignTaxPaid: parseFloat(e.target.value) || 0 })}
-                          placeholder="0.00"
-                          className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                        />
-                      </div>
+                      <CurrencyInput
+                        value={interest.foreignTaxPaid}
+                        onValueChange={(val) => updateInterest(index, { foreignTaxPaid: val })}
+                        placeholder="0.00"
+                      />
                       <p className="mt-1 text-xs text-slate-500">Foreign taxes paid (may be deductible)</p>
                     </div>
                   </div>

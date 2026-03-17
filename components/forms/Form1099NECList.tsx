@@ -1,5 +1,6 @@
 import React from 'react';
 import { useState } from 'react';
+import CurrencyInput from '../common/CurrencyInput';
 
 interface Form1099NEC {
   id: string;
@@ -129,17 +130,11 @@ export default function Form1099NECList({ values = [], onChange }: Form1099NECLi
               <label className="block text-sm font-medium text-slate-600 mb-1">
                 Federal Tax Withheld (Box 4)
               </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={nec.federalTaxWithheld ?? ''}
-                  onChange={(e) => update1099NEC(nec.id, 'federalTaxWithheld', parseFloat(e.target.value) || 0)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="0.00"
-                />
-              </div>
+              <CurrencyInput
+                value={nec.federalTaxWithheld}
+                onValueChange={(val) => update1099NEC(nec.id, 'federalTaxWithheld', val)}
+                placeholder="0.00"
+              />
             </div>
 
             {/* Box 1 - Non-employee compensation (the main field) */}
@@ -147,17 +142,11 @@ export default function Form1099NECList({ values = [], onChange }: Form1099NECLi
               <label className="block text-sm font-semibold text-slate-700 mb-1">
                 Non-Employee Compensation <span className="text-xs font-normal text-slate-400">(Box 1)</span>
               </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400">$</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={nec.nonEmployeeCompensation ?? ''}
-                  onChange={(e) => update1099NEC(nec.id, 'nonEmployeeCompensation', parseFloat(e.target.value) || 0)}
-                  className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                  placeholder="0.00"
-                />
-              </div>
+              <CurrencyInput
+                value={nec.nonEmployeeCompensation}
+                onValueChange={(val) => update1099NEC(nec.id, 'nonEmployeeCompensation', val)}
+                placeholder="0.00"
+              />
               <p className="mt-1 text-xs text-slate-500">
                 Total payments received for services (not employees) — goes to Schedule C, Line 3
               </p>
