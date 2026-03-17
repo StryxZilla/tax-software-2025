@@ -30,9 +30,13 @@ export function calculateTotalIncome(taxReturn: TaxReturn): number {
 
   // Interest income (taxable)
   taxReturn.interest.forEach(int => {
+    // Box 1: Taxable interest income
     total += int.amount;
-    // Tax-exempt interest (Box 4) - included in total income for SS benefits calculation
-    total += int.taxExemptInterest || 0;
+    // Box 3: US Savings Bonds/Treasury interest (taxable)
+    total += int.usSavingsBondInterest || 0;
+    // Box 2: Early withdrawal penalty (reduces taxable interest)
+    total -= int.earlyWithdrawalPenalty || 0;
+    // Box 4: Tax-exempt interest - NOT added to total income (only affects SS benefits calculation)
   });
 
   // Dividend income
@@ -383,9 +387,14 @@ export function calculateMAGI(taxReturn: TaxReturn): number {
 export function calculateNetInvestmentIncome(taxReturn: TaxReturn): number {
   let netInvestmentIncome = 0;
 
-  // Interest income
+  // Interest income (Box 1 + Box 3, minus Box 5 investment expenses)
   taxReturn.interest.forEach(int => {
+    // Box 1: Taxable interest
     netInvestmentIncome += int.amount;
+    // Box 3: US Savings Bonds/Treasury interest (taxable)
+    netInvestmentIncome += int.usSavingsBondInterest || 0;
+    // Box 5: Investment expenses (deductible from investment income)
+    netInvestmentIncome -= int.investmentExpenses || 0;
   });
 
   // Dividend income (ordinary dividends)
