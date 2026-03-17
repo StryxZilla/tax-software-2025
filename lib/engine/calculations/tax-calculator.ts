@@ -468,6 +468,106 @@ export function calculateNIIT(taxReturn: TaxReturn, magi: number): number {
 }
 
 /**
+ * Calculate Additional Medicare Tax
+ * Applies to Medicare wages and self-employment income exceeding:
+ * - Single: $200,000
+ * - Married Filing Jointly: $250,000
+ * - Married Filing Separately: $125,000
+ * Rate: 0.9%
+ */
+export function calculateAdditionalMedicareTax(taxReturn: TaxReturn): number {
+  const filingStatus = taxReturn.personalInfo.filingStatus;
+  
+  const thresholds: Record<FilingStatus, number> = {
+    'Single': 200000,
+    'Married Filing Jointly': 250000,
+    'Married Filing Separately': 125000,
+    'Head of Household': 200000,
+    'Qualifying Surviving Spouse': 250000,
+  };
+  
+  const threshold = thresholds[filingStatus] || 200000;
+  
+  // Calculate Medicare wages (from W-2)
+  const medicareWages = taxReturn.w2Income.reduce((sum, w2) => sum + (w2.medicareWages || 0), 0);
+  
+  // Calculate self-employment income (subject to Medicare)
+  let selfEmploymentIncome = 0;
+  if (taxReturn.selfEmployment) {
+    const netProfit = calculateScheduleCProfit(taxReturn.selfEmployment);
+    // 92.35% of net profit is subject to Medicare
+    selfEmploymentIncome = netProfit * 0.9235;
+  }
+  
+  // Total Medicare wages + SE income
+  const totalMedicareWages = medicareWages + selfEmploymentIncome;
+  
+  // Calculate excess over threshold
+  const excess = Math.max(0, totalMedicareWages - threshold);
+  
+  // Additional Medicare Tax is 0.9% on excess
+  return Math.round(excess * 0.009);
+}
+
+/**
+ * Calculate QBI (Qualified Business Income) Deduction
+ * 20% of qualified business income from pass-through entities
+ * 
+ * 2025 thresholds (taxable income):
+ * - Single/HOH: phase-in starts at $197,300, fully phased out at $247,300
+ * - Married Filing Jointly: phase-in starts at $394,600, fully phased out at $494,600
+ * 
+ * Simplified calculation - uses 20% of self-employment income for now
+ * (full calculation requires wage/UBIA limitations for high earners)
+ */
+export function calculateQBIDeduction(taxReturn: TaxReturn, taxableIncome: number): number {
+  const filingStatus = taxReturn.personalInfo.filingStatus;
+  
+  // 2025 thresholds
+  const thresholds: Record<FilingStatus, { start: number; end: number }> = {
+    'Single': { start: 197300, end: 247300 },
+    'Married Filing Jointly': { start: 394600, end: 494600 },
+    'Married Filing Separately': { start: 197300, end: 247300 }, // Use single for MFS
+    'Head of Household': { start: 197300, end: 247300 },
+    'Qualifying Surviving Spouse': { start: 394600, end: 494600 },
+  };
+  
+  const threshold = thresholds[filingStatus] || thresholds['Single'];
+  
+  // No QBI deduction if below phase-in threshold
+  if (taxableIncome < threshold.start) {
+    // Calculate QBI from self-employment
+    let qbi = 0;
+    if (taxReturn.selfEmployment) {
+      const netProfit = calculateScheduleCProfit(taxReturn.selfEmployment);
+      // QBI is 20% of net self-employment income
+      qbi = netProfit * 0.2;
+    }
+    return Math.round(qbi);
+  }
+  
+  // If above phase-out range, no deduction
+  if (taxableIncome >= threshold.end) {
+    return 0;
+  }
+  
+  // Phase-out range - partial deduction
+  const phaseOutRange = threshold.end - threshold.start;
+  const taxableIncomeInRange = taxableIncome - threshold.start;
+  const phaseOutPercentage = taxableIncomeInRange / phaseOutRange;
+  
+  // Calculate base QBI
+  let qbi = 0;
+  if (taxReturn.selfEmployment) {
+    const netProfit = calculateScheduleCProfit(taxReturn.selfEmployment);
+    qbi = netProfit * 0.2;
+  }
+  
+  // Reduce by phase-out percentage
+  return Math.round(qbi * (1 - phaseOutPercentage));
+}
+
+/**
  * Calculate Child Tax Credit
  */
 export function calculateChildTaxCredit(taxReturn: TaxReturn, agi: number): number {
@@ -615,6 +715,9 @@ export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
   // Calculate regular tax
   const regularTax = calculateRegularTax(taxableIncome, taxReturn.personalInfo.filingStatus);
 
+  // Calculate QBI deduction (20% of qualified business income)
+  const qbiDeduction = calculateQBIDeduction(taxReturn, taxableIncome);
+
   // Calculate AMT
   const amt = calculateAMT(taxReturn, agi, regularTax);
 
@@ -639,8 +742,8 @@ export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
     }
   }
 
-  // Additional Medicare Tax
-  const additionalMedicareTax = 0; // TODO: Implement
+  // Additional Medicare Tax (0.9% on wages/SE income over threshold)
+  const additionalMedicareTax = calculateAdditionalMedicareTax(taxReturn);
 
   // NIIT (Net Investment Income Tax)
   const magi = calculateMAGI(taxReturn);
@@ -667,7 +770,7 @@ export function calculateTaxReturn(taxReturn: TaxReturn): TaxCalculation {
     adjustments,
     agi,
     standardOrItemizedDeduction: deduction,
-    qbiDeduction: 0, // TODO: Implement QBI deduction
+    qbiDeduction,
     taxableIncome,
     regularTax,
     amt,

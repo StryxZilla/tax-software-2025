@@ -220,8 +220,8 @@ describe('Tax logic golden-case matrix', () => {
     expect(result.taxableIncome).toBe(195000)
     expect(result.regularTax).toBe(39647)
     expect(result.totalCredits).toBe(1500)
-    expect(result.totalTax).toBe(38147)
-    expect(result.refundOrAmountOwed).toBe(-8147)
+    expect(result.totalTax).toBe(38237) // 38147 + $90 Additional Medicare Tax (wages over $200k threshold)
+    expect(result.refundOrAmountOwed).toBe(-8237) // -8147 - 90
   })
 
   it('mixed-income sanity case (W-2 + interest/dividend + gains + Schedule C + CTC + estimated)', () => {
