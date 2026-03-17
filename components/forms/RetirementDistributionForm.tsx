@@ -9,25 +9,45 @@ interface Props {
 
 const DISTRIBUTION_CODES = [
   { value: '', label: 'Select code' },
-  { value: '1', label: '1 - Early distribution' },
-  { value: '2', label: '2 - Disability' },
-  { value: '3', label: '3 - Death' },
-  { value: '4', label: '4 - Section 1035 exchange' },
-  { value: '5', label: '5 - Prohibited transaction' },
-  { value: '6', label: '6 - Adult survivor' },
-  { value: '7', label: '7 - Normal distribution' },
-  { value: '8', label: '8 - Excess contribution' },
-  { value: 'A', label: 'A - Annuity' },
-  { value: 'G', label: 'G - Direct rollover' },
-  { value: 'H', label: 'H - Required minimum distribution' },
-  { value: 'L', label: 'L - Loans treated as distribution' },
-  { value: 'N', label: 'N - Recharacterized IRA' },
-  { value: 'P', label: 'P - Excess IRA contribution' },
-  { value: 'R', label: 'R - Primary insurance benefit' },
-  { value: 'S', label: 'S - Early SIMPLE IRA distribution' },
-  { value: 'T', label: 'T - Roth conversion' },
-  { value: 'W', label: 'W - Weather related' },
+  { value: '1', label: '1 – Early distribution (no known exception)' },
+  { value: '2', label: '2 – Early distribution (exception applies)' },
+  { value: '3', label: '3 – Disability' },
+  { value: '4', label: '4 – Death' },
+  { value: '5', label: '5 – Prohibited transaction' },
+  { value: '6', label: '6 – Section 1035 tax-free exchange' },
+  { value: '7', label: '7 – Normal distribution' },
+  { value: '8', label: '8 – Excess contributions plus earnings' },
+  { value: '9', label: '9 – Cost of current life insurance protection' },
+  { value: 'A', label: 'A – May be eligible for 10-year tax option' },
+  { value: 'B', label: 'B – Designated Roth account distribution' },
+  { value: 'C', label: 'C – Reportable death benefits' },
+  { value: 'D', label: 'D – Annuity payments (section 1411 taxes)' },
+  { value: 'E', label: 'E – Distributions under EPCRS' },
+  { value: 'F', label: 'F – Charitable gift annuity' },
+  { value: 'G', label: 'G – Direct rollover to qualified plan/IRA' },
+  { value: 'H', label: 'H – Direct rollover to Roth IRA' },
+  { value: 'J', label: 'J – Early distribution from Roth IRA' },
+  { value: 'K', label: 'K – IRA assets without readily available FMV' },
+  { value: 'L', label: 'L – Loans treated as deemed distributions' },
+  { value: 'M', label: 'M – Qualified plan loan offset' },
+  { value: 'N', label: 'N – Recharacterized IRA contribution (2025)' },
+  { value: 'P', label: 'P – Excess contributions (2024)' },
+  { value: 'Q', label: 'Q – Qualified Roth IRA distribution' },
+  { value: 'R', label: 'R – Recharacterized IRA (2024→2025)' },
+  { value: 'S', label: 'S – Early SIMPLE IRA distribution' },
+  { value: 'T', label: 'T – Roth IRA (exception applies)' },
+  { value: 'U', label: 'U – ESOP dividend distribution' },
+  { value: 'W', label: 'W – Long-term care insurance' },
+  { value: 'Y', label: 'Y – Qualified charitable distribution (QCD)' },
 ];
+
+function formatCurrency(value: number): string {
+  return value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function parseCurrency(value: string): number {
+  return parseFloat(value.replace(/,/g, '')) || 0;
+}
 
 export default function RetirementDistributionForm({ values = [], onChange }: Props) {
   const addForm = () => {
@@ -65,19 +85,19 @@ export default function RetirementDistributionForm({ values = [], onChange }: Pr
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 1: Gross Distribution</label>
-              <input type="number" placeholder="0.00" value={form.grossDistribution || ''} onChange={e => updateForm(idx, 'grossDistribution', parseFloat(e.target.value) || 0)} className="border p-2 rounded w-full" />
+              <input type="text" placeholder="0.00" value={form.grossDistribution ? formatCurrency(form.grossDistribution) : ''} onChange={e => updateForm(idx, 'grossDistribution', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 2a: Taxable Amount</label>
-              <input type="number" placeholder="0.00" value={form.taxableAmount || ''} onChange={e => updateForm(idx, 'taxableAmount', parseFloat(e.target.value) || 0)} className="border p-2 rounded w-full" />
+              <input type="text" placeholder="0.00" value={form.taxableAmount ? formatCurrency(form.taxableAmount) : ''} onChange={e => updateForm(idx, 'taxableAmount', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 4: Federal Tax Withheld</label>
-              <input type="number" placeholder="0.00" value={form.federalTaxWithheld || ''} onChange={e => updateForm(idx, 'federalTaxWithheld', parseFloat(e.target.value) || 0)} className="border p-2 rounded w-full" />
+              <input type="text" placeholder="0.00" value={form.federalTaxWithheld ? formatCurrency(form.federalTaxWithheld) : ''} onChange={e => updateForm(idx, 'federalTaxWithheld', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 5: Employee Contributions</label>
-              <input type="number" placeholder="0.00" value={form.employeeContributions || ''} onChange={e => updateForm(idx, 'employeeContributions', parseFloat(e.target.value) || 0)} className="border p-2 rounded w-full" />
+              <input type="text" placeholder="0.00" value={form.employeeContributions ? formatCurrency(form.employeeContributions) : ''} onChange={e => updateForm(idx, 'employeeContributions', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
             </div>
           </div>
           <button onClick={() => removeForm(idx)} className="text-red-600">Remove</button>
