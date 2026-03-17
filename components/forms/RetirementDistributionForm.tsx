@@ -44,14 +44,32 @@ export default function RetirementDistributionForm({ values = [], onChange }: Pr
       {values.map((form, idx) => (
         <div key={form.id} className="border p-4 rounded-lg space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <input placeholder="Payer name" value={form.payer} onChange={e => updateForm(idx, 'payer', e.target.value)} className="border p-2 rounded" />
-            <select value={form.distributionCode} onChange={e => updateForm(idx, 'distributionCode', e.target.value)} className="border p-2 rounded">
-              {DISTRIBUTION_CODES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-            </select>
-            <input type="number" placeholder="Box 1: Gross Distribution" value={form.grossDistribution || ''} onChange={e => updateForm(idx, 'grossDistribution', parseFloat(e.target.value) || 0)} className="border p-2 rounded" />
-            <input type="number" placeholder="Box 2a: Taxable Amount" value={form.taxableAmount || ''} onChange={e => updateForm(idx, 'taxableAmount', parseFloat(e.target.value) || 0)} className="border p-2 rounded" />
-            <input type="number" placeholder="Box 4: Federal Tax Withheld" value={form.federalTaxWithheld || ''} onChange={e => updateForm(idx, 'federalTaxWithheld', parseFloat(e.target.value) || 0)} className="border p-2 rounded" />
-            <input type="number" placeholder="Box 5: Employee Contributions" value={form.employeeContributions || ''} onChange={e => updateForm(idx, 'employeeContributions', parseFloat(e.target.value) || 0)} className="border p-2 rounded" />
+            <div>
+              <label className="block text-sm font-medium mb-1">Payer Name</label>
+              <input placeholder="Payer name" value={form.payer} onChange={e => updateForm(idx, 'payer', e.target.value)} className="border p-2 rounded w-full" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Box 7: Distribution Code</label>
+              <select value={form.distributionCode} onChange={e => updateForm(idx, 'distributionCode', e.target.value)} className="border p-2 rounded w-full">
+                {DISTRIBUTION_CODES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Box 1: Gross Distribution</label>
+              <input type="number" placeholder="0.00" value={form.grossDistribution || ''} onChange={e => updateForm(idx, 'grossDistribution', parseFloat(e.target.value) || 0)} className="border p-2 rounded w-full" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Box 2a: Taxable Amount</label>
+              <input type="number" placeholder="0.00" value={form.taxableAmount || ''} onChange={e => updateForm(idx, 'taxableAmount', parseFloat(e.target.value) || 0)} className="border p-2 rounded w-full" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Box 4: Federal Tax Withheld</label>
+              <input type="number" placeholder="0.00" value={form.federalTaxWithheld || ''} onChange={e => updateForm(idx, 'federalTaxWithheld', parseFloat(e.target.value) || 0)} className="border p-2 rounded w-full" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Box 5: Employee Contributions</label>
+              <input type="number" placeholder="0.00" value={form.employeeContributions || ''} onChange={e => updateForm(idx, 'employeeContributions', parseFloat(e.target.value) || 0)} className="border p-2 rounded w-full" />
+            </div>
           </div>
           <button onClick={() => removeForm(idx)} className="text-red-600">Remove</button>
         </div>
