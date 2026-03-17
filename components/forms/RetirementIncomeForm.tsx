@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { RetirementIncome, DistributionCode } from '../../types/tax-types';
-import { Plus, Trash2, Landmark, DollarSign, TrendingUp, Info, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Landmark, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
 import { validateRetirementIncome } from '../../lib/validation/form-validation';
 import ValidationError from '../common/ValidationError';
 import CurrencyInput from '../common/CurrencyInput';
@@ -311,41 +311,11 @@ export default function RetirementIncomeForm({ values, onChange, onValidationCha
                     </div>
                   </div>
                 </div>
-
-                {/* Helpful information */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start space-x-3">
-                    <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h5 className="font-semibold text-blue-900 mb-1 text-sm">About Form 1099-R</h5>
-                      <p className="text-xs text-blue-800">
-                        You'll receive this form if you received distributions from retirement accounts (401k, IRA, pension) 
-                        of $10 or more. The distribution code in Box 7 determines how the IRS treats the distribution - 
-                        early distributions may be subject to additional 10% penalty.
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           ))}
         </div>
       )}
-
-      {/* Helpful tips */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-        <h4 className="font-semibold text-amber-900 mb-2 flex items-center space-x-2">
-          <Info className="w-5 h-5" />
-          <span>Common Sources of 1099-R Income</span>
-        </h4>
-        <ul className="text-sm text-amber-800 space-y-1 list-disc list-inside">
-          <li><strong>401(k) distributions</strong> - From former employer retirement plans</li>
-          <li><strong>IRA distributions</strong> - Traditional, SEP, or SIMPLE IRA withdrawals</li>
-          <li><strong>Pension income</strong> - Monthly pension payments</li>
-          <li><strong>Annuity payments</strong> - Fixed or variable annuity distributions</li>
-          <li><strong>Roth conversions</strong> - Amounts converted from traditional to Roth IRA</li>
-        </ul>
-      </div>
     </div>
   );
 }

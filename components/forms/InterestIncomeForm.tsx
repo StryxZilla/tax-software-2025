@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Interest1099INT } from '../../types/tax-types';
-import { Plus, Trash2, Landmark, DollarSign, TrendingUp, Info, AlertCircle } from 'lucide-react';
+import { Plus, Trash2, Landmark, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
 import { validateInterest } from '../../lib/validation/form-validation';
 import ValidationError from '../common/ValidationError';
 import DocumentUpload from '../ocr/DocumentUpload';
@@ -410,54 +410,11 @@ export default function InterestIncomeForm({ values, onChange, onValidationChang
                   </div>
                 </div>
 
-                {/* Helpful information */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start space-x-3">
-                    <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <h5 className="font-semibold text-blue-900 mb-1 text-sm">About Form 1099-INT</h5>
-                      <p className="text-xs text-blue-800">
-                        You'll receive this form from any financial institution where you earned more than $10 in interest during 2025. 
-                        This includes savings accounts, checking accounts, CDs, and money market accounts. The amount in Box 1 is taxable 
-                        as ordinary income.
-                      </p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           ))}
         </div>
       )}
-
-      {/* Helpful tips */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-        <h4 className="font-semibold text-amber-900 mb-2 flex items-center space-x-2">
-          <Info className="w-5 h-5" />
-          <span>Common Sources of Interest Income</span>
-        </h4>
-        <ul className="text-sm text-amber-800 space-y-1 list-disc list-inside">
-          <li><strong>Savings accounts</strong> - Traditional savings, high-yield savings</li>
-          <li><strong>Checking accounts</strong> - Interest-bearing checking accounts</li>
-          <li><strong>Certificates of Deposit (CDs)</strong> - Short-term and long-term CDs</li>
-          <li><strong>Money Market Accounts</strong> - Bank money market accounts</li>
-          <li><strong>Bonds</strong> - Corporate bonds, municipal bonds (may be tax-exempt)</li>
-          <li><strong>U.S. Treasury Securities</strong> - T-Bills, T-Notes, T-Bonds, I-Bonds, EE Bonds</li>
-        </ul>
-      </div>
-
-      {/* Tax-exempt interest note */}
-      <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
-        <h4 className="font-semibold text-slate-900 mb-2 flex items-center space-x-2">
-          <Info className="w-5 h-5 text-slate-600" />
-          <span>Tax-Exempt Interest</span>
-        </h4>
-        <p className="text-sm text-slate-700">
-          If you have <strong>tax-exempt interest</strong> (such as from municipal bonds), enter it in Box 4 above. 
-          Tax-exempt interest is generally not taxable for federal purposes, but must still be reported on your return 
-          and is used to determine if your Social Security benefits are taxable.
-        </p>
-      </div>
     </div>
   );
 }
