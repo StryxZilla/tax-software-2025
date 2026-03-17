@@ -85,19 +85,19 @@ export default function RetirementDistributionForm({ values = [], onChange }: Pr
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 1: Gross Distribution</label>
-              <input type="text" placeholder="0.00" value={form.grossDistribution ? formatCurrency(form.grossDistribution) : ''} onChange={e => updateForm(idx, 'grossDistribution', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
+              <input type="text" placeholder="0.00" value={typeof form.grossDistribution === 'number' ? formatCurrency(form.grossDistribution) : ''} onChange={e => updateForm(idx, 'grossDistribution', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 2a: Taxable Amount</label>
-              <input type="text" placeholder="0.00" value={form.taxableAmount ? formatCurrency(form.taxableAmount) : ''} onChange={e => updateForm(idx, 'taxableAmount', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
+              <input type="text" placeholder="0.00" value={typeof form.taxableAmount === 'number' ? formatCurrency(form.taxableAmount) : ''} onChange={e => updateForm(idx, 'taxableAmount', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 4: Federal Tax Withheld</label>
-              <input type="text" placeholder="0.00" value={form.federalTaxWithheld ? formatCurrency(form.federalTaxWithheld) : ''} onChange={e => updateForm(idx, 'federalTaxWithheld', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
+              <input type="text" placeholder="0.00" value={typeof form.federalTaxWithheld === 'number' ? formatCurrency(form.federalTaxWithheld) : ''} onChange={e => updateForm(idx, 'federalTaxWithheld', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Box 5: Employee Contributions</label>
-              <input type="text" placeholder="0.00" value={form.employeeContributions ? formatCurrency(form.employeeContributions) : ''} onChange={e => updateForm(idx, 'employeeContributions', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
+              <input type="text" placeholder="0.00" value={typeof form.employeeContributions === 'number' ? formatCurrency(form.employeeContributions) : ''} onChange={e => updateForm(idx, 'employeeContributions', parseCurrency(e.target.value))} className="border p-2 rounded w-full" />
             </div>
           </div>
           <button onClick={() => removeForm(idx)} className="text-red-600">Remove</button>
