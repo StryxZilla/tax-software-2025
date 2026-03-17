@@ -65,6 +65,14 @@ export function calculateTotalIncome(taxReturn: TaxReturn): number {
     total += ss.taxableBenefits;
   });
 
+  // Retirement distributions (1099-R) - only taxable portion, exclude rollovers
+  taxReturn.form1099R?.forEach(r => {
+    // Exclude rollovers (G = direct rollover, H = Roth conversion)
+    if (['G', 'H'].includes(r.distributionCode)) return;
+    // Add taxable amount (Box 2a)
+    total += r.taxableAmount || 0;
+  });
+
   return Math.round(total);
 }
 

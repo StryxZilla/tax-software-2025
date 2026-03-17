@@ -565,6 +565,22 @@ function WizardStepContent() {
                       return null;
                     })()}
                     
+                    {/* 1099-R Retirement Distributions (taxable portion only, excluding rollovers) */}
+                    {taxReturn.form1099R?.filter(r => {
+                      // Exclude rollovers (G = direct rollover, H = Roth conversion)
+                      if (['G', 'H'].includes(r.distributionCode)) return false;
+                      // Show if there's taxable amount
+                      return (r.taxableAmount || 0) > 0;
+                    }).map((r, idx) => (
+                      <div key={`r-${idx}`} className="flex justify-between items-center py-2 px-4 bg-blue-50 rounded-lg">
+                        <span className="text-slate-700">
+                          <span className="font-medium">{r.payer || 'Retirement Distribution'}</span>
+                          <span className="text-slate-500 text-sm ml-2">(1099-R)</span>
+                        </span>
+                        <span className="font-semibold text-slate-900">${(r.taxableAmount || 0).toLocaleString()}</span>
+                      </div>
+                    ))}
+                    
                     {/* 1099-NEC */}
                     {taxReturn.form1099NEC.filter(n => n.nonEmployeeCompensation > 0).map((nec, idx) => (
                       <div key={`nec-${idx}`} className="flex justify-between items-center py-2 px-4 bg-blue-50 rounded-lg">
