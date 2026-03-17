@@ -518,7 +518,7 @@ function WizardStepContent() {
                   <h4 className="text-lg font-semibold text-slate-700 mb-4">Income Breakdown</h4>
                   <div className="space-y-3">
                     {/* W-2 Income */}
-                    {taxReturn.w2Income.filter(w2 => w2.wages > 0).map((w2, idx) => (
+                    {(taxReturn.w2Income || []).filter(w2 => w2.wages > 0).map((w2, idx) => (
                       <div key={idx} className="flex justify-between items-center py-2 px-4 bg-blue-50 rounded-lg">
                         <span className="text-slate-700">
                           <span className="font-medium">W-2: {w2.employer || 'Employer ' + (idx + 1)}</span>
@@ -529,7 +529,7 @@ function WizardStepContent() {
                     ))}
                     
                     {/* Interest Income */}
-                    {taxReturn.interest.filter(i => i.amount > 0).map((int, idx) => (
+                    {(taxReturn.interest || []).filter(i => i.amount > 0).map((int, idx) => (
                       <div key={`int-${idx}`} className="flex justify-between items-center py-2 px-4 bg-blue-50 rounded-lg">
                         <span className="text-slate-700">
                           <span className="font-medium">{int.payer || 'Interest'}</span>
@@ -540,7 +540,7 @@ function WizardStepContent() {
                     ))}
                     
                     {/* Dividends */}
-                    {taxReturn.dividends.filter(d => d.ordinaryDividends > 0).map((div, idx) => (
+                    {(taxReturn.dividends || []).filter(d => d.ordinaryDividends > 0).map((div, idx) => (
                       <div key={`div-${idx}`} className="flex justify-between items-center py-2 px-4 bg-blue-50 rounded-lg">
                         <span className="text-slate-700">
                           <span className="font-medium">{div.payer || 'Dividends'}</span>
@@ -582,7 +582,7 @@ function WizardStepContent() {
                     ))}
                     
                     {/* 1099-NEC */}
-                    {taxReturn.form1099NEC.filter(n => n.nonEmployeeCompensation > 0).map((nec, idx) => (
+                    {(taxReturn.form1099NEC || []).filter(n => n.nonEmployeeCompensation > 0).map((nec, idx) => (
                       <div key={`nec-${idx}`} className="flex justify-between items-center py-2 px-4 bg-blue-50 rounded-lg">
                         <span className="text-slate-700">
                           <span className="font-medium">{nec.payer || '1099-NEC'}</span>
@@ -604,7 +604,7 @@ function WizardStepContent() {
                     ))}
                     
                     {/* Rental */}
-                    {taxReturn.rentalProperties.filter(r => (r.rentalIncome || 0) > 0).map((rental, idx) => (
+                    {(taxReturn.rentalProperties || []).filter(r => (r.rentalIncome || 0) > 0).map((rental, idx) => (
                       <div key={`rental-${idx}`} className="flex justify-between items-center py-2 px-4 bg-blue-50 rounded-lg">
                         <span className="text-slate-700">
                           <span className="font-medium">{rental.address || 'Rental Property ' + (idx + 1)}</span>
