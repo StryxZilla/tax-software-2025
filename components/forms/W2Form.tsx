@@ -179,9 +179,6 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
         {process.env.NEXT_PUBLIC_FEATURE_OCR_UPLOAD === 'true' && (
           <>
             <h3 className="text-lg font-semibold text-slate-900 mb-4">Upload W-2 Image</h3>
-            <p className="text-sm text-slate-600 mb-4">
-              Take a photo of your W-2 or upload a PDF, and we'll automatically extract the data.
-            </p>
             <DocumentUpload
               onExtract={extractW2Data}
               buildReport={buildW2ExtractionReport}
@@ -296,9 +293,6 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                         className={getInputClassName(`w2-${index}-ein`)}
                       />
                       <ValidationError message={getFieldError(`w2-${index}-ein`)} />
-                      {!getFieldError(`w2-${index}-ein`) && (
-                        <p className="mt-1 text-xs text-slate-500">Found on box b of your W-2</p>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -324,9 +318,6 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                         hasError={!!getFieldError(`w2-${index}-wages`)}
                       />
                       <ValidationError message={getFieldError(`w2-${index}-wages`)} />
-                      {!getFieldError(`w2-${index}-wages`) && (
-                        <p className="mt-1 text-xs text-slate-500">Box 1 on your W-2 — your total taxable wages for the year</p>
-                      )}
                     </div>
 
                     <div>
@@ -343,9 +334,6 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                         hasError={!!getFieldError(`w2-${index}-federalTax`)}
                       />
                       <ValidationError message={getFieldError(`w2-${index}-federalTax`)} />
-                      {!getFieldError(`w2-${index}-federalTax`) && (
-                        <p className="mt-1 text-xs text-slate-500">Box 2 on your W-2 — already-paid tax that counts toward your refund</p>
-                      )}
                     </div>
 
                     <div>
@@ -362,9 +350,6 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                         hasError={!!getFieldError(`w2-${index}-socialSecurityWages`)}
                       />
                       <ValidationError message={getFieldError(`w2-${index}-socialSecurityWages`)} />
-                      {!getFieldError(`w2-${index}-socialSecurityWages`) && (
-                        <p className="mt-1 text-xs text-slate-500">Box 3 on your W-2 — often same as Box 1, capped at $176,100</p>
-                      )}
                     </div>
 
                     <div>
@@ -381,9 +366,6 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                         hasError={!!getFieldError(`w2-${index}-socialSecurityTaxWithheld`)}
                       />
                       <ValidationError message={getFieldError(`w2-${index}-socialSecurityTaxWithheld`)} />
-                      {!getFieldError(`w2-${index}-socialSecurityTaxWithheld`) && (
-                        <p className="mt-1 text-xs text-slate-500">Box 4 on your W-2 — should be ~6.2% of Box 3</p>
-                      )}
                     </div>
 
                     <div>
@@ -400,9 +382,6 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                         hasError={!!getFieldError(`w2-${index}-medicareWages`)}
                       />
                       <ValidationError message={getFieldError(`w2-${index}-medicareWages`)} />
-                      {!getFieldError(`w2-${index}-medicareWages`) && (
-                        <p className="mt-1 text-xs text-slate-500">Box 5 on your W-2 — no cap, usually same as Box 1</p>
-                      )}
                     </div>
 
                     <div>
@@ -419,9 +398,6 @@ export default function W2Form({ values, onChange, onValidationChange, blockedNe
                         hasError={!!getFieldError(`w2-${index}-medicareTaxWithheld`)}
                       />
                       <ValidationError message={getFieldError(`w2-${index}-medicareTaxWithheld`)} />
-                      {!getFieldError(`w2-${index}-medicareTaxWithheld`) && (
-                        <p className="mt-1 text-xs text-slate-500">Box 6 on your W-2 — should be ~1.45% of Box 5</p>
-                      )}
                     </div>
                   </div>
                 </div>
