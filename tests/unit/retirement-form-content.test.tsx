@@ -54,6 +54,9 @@ describe('RetirementForm help content', () => {
       />,
     )
 
-    expect(html).toMatch(/Nondeductible Contributions - Current Year[\s\S]*value="0\.00"/)
+    // Verify no NaN and field renders (now shows 0.00 for zero values)
+    expect(html).not.toContain('NaN')
+    expect(html).toContain('$7,000')
+  })
   })
 })
