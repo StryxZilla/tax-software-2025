@@ -78,28 +78,6 @@ export default function TaxSummarySidebar() {
   const [whatIfIRA, setWhatIfIRA] = useState<number | null>(null);
   const [whatIfEstimatedTax, setWhatIfEstimatedTax] = useState<number | null>(null);
 
-  // Get current 401k contributions from W-2 data
-  const current401k = useMemo(() => {
-    return preTax401k;
-  }, [preTax401k]);
-
-  // Check if self-employed
-  const isSelfEmployed = useMemo(() => {
-    return taxReturn.selfEmployment && taxReturn.selfEmployment.grossReceipts > 0;
-  }, [taxReturn.selfEmployment]);
-
-  // Check for backdoor Roth IRA (if they've done a conversion, traditional IRA deduction may be limited)
-  const hasBackdoorRoth = useMemo(() => {
-    const form8606 = taxReturn.form8606;
-    return form8606 && form8606.conversionsToRoth > 0;
-  }, [taxReturn.form8606]);
-
-  // Check if user has traditional IRA with non-deductible contributions (affects backdoor)
-  const hasNondeductibleTraditionalIRA = useMemo(() => {
-    const form8606 = taxReturn.form8606;
-    return form8606 && form8606.nondeductibleContributions > 0;
-  }, [taxReturn.form8606]);
-
   // Calculate total 401k contributions (pre-tax + after-tax + employer match)
   const { preTax401k, afterTax401k, employerMatch, total401k } = useMemo(() => {
     let preTax = 0;
@@ -140,6 +118,9 @@ export default function TaxSummarySidebar() {
     };
   }, [taxReturn.w2Income, taxReturn.k401Contributions]);
 
+  // Current 401k contributions (for display)
+  const current401k = preTax401k;
+
   // 2025 limits
   const K401_TOTAL_LIMIT_2025 = 69500; // Employee + employer combined (after-tax allowed up to this)
   
@@ -159,6 +140,23 @@ export default function TaxSummarySidebar() {
     const age = taxReturn.personalInfo?.age ?? 35;
     return age >= 50 ? K401_CATCHUP_2025 : K401_LIMIT_2025;
   }, [taxReturn.personalInfo?.age]);
+
+  // Check if self-employed
+  const isSelfEmployed = useMemo(() => {
+    return taxReturn.selfEmployment && taxReturn.selfEmployment.grossReceipts > 0;
+  }, [taxReturn.selfEmployment]);
+
+  // Check for backdoor Roth IRA (if they've done a conversion, traditional IRA deduction may be limited)
+  const hasBackdoorRoth = useMemo(() => {
+    const form8606 = taxReturn.form8606;
+    return form8606 && form8606.conversionsToRoth > 0;
+  }, [taxReturn.form8606]);
+
+  // Check if user has traditional IRA with non-deductible contributions (affects backdoor)
+  const hasNondeductibleTraditionalIRA = useMemo(() => {
+    const form8606 = taxReturn.form8606;
+    return form8606 && form8606.nondeductibleContributions > 0;
+  }, [taxReturn.form8606]);
 
   // Calculate what-if impact for 401k contributions
   const calculate401kImpact = useCallback((additionalContribution: number): WhatIfResult | null => {
