@@ -52,6 +52,8 @@ test.describe('UI debug kit smoke @ui-smoke', () => {
     await page.getByPlaceholder('12345').fill('73301')
 
     await nextButton(page).click()
-    await expect(page.getByRole('heading', { name: 'Dependents', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Dependents \(Schedule 8812\)/i })).toBeVisible()
   })
 })
+
+

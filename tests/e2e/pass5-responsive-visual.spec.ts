@@ -74,11 +74,11 @@ test.describe('Pass 5 responsive + visual sanity @pass5', () => {
 
       await fillPersonalInfo(page)
       await nextButton(page).click()
-      await expect(page.getByRole('heading', { name: 'Dependents', exact: true })).toBeVisible()
+      await expect(page.getByRole('heading', { name: /Dependents \(Schedule 8812\)/i })).toBeVisible()
       await assertNoHorizontalOverflow(page)
 
       await nextButton(page).click()
-      await expect(page.getByRole('heading', { name: 'W-2 Income' })).toBeVisible()
+      await expect(page.getByRole('heading', { name: /Wages \(Form W-2\)/i })).toBeVisible()
       await assertNoHorizontalOverflow(page)
       await page.screenshot({ path: testInfo.outputPath(`04-${viewport.name}-w2.png`), fullPage: true })
 
@@ -123,3 +123,6 @@ test.describe('Pass 5 responsive + visual sanity @pass5', () => {
     })
   }
 })
+
+
+

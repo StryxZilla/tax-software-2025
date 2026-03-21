@@ -57,7 +57,7 @@ test.describe('UI debug kit screenshots @ui-screenshot', () => {
     await page.getByPlaceholder('12345').fill('73301')
 
     await nextButton(page).click()
-    await expect(page.getByRole('heading', { name: 'Dependents', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Dependents \(Schedule 8812\)/i })).toBeVisible()
 
     await page.getByRole('button', { name: /Back to Overview/i }).click()
     await expect(page).toHaveURL('/', { timeout: 10000 })
@@ -71,3 +71,5 @@ test.describe('UI debug kit screenshots @ui-screenshot', () => {
     console.log(`Screenshots saved to: ${screenshotDir}`)
   })
 })
+
+

@@ -22,7 +22,7 @@ test('resume draft survives Back to Overview navigation', async ({ page }) => {
   await page.getByPlaceholder('12345').fill('73301')
 
   await nextButton(page).click()
-  await expect(page.getByRole('heading', { name: 'Dependents', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Dependents \(Schedule 8812\)/i })).toBeVisible()
 
   await page.getByRole('button', { name: '← Back to Overview' }).click()
 
@@ -43,6 +43,8 @@ test('resume draft survives Back to Overview navigation', async ({ page }) => {
   expect(resumeStep).toBe('dependents')
 
   await page.getByTestId('resume-draft-btn').click()
-  await expect(page.getByRole('heading', { name: 'Dependents', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Dependents \(Schedule 8812\)/i })).toBeVisible()
 })
+
+
 

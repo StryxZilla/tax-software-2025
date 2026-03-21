@@ -50,7 +50,7 @@ test('pdf OCR fallback loads language assets instead of failing on relative trai
   await expect(next).toBeEnabled()
   await next.click()
 
-  await expect(page.getByRole('heading', { level: 2, name: /W-2 Income/i })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 2, name: /Wages \(Form W-2\)/i })).toBeVisible()
 
   const samplePdfPath = path.join(process.cwd(), 'test-results', 'fixtures', `ocr-scan-${unique}.pdf`)
   await createImageOnlyPdf(samplePdfPath)
@@ -66,3 +66,5 @@ test('pdf OCR fallback loads language assets instead of failing on relative trai
     page.getByText(/could not find W-2 fields|Data extracted successfully/i)
   ).toBeVisible()
 })
+
+

@@ -34,13 +34,18 @@ test.describe('Visual regression: Currency inputs @visual', () => {
     await page.getByPlaceholder('TX').fill('TX')
     await page.getByPlaceholder('12345').fill('73301')
 
-    // Click Next twice: Personal Info → Dependents → W-2
+    // Personal Info → Dependents → W-2
     await nextButton(page).click()
     await page.waitForTimeout(300)
-    await nextButton(page).click()
+    const skipDependents = page.getByRole('button', { name: /Skip for now/i })
+    if (await skipDependents.isVisible().catch(() => false)) {
+      await skipDependents.click()
+    } else {
+      await nextButton(page).click()
+    }
     await page.waitForTimeout(300)
 
-    await expect(page.getByRole('heading', { name: 'W-2 Income' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Wages \(Form W-2\)/i })).toBeVisible()
 
     // Add a W-2
     await page.getByRole('button', { name: 'Add W-2' }).first().click()
@@ -63,7 +68,7 @@ test.describe('Visual regression: Currency inputs @visual', () => {
     }
 
     // Verify input has left padding (pl-8 = 2rem = 32px)
-    const firstCurrencyInput = page.locator('input[type="number"]').first()
+    const firstCurrencyInput = page.locator('input[placeholder="0.00"]').first()
     const paddingLeft = await firstCurrencyInput.evaluate(
       (el) => window.getComputedStyle(el).paddingLeft
     )
@@ -163,7 +168,12 @@ test.describe('Visual regression: Income pie chart @visual', () => {
     // Navigate to W-2
     await nextButton(page).click()
     await page.waitForTimeout(300)
-    await nextButton(page).click()
+    const skipDependents2 = page.getByRole('button', { name: /Skip for now/i })
+    if (await skipDependents2.isVisible().catch(() => false)) {
+      await skipDependents2.click()
+    } else {
+      await nextButton(page).click()
+    }
     await page.waitForTimeout(300)
 
     // Add W-2 with wages
@@ -173,7 +183,7 @@ test.describe('Visual regression: Income pie chart @visual', () => {
     await page.getByPlaceholder('Company name').fill('Test Corp')
     await page.getByPlaceholder('XX-XXXXXXX').fill('12-3456789')
     // Fill wages field
-    const wagesInput = page.locator('input[type="number"]').first()
+    const wagesInput = page.locator('input[placeholder="0.00"]').first()
     await wagesInput.fill('75000')
     await page.waitForTimeout(500)
 
@@ -197,5 +207,7 @@ test.describe('Visual regression: Income pie chart @visual', () => {
     }
   })
 })
+
+
 
 

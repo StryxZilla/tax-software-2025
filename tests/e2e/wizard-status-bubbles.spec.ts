@@ -28,7 +28,7 @@ test('wizard/status bubbles visual + state + refresh + resume @critical-smoke', 
   await page.getByRole('button', { name: /Start your return/i }).first().click()
   await expect(page.getByRole('heading', { name: 'Personal Information', exact: true })).toBeVisible()
 
-  await expect(page.getByText(/Step 1 of 11/i)).toBeVisible()
+  await expect(page.getByText(/Step 1 of 18/i)).toBeVisible()
   await expect(page.getByRole('button', { name: /1\s+Personal/i })).toBeVisible()
   await page.screenshot({ path: path.join(dir, '01-personal-active.png'), fullPage: true })
 
@@ -42,23 +42,23 @@ test('wizard/status bubbles visual + state + refresh + resume @critical-smoke', 
   await page.getByPlaceholder('12345').fill('73301')
 
   await page.getByRole('button', { name: /^Next/i }).click()
-  await expect(page.getByRole('heading', { name: 'Dependents', exact: true })).toBeVisible()
-  await expect(page.getByText(/Step 2 of 11/i)).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Dependents \(Schedule 8812\)/i })).toBeVisible()
+  await expect(page.getByText(/Step 2 of 18/i)).toBeVisible()
   await expect(page.getByRole('button', { name: /2\s+Depend/i })).toBeVisible()
   await expect(page.locator('.bg-emerald-600').first()).toBeVisible()
   await page.screenshot({ path: path.join(dir, '02-dependents-active-personal-complete.png'), fullPage: true })
 
   await page.getByRole('button', { name: /Previous/i }).click()
   await expect(page.getByRole('heading', { name: 'Personal Information', exact: true })).toBeVisible()
-  await expect(page.getByText(/Step 1 of 11/i)).toBeVisible()
+  await expect(page.getByText(/Step 1 of 18/i)).toBeVisible()
   await page.screenshot({ path: path.join(dir, '03-back-to-personal.png'), fullPage: true })
 
   await page.getByRole('button', { name: /^Next/i }).click()
-  await expect(page.getByRole('heading', { name: 'Dependents', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Dependents \(Schedule 8812\)/i })).toBeVisible()
 
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Dependents', exact: true })).toBeVisible({ timeout: 15000 })
-  await expect(page.getByText(/Step 2 of 11/i)).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Dependents \(Schedule 8812\)/i })).toBeVisible({ timeout: 15000 })
+  await expect(page.getByText(/Step 2 of 18/i)).toBeVisible()
   await page.screenshot({ path: path.join(dir, '04-after-refresh-still-dependents.png'), fullPage: true })
 
   // Simulate leaving and resuming an in-progress return.
@@ -68,7 +68,9 @@ test('wizard/status bubbles visual + state + refresh + resume @critical-smoke', 
   await expect(page.getByRole('button', { name: /Resume where you left off/i })).toBeVisible()
   await page.getByRole('button', { name: /Resume where you left off/i }).click()
 
-  await expect(page.getByRole('heading', { name: 'Dependents', exact: true })).toBeVisible({ timeout: 10000 })
-  await expect(page.getByText(/Step 2 of 11/i)).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Dependents \(Schedule 8812\)/i })).toBeVisible({ timeout: 10000 })
+  await expect(page.getByText(/Step 2 of 18/i)).toBeVisible()
   await page.screenshot({ path: path.join(dir, '05-resume-to-dependents.png'), fullPage: true })
 })
+
+

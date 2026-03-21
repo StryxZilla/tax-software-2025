@@ -42,5 +42,7 @@ test('ssn live validation blocks progress until valid format @critical-ssn', asy
 
   await expect(next).toBeEnabled()
   await next.click()
-  await expect(page.getByRole('heading', { name: 'Dependents', exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: /Dependents \(Schedule 8812\)/i })).toBeVisible()
 })
+
+
